@@ -1,0 +1,18 @@
+---
+layout: default
+title: BroadcastingAdam
+---
+
+{% for post in site.posts %}
+<div class="post">
+  <h2>
+    <a href="{{ post.url }}" title="{{ post.title}}">{{ post.title }}</a>
+  </h2>
+  <div class="meta">
+    </p>{{ post.date | date: '%B %d, %Y' }} &nbsp; | &nbsp; {{post.tags | join: ' '}}</p>
+  </div>
+  <div class="teaser">
+    {{ post.content | truncatewords: 40 }}
+  </div>
+</div>
+{% endfor %}
