@@ -13,6 +13,10 @@ GEM
     liquid (2.2.2)
     maruku (0.6.0)
       syntax (>= 1.0.0)
+    rack (1.2.1)
+    rack-jekyll (0.3.5)
+      jekyll
+      rack
     syntax (1.0.0)
 
 PLATFORMS
@@ -21,3 +25,4 @@ PLATFORMS
 DEPENDENCIES
   directory_watcher
   jekyll
+  rack-jekyll
