@@ -1,0 +1,404 @@
+<?xml version="1.0" encoding="UTF8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+ 
+<title>BroadcastingAdam</title>
+ <link href="http://broadcasting.com/atom.xml" rel="self"/>
+ <link href="http://broadcasting.com"/>
+ <updated>2011-02-17T03:26:32-08:00</updated>
+ <id>http://broadcastingadam.com/</id>
+ <author>
+   <name>Adam Hawkins</name>
+   <email>adman1965@gmail.com</email>
+ </author>
+
+ 
+ <entry>
+   <title>Why I Love Volume 1: Sprockets</title>
+   <link href="http://broadcastingadam.com/2011/02/why_i_love_volume_1_sprockets"/>
+   <updated>2011-02-11T00:00:00-08:00</updated>
+   <content type="html"><![CDATA[<p><a href='http://getsprockets.org/'>Sprockets</a> is one of the most handy gems I&#8217;ve ever used. It allows you separate javascript into multiple files and use <code>require</code> keywords. This was a god send for me. The application I&#8217;m working has a TON of js. I was able to tame it with sprockets. I also came up with a nice directory structure a long the way.</p>
+
+<h2 id='the_problem'>The Problem</h2>
+
+<p>It all starts with application.js. You have one file. The documentation says dump your javascript into this file&#8211;hell, put <strong>all</strong> your js into this file. So you start writing a few ajax calls and various trickery. 20 lines. Then 50 lines. Then 100 lines. Then 500 lines. Then maybe a couple thousand. Wait&#8230;.a couple thousand? How did we get here? A couple thousand for what? What page is this JS for? How do i <em>find</em> what javascript I&#8217;m looking for? Hmmm. What about my jquery plugins? /public is starting to get pretty packed. Now lets say you&#8217;ve got 25 different pages. Each page needs their own JS to accomplish certain tasks. At this point, is it smart to keep dumping things into the same file? I say no. It&#8217;s time to get things whipped into shape. There&#8217;s one thing I really like about Rails: <strong>convention over configuration.</strong> The views folder is setup pretty nicely. There is a folder that corresponds to the controller that renders the view, and a file for the view name. It would be nice to have this same structure for our javascript. When your JS starts to become rather large, you&#8217;ll have some common code that is shared. This stuff belongs in an application.js file. So how can we keep all this code organized? Sprockets.</p>
+
+<h2 id='hail_the_conquering_hero'>Hail the Conquering Hero</h2>
+
+<p>Sprockets is a Ruby library that preprocesses and concatenates JavaScript source files. It takes any number of source files and preprocesses them line-by-line in order to build a single concatenation. Specially formatted lines act as directives to the Sprockets preprocessor, telling it to require the contents of another file or library first or to provide a set of asset files (such as images or stylesheets) to the document root. Sprockets attempts to fulfill required dependencies by searching a set of directories called the load path.</p>
+
+<p>Perfect. It can even combine all our js into one single file. We can even minmize that later if we choose too. This means we can setup this type of directory structure:</p>
+
+<pre><code>/app
+  /javascripts
+    /pages
+      dashboard.js
+      settings.js
+    /shared
+      utility.js
+    application.js</code></pre>
+
+<p>! That is pretty handy if you ask me. It becomes very odvious how the JS is organized. It also makes it very easy to add isolated bits of javascript for specific pages/widgets/etc. You can also add other directories to the load path. This means you can create a /vendor directory for your javascript. I love this because I can keep my downloaded jquery plugins in /vendor with git submodules for easy updating. So you could create this sort of structure for your application:</p>
+
+<pre><code>/app
+  /javascripts
+    /so_on_and_so_forth
+/vendor
+  /javascripts
+    jquery.js
+    jquery-ui.js
+    jquery.plugin1.js
+    jquery.plugin2.js</code></pre>
+
+<p>Nice. You can also require other files as you would in ruby. For example, say you&#8217;re in application.js and you want to ensure that some other javascript (like jquery) is loaded before this code is ran.</p>
+
+<pre><code>//=require &lt;jquery&gt;
+
+// jquery dependent stuff here</code></pre>
+
+<p>Another example, say you&#8217;re writing some JS for the dashboard and you need to the utilities methods.</p>
+
+<pre><code>//= require &#39;../shared/utilities&#39;
+
+MyApp.utilities.flashNotice(&#39;oh hai&#39;);</code></pre>
+
+<p>A require statement tells Sprockets to insert the content of the required file before processing the rest of the document. I like this because it makes it very explicit what JS is needed. It also prevents those wonderful undefined method xxx for null errors. A require with <code>&lt;file&gt;</code> tells sprockets to search the load path. A require without means it is a relative path name.</p>
+
+<h2 id='how_i_integrated_sprockets'>How I Integrated Sprockets</h2>
+
+<p>I took a similar approach to what I outlined earlier. I wanted a javascript file for each separate page of the application and a some shared folder where shared code lived. Then I wanted a way to easily initialize the pages. Each page would live in it&#8217;s own specific object, so there would be no collisions. Here is the directory structure I came up with:</p>
+
+<pre><code>/app
+  /javascripts
+    /pages
+      dashboard.js
+      settings.js
+    /components
+      widget1.js
+      widget2.js
+    /shared
+      utilities.js
+    application.js
+    jquery.js
+/vendor
+  /sprockets
+    /jquery
+      /src
+        jquery-1.4.4.js
+        jquery-ui.js
+        jquery.plugin1.js
+        jquery.plugin2.js</code></pre>
+
+<p>My application has many shared widgets. I called them components because they can be reused in any context in many different places. Sometimes the JS for these things can be quite long, so I wanted a specific file for each one so I knew where to look when something went wrong. The default configuration for sprocket-rails has <code>/vendor/sprockets/*src</code> on the load path. I didn&#8217;t feel like changing it, and this way it lets me group similar files. Sprockets will always process application.js first. I use this to set the stage by requiring all different JS my application needs.</p>
+
+<pre><code>// application.js
+
+//=require &#39;jquery&#39;</code></pre>
+
+<p>jquery.js is a file simple loads all the stuff in /vendor:</p>
+
+<pre><code>// jquery.js
+
+//=require &lt;jquery.1.4.4.&gt;
+//=require &lt;jquery-ui&gt;
+//=require &lt;jquery.plugin1&gt;
+//=require &lt;jquery.plugin2&gt;</code></pre>
+
+<p>Here&#8217;s what one of the page file looks like:</p>
+
+<pre><code>//= require &#39;../components/widget1.js&#39;
+//= require &#39;../components/widget2.js&#39;
+
+var DashboardPage = {
+  init: function() {
+      // do stuff, this is called when the page is loaded
+  },
+  // protip, use an ajax callback for the page automagically
+  ajaxComplete: function() { }
+};</code></pre>
+
+<p>I added a helper to initialize the page and attach the current page. It generates javascript like along these lines and embeds it into the page:</p>
+
+<pre><code>$(function(){
+  #{page_name.titleize}Page.init();
+  $(&#39;body&#39;).ajaxComplete(#{page_name.titleize}Page.ajaxComplete);
+});</code></pre>
+
+<p>Then in the view (/app/views/dashboards/show):</p>
+
+<pre><code>&lt;% initialize_page &#39;dashboard&#39; %&gt;</code></pre>
+
+<h2 id='how_it_worked_out'>How it Worked Out</h2>
+
+<p>This was the best changed I&#8217;ve ever made to this application. Before the JS was spread out into random files and it was a pain in the ass to track down <em>how</em> it got included and <em>where</em> it was. Now this way I know there is /app/javascripts/pages/page_name.js file and by the time that code is executed, all the required code is added. It&#8217;s also been very easy to add new plugins. Drop the jquery plugin into /vendor and update the jquery.js in /app/javascripts. Boom. Available everywhere. It is also concatenated into one large file so instead of 20 or so (yes I know this is bad) requests we now only have <strong>1</strong>. This made a big difference in the load time. If you haven&#8217;t used sprockets, I highly suggest you check it out&#8211;especially if you have a js centric application.</p>
+
+<p><strong>tl;dr</strong>: Sprockets is a cool gem to organize and manage js your own way. It also concatenates all js files into one single file. This makes your page load faster. Use sprockets for inceased sanity.</p>]]></content>
+ </entry>
+ 
+ <entry>
+   <title>Ubuntu, Jetty, Solr &amp; MultiCore</title>
+   <link href="http://broadcastingadam.com/2011/02/ubuntu_jetty_solr_and_multicore"/>
+   <updated>2011-02-02T00:00:00-08:00</updated>
+   <content type="html"><![CDATA[<p><a href='http://lucene.apache.org/solr/'>Solr</a> is a wonderful fulltext search program. It can be configured to do a great many things. It can also be a royal pain to setup. Solr is written in Java. In order to use solr in your application you must configure a java application somewhere to serve up Solr. Solr runs as an web service. You index docouments by posting XML to the server for indexing. You can install a java application server like Tomcat or Jetty to host Solr. By default, Solr can only index one set of data. This means, if you need to host multiple applications on the same solr server, then you have a few options. You can create new Solr instances for each application, or you can use Solr&#8217;s MultiCore functionality to index different datasets. MultiCore is like creating another database for Postgres. I&#8217;ll show you how to get this up and running under Ubuntu.</p>
+
+<h2 id='installing_jetty_java_and_solr'>Installing Jetty, Java and Solr.</h2>
+
+<p>This is one of the reasons I love ubuntu server. It just has packages. I don&#8217;t have to worry about downloading code from random place, it just has everything a boy could need in a server. Install these packages using apt:</p>
+
+<pre><code>sudo apt-get install solr-jetty openjdk-6-jdk</code></pre>
+
+<p>This pulls in ~60MB and a ton of packages so watch out for that :D</p>
+
+<p>The next thing we want to do is setup Jetty to listen on all connections. By default the installation is only available on htt://localhost:8080. That&#8217;s great if you&#8217;re making a local server, but we need to open our box up to the world. Ubuntu uses a file <code>/etc/defaults/jetty</code> to manage daemon settings. Open this file in vim and replace this line:</p>
+
+<pre><code>#JETTY_HOST=$(uname -n)</code></pre>
+
+<p>With:</p>
+
+<pre><code>JETTY_HOST=</code></pre>
+
+<p>This will tell jetty to listen on all connections. You can also put in your own ip or domain name if you please. Feel free to change the port as well at this point.</p>
+
+<p>Now navigate to the top of the file and <code>/NO_START</code> to go to the next setting we need to change. Replace the 1 with a 0 and wer&#8217;re in business. This will tell jetty to start when the server is loaded.</p>
+
+<p>Now fire the server up with:</p>
+
+<pre><code>/etc/init.d/jetty start</code></pre>
+
+<p>Once all is good you should be able to navigate to <a href='http://yourhost.com:8080'>http://yourhost.com:8080</a> and get welcome page. This is basically a &#8220;it works page&#8221;. Now you can move on to solr. Ubuntu already did a lot of extra work for you by installing a runnable version of solr into Jetty. You can access that at <a href='http://yourhost.com:8080/solr'>http://yourhost.com:8080</a>. It is a very basic admin&#8211;but it&#8217;s something. Now we&#8217;re ready for MulitCore.</p>
+
+<h2 id='multi_core'>Multi Core</h2>
+
+<p>MultiCore is was the most complicated part for me to get setup, partially because everything I read conflicted with something&#8211;but don&#8217;t worry. It should be easy for you if you follow along. You can read the offical wiki page <a href='here'>http://wiki.apache.org/solr/CoreAdmin</a>.</p>
+
+<p><strong>Here&#8217;s what they don&#8217;t tell you, or assume you should know:</strong> In order for MultiCore to work, each core must have it&#8217;s own solrconfig.xml and schema.xml. That&#8217;s fantastic, but excuse me, where the hell do I put these files? That was my life for 3 hours. Mucking around with random configurations until POOF. \o/ It all worked.</p>
+
+<p>You also have to create a <code>solr.xml</code> file separate from all the other config files that tells Solr to load multicore. This was outlined reasonably well in the documentation, but it still gave me headaches.</p>
+
+<h3 id='step_1_solrxml'>Step 1. Solr.xml</h3>
+
+<p>We need to create a file that tells Solr to load our cores. You can decided ahead of time what they are, or just use this as a template for now. Below is a template you can follow. You can create as many cores as you want. When Editing the file, be sure to replace all copies of &#8220;production&#8221; with whatever the name of your core is. In my setup, I needed 3 different cores. One for production code, one for staging code, and one for a beta code. Once you&#8217;ve created this file, save it as: <strong>/usr/share/solr/solr.xml</strong>.</p>
+
+<pre><code>&lt;solr persistent=&quot;true&quot;&gt;
+ &lt;cores adminPath=&quot;/admin/cores&quot;&gt;
+   &lt;core name=&quot;production&quot; instanceDir=&quot;production&quot; dataDir=&quot;/var/lib/solr/production/data&quot; /&gt;
+   &lt;core name=&quot;staging&quot; instanceDir=&quot;staging&quot; dataDir=&quot;/var/lib/solr/staging/data&quot; /&gt;
+   &lt;core name=&quot;beta&quot; instanceDir=&quot;beta&quot; dataDir=&quot;/var/lib/solr/beta/data&quot; /&gt;
+ &lt;/cores&gt;
+&lt;/solr&gt;</code></pre>
+
+<p><strong>Don&#8217;t forget to set the dataDirectory attribute as well!</strong></p>
+
+<h3 id='step_2_making_data_directories'>Step 2. Making Data Directories</h3>
+
+<p>Now we must create directories for our index data to live. They were specified earlier in the step 1. These directories must be writable by the jetty user. Apt automatically added this user for you when you installed jetty-solr. You can create them with this command.</p>
+
+<pre><code>sudo mkdir -p /var/lib/solr/production/data</code></pre>
+
+<p>Repeat this command for however many cores you need. Next make jetty the owner.</p>
+
+<pre><code>sudo chown -R jetty /var/lib/solr/</code></pre>
+
+<h3 id='step_3_copying_the_config_files'>Step 3. Copying the Config Files</h3>
+
+<p>This was the hidden step. First thing we need to do is create directories for our cores to live. Each core has it&#8217;s own schema and config files. These need to be created. It&#8217;s just like we did in step 2, but with a different directory.</p>
+
+<pre><code>sudo mkdir /usr/share/solr/production</code></pre>
+
+<p>Now we need to create the configuration files. I&#8217;ve posted them in gists. These files are templates and just enough to get the server started. It is up to you to do the customization!</p>
+
+<ul>
+<li><a href='https://gist.github.com/816101'>solrconfig.xml</a></li>
+
+<li><a href='https://gist.github.com/816103'>schema.xml</a></li>
+</ul>
+
+<p>Download those files or keep them open. Now create a conf directory inside the directory you&#8217;ve already created</p>
+
+<pre><code>sudo mkdir /usr/share/solr/production/conf</code></pre>
+
+<p>Now enter the directory and paste those files.</p>
+
+<pre><code>cd /usr/share/solr/production/conf
+# paste solrconfig.xml into your editor and save it
+# paste schema.xml into your editor and save it</code></pre>
+
+<p>Now at this point, you can simply copy this directory for the other stages. This is especially helpful if you have 5 stages. You can duplicate the config like so</p>
+
+<pre><code>sudo cp -R /usr/share/solr/production /usr/share/solr/new_name1
+sudo cp -R /usr/share/solr/production /usr/share/solr/new_name2
+# and so on</code></pre>
+
+<p>Now you are ready to restart the server</p>
+
+<pre><code>sudo /etc/init.d/jetty stop
+sudo /etc/init.d/jetty start</code></pre>
+
+<p>Now head back over to <a href='http://yourhost.com:8080/solr/admin'>http://yourhost.com:8080/solr/admin</a> And you should see links to all your cores!</p>
+
+<h3 id='step_4_customization'>Step 4. Customization</h3>
+
+<p>Depending your needs you may have different schemas and configurations for each core. You should configure them now. If you need to use the same configuration to each core, you should symlink the main solrconfig.xml to the various stages. For example, you should have the production and staging cores running the same config.</p>
+
+<p>Feel free to hit me up on twitter at @Adman65 with questions or problems! Hope this helped.</p>]]></content>
+ </entry>
+ 
+ <entry>
+   <title>Cucumber's env.rb &amp; Dry Run Problems</title>
+   <link href="http://broadcastingadam.com/2010/12/cucumbers_dry_run_problems"/>
+   <updated>2010-12-02T00:00:00-08:00</updated>
+   <content type="html"><![CDATA[<p>Env.rb setsup Cucumber&#8217;s execution environment. The generated file from cucumber-rails essentially loads your rails env and setups up Capybara etc. That&#8217;s all well and good but what do you do if you need to add your own stuff. Once you&#8217;ve built up a sizeable cucumber test suite, it&#8217;s probable that you&#8217;ve got some modifications to env.rb. However, they <strong>should not</strong> be there since when you upgrade to a new version of cucumber (mainly cucumber-rails) it wants to regenerate that file. So what you need to do is split up your modifications into sepearate files. Here are some modifications you may have:</p>
+
+<ol>
+<li>Modifying your Capybara driver (yay chrome)</li>
+
+<li>Loading blueprints</li>
+
+<li>Customizing specjour</li>
+
+<li>Settings other constants</li>
+
+<li>Insert random code</li>
+</ol>
+
+<p>That&#8217;s all well and good but it&#8217;s not the correct way to do it. There are few options. You can split each modification into its own file and drop it in /features/support. Cucumber will autoload <strong>all</strong> files in side this directory. Technically it matches all files using this glob pattern: <code>features/**/*.rb</code>. However env.rb is loaded <strong>before</strong> all other files in features/support. This means you can drop create a file like this for specjour into <code>features/support/specjour.rb</code>:</p>
+
+<pre><code># tell Capybara to start a server on any open port
+# since specjour will start multiple workers on the same computer
+# and hence Capybara will try to connect to the same port 
+# locking up the test suite
+if ENV[&#39;TEST_ENV_NUMBER&#39;]
+  Capybara::Server.class_eval do
+    def find_available_port
+      server = TCPServer.new(&#39;127.0.0.1&#39;, 0)
+      @port = server.addr[1]
+    ensure
+      server.close if server
+    end
+  end
+end</code></pre>
+
+<p>That fill will be loaded <strong>after</strong> env.rb when you <strong>execute</strong> your tests. This does create an interesting wrinkle. I use dry run mode a lot in my suite. I refactor my features and steps quite often as I get a better understanding of the domain. I use dry run mode to check to see if all the steps are defined before executing the test suite. The test suite can take over an hour. :( Cucumber does not load env.rb in dry run mode, it <strong>does</strong> load all other files in /features/support. This creates a problem if you have files in features/support that require env.rb to be loaded. For instance the specjour example I posted requires the capybara gem to be loaded. You could add:</p>
+
+<pre><code>require &#39;capybara&#39;</code></pre>
+
+<p>But it won&#8217;t be able to find the gem since the gem environment is not loaded when the file is required. In dry run mode cucumber does not load files that match this regular expression: <code>support\/env\..*</code>. Interestingly Cucumber does not simply select features/support/env.rb since that is the standard file. That means you can name files &#8220;env.specjour.rb&#8221; or &#8220;env.capybara.rb&#8221; to have them execluded in dry run mode. Although, this issue is only present when you run features using the cucumber binary. If you run features through rake then you will not have problems since the complete rails environment is loaded before cucumber is loaded.</p>
+
+<p>tl;dr PROTIP: put things you would&#8217;ve added to env.rb in a file in /features/support/customer_modification_.rb. If you run those features with rake you&#8217;ll be ok. If you run those features with the cucumber command you&#8217;ll be ok. If those modifications required env.rb to be loaded and you run features with cucumber in dry run mode name them: features/support/env.modification.rb.</p>]]></content>
+ </entry>
+ 
+ <entry>
+   <title>Lessons form a Startup</title>
+   <link href="http://broadcastingadam.com/2010/10/lessons_from_a_startup"/>
+   <updated>2010-10-31T00:00:00-07:00</updated>
+   <content type="html"><![CDATA[<p>I’ve been working as the lead developer at Finnish start up for about 9 months now. We’re making a cool product that we’ve got high hopes for. We’re getting our first customers now, so I’m taking some time to reflect on our progress and what I’ve learned.</p>
+
+<h2 id='1_dont_release_unfinished_code'>1. Don&#8217;t Release Unfinished Code</h2>
+
+<p>This seems like a no brainer, but sometimes the excitement about a new feature gets the best of you and you push it out before you’ve had adequate time to to test it. I’m not talking about just integration testing, but letting some test users play with and make sure it’s working to their requirements and not yours. Last month we had a major feature released, it had already been delayed due to bug fixes. We held off and kept working on it. When we did release the feature it turned out that it still wasn’t done and we had to go shock and awe on the bug list. It’s better to be late and correct, then early and look like a noob. We learned that lesson.</p>
+
+<h2 id='2_dont_trust_third_parties'>2. Don&#8217;t Trust Third Parties</h2>
+
+<p>Our product integrates pretty heavily with various third party products. At one point we were working with four third parties to provide crucial parts of our product. Their services seemed useful, but we ran into problems when it came into crunch time. Our problem was that our release dates where not inline with their time. For example, we were waiting a month for one company to provide some information/API stuff for us. We wanted to roll out the feature in two weeks, but as time went on, we had to cut the feature because the third party couldn’t deliver. We are starting another third party integration. In the planning phase, we just assumed it would take twice or even three times as long as they say–this is simply because they’ve got their own business too.</p>
+
+<h2 id='3_have_small_goals'>3. Have (small) Goals</h2>
+
+<p>We are big dreamers. We want our product to be the shit. We want it to be awesome. We want to be a swiss army knife made out of unicorns tears flying around with a gold cape. We also need to sell this thing and develop real features. It’s been easy for us to get distracted and not focus on getting useful things done. What we need to do is focus on small features and deliverables. There are quick wins and small steps. Remember to set goals you can make–and be realistic about them! You only hurt yourself by setting unrealastic goals for yourself. Know your limits and work within in them. We learned this lesson as well.</p>
+
+<h2 id='4_have_a_vision'>4. Have a Vision</h2>
+
+<p>The vision is the over arching goal and purpose of what you’re doing. Someone needs to have this, or you’re just a leaf in the wind. However, don’t get your vision confused with your goals! You set goals in order to meet the vision. Your goals build up to a product that fulfills the vision. Also, be realistic about your vision. If you’re not making any cash, then your vision must be to make some money and set goals to make that happen.</p>
+
+<h2 id='5_have_a_standard'>5. Have a Standard</h2>
+
+<p>We’ve had a few developers come and go through the course of the project. I’ve been the only constant. In the beginning, it was wild west. Anyone could commit and features were happening all over the place. We recently had someone new coming a few months ago to do front end work. The front end work is slowly transitioning into backend-ish work. That’s all good if you have people that can wear multiple hats, except there has to be rules. After a while I got fed up and wrote up a standards document. It laid out what would have to be in place for ommits/features to be accepted and what kind of workflow to use. It’s published in the repo’s readme. All current and future developers will be held to the standards laid out. Having standards should increase code quality over the project’s lifetime.</p>
+
+<h2 id='6_invest_in_testing'>6. Invest in Testing</h2>
+
+<p>Test. Test. Test. Test. I love testing and you should to. Testing can save your life. Include time for testing in the release schedule. Include time for testing before production deploys. Invest developer time in creating a good test suite. Use tools like specjour to distribute your test suite. Our cucumber test suite took ~1hr. Spent some time setting up specjour, got that sucker down to ~10min. You’re integration suite should run quickly and you should run it often. If the suite takes too long to run, it will not run that often and you lose the benefits of automated testing. Invest time and keeping this process lean. It will pay you back.</p>
+
+<h2 id='7_make_software_that_customers_want_and_will_pay_for'>7. Make Software that Customers Want (and will pay for)</h2>
+
+<p>Duh. But, sometimes it’s easy to get distracted with stuff you think is cool. Example: you think feature A is off-chain and it should totally be in the project. Customers are lined up waiting for feature B. Feature B isn’t as cool but is going to bring in some cash. Work on feature B. Make a product that will sell and bring in money. Our product is a game changer (I know you hear this every time you read about start ups). When customers see what we’ve got cooking they are completely befuddled, next awe struck, then really interested. The project leader and myself are way past that phase. We are no longer awe struck by what our product can do–but the customers still are! You should focus on developing features that customers want and not (all the time) developing feature for yourself.</p>
+
+<h2 id='8_know_youre_gonna_make_mistakes'>8. Know You&#8217;re Gonna Make Mistakes</h2>
+
+<p>It goes without saying, but understand that you’re gonna mess up. When you’re working in a startup, the business plan and overall product is not set in stone. Remember to keep this mind and adapt to change.</p>]]></content>
+ </entry>
+ 
+ <entry>
+   <title>app/observers -- Where They Should Be</title>
+   <link href="http://broadcastingadam.com/2010/10/app_observers"/>
+   <updated>2010-10-09T00:00:00-07:00</updated>
+   <content type="html"><![CDATA[<p>Afer you&#8217;ve been doing Rails for a while you become old and cranky about how you want things. I <em>love</em> my observers in /app/obsevers. I do not understand why they are not their by default. Models, mailers, and controllers all have their own folders, why can&#8217;t observers by default. They don&#8217;t even make any sense in /app/models. #1 They don&#8217;t model anything and #2 They aren&#8217;t subclasses of ActiveRecord (or some other ORM). If all the classes in /app/models are subclasses of AR, then what is an observer breaks the pattern. In Rails 2 if you want to specify another directory to load code from you have to specify add it to the <code>config.load_path</code> variable. This is not the case in Rails 3. If you simply want to shove your observers into /app/observers, jsut make the directory and move the files in there. You will have to move them if you don&#8217;t patch the <code>rails g observer</code> command to generate them in a new directory. That takes care of Rails, but now that we have our observers separated, it&#8217;s safe to assume we want to be able to run <code>rake spec:obsevers</code>. This is not a problem either. All you have to do is create a rake spec task to only run files in spec/observers. So drop this bad boy in /lib/tasks</p>
+
+<pre><code>require &#39;rspec/core&#39;
+require &#39;rspec/core/rake_task&#39;
+Rake.application.instance_variable_get(&#39;@tasks&#39;)[&#39;default&#39;].prerequisites.delete(&#39;test&#39;)
+
+spec_prereq = Rails.configuration.generators.options[:rails][:orm] == :active_record ?  &quot;db:test:prepare&quot; : :noop
+
+namespace :spec do
+  [:observers].each do |sub|
+    desc &quot;Run the code examples in spec/#{sub}&quot;
+    RSpec::Core::RakeTask.new(sub =&gt; spec_prereq) do |t|
+      t.pattern = &quot;./spec/#{sub}/**/*_spec.rb&quot;
+    end
+  end
+end</code></pre>
+
+<p>Now we have our own rake task for testing our observers. But let&#8217;s take it one step further and make our observer specs a first class citizen in Rspec2. You know that when you write controller specs you can call the <code>controller</code> method or in helper specs there is a <code>helper</code> object that represents the object under test. This magic happens because rspec contains special code that runs when initial describe block matches something like xxxController or xxxHelper. If it matches, it loads some special code to make writing specs for these classes much easier. All you have to do is take a peek into the rspec-rails <a href='http://github.com/rspec/rspec-rails/tree/master/lib/rspec/rails/example/'>source</a> to see where the magic happens. I advice you to look at those files and figure out what&#8217;s up. Creating a new observer example group is easy. Drop this bad boy in side /spec/support/observer_example_group.rb</p>
+
+<pre><code>module RSpec::Rails
+  module ObserverExampleGroup    
+    extend ActiveSupport::Concern
+    extend RSpec::Rails::ModuleInclusion
+
+    include RSpec::Rails::RailsExampleGroup
+
+    def observer
+      example.example_group.describes.instance
+    end
+
+    included do
+      metadata[:type] = :observer
+    end
+
+    RSpec.configure &amp;include_self_when_dir_matches(&#39;spec&#39;,&#39;observers&#39;)
+  end
+end</code></pre>
+
+<p>This module adds some sugar to all specs in an observer example group. If your spec is in spec/observers you can now do something like this:</p>
+
+<pre><code>describe AccountObserver do
+  it &quot;should send a welcome email&quot; do
+     AccountMailer.should_receive(:welcome_email).and_return(mock_mail)
+     mock_mail.should_receive(:deliver)
+     observer.after_create(mock_account) # notice observer is defined in the observer example group
+  end
+end</code></pre>
+
+<p>Nice! We no longer have to call AccountObserver.instance in all our tests or set an @observer in a before filter. This also allows us to do some more cool stuff for our observer examples. You can include support modules for certian example by doing something like this in your spec_helper.rb file</p>
+
+<pre><code>config.include ControllerHelpers, :type =&gt; :controller</code></pre>
+
+<p>Now we can do that for observers as well! You may by thinking where the hell did those mock_account and mock_email methods come from? You define then in an obesrver helper module inside the support directory then tell rspec to include them for all observers like so. First create this file: spec/support/observer_helpers.rb</p>
+
+<pre><code>module ObserverHelpers
+  def mock_account(stubs = {}) 
+    @mock_account ||= mock_model(Account, stubs)
+  end
+
+  def mock_mail(stubs = {}) 
+    @mock_mail ||= mock(Mail, stubs)
+  end
+end</code></pre>
+
+<p>Now in your spec helper:</p>
+
+<pre><code>config.include ObserverHelpers, :type =&gt; :observer</code></pre>
+
+<p>Poof! All done. Now you can go on your way running rake spec:observers and treating your observer specs as first class citizens w/Rspec2. Happy testing.</p>]]></content>
+ </entry>
+ 
+ 
+</feed>
