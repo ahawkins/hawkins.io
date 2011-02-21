@@ -39,7 +39,8 @@ their favorite gem:
 
 After running this test through many many gems, I have a new found
 respect for the authors of the gems that passed my tests. Try it out and
-let me and the authors know your results!
+let me and the authors know your results! Tweet me at @Adman65 and tweet
+the authors know too! They should get on that :D
 
 PS. It will also be nearly impossible to get above an 80% ranking on
 whatgem when I implement this scheme. That will **really** sort out the

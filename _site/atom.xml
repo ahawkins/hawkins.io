@@ -4,7 +4,7 @@
 <title>BroadcastingAdam</title>
  <link href="http://broadcasting.com/atom.xml" rel="self"/>
  <link href="http://broadcasting.com"/>
- <updated>2011-02-21T02:43:21-08:00</updated>
+ <updated>2011-02-21T02:46:22-08:00</updated>
  <id>http://broadcastingadam.com/</id>
  <author>
    <name>Adam Hawkins</name>
@@ -39,7 +39,7 @@ done</code></pre>
 <li>Report results</li>
 </ol>
 
-<p>After running this test through many many gems, I have a new found respect for the authors of the gems that passed my tests. Try it out and let me and the authors know your results!</p>
+<p>After running this test through many many gems, I have a new found respect for the authors of the gems that passed my tests. Try it out and let me and the authors know your results! Tweet me at @Adman65 and tweet the authors know too! They should get on that :D</p>
 
 <p>PS. It will also be nearly impossible to get above an 80% ranking on whatgem when I implement this scheme. That will <strong>really</strong> sort out the good from the bad.</p>]]></content>
  </entry>
