@@ -4,13 +4,45 @@
 <title>BroadcastingAdam</title>
  <link href="http://broadcasting.com/atom.xml" rel="self"/>
  <link href="http://broadcasting.com"/>
- <updated>2011-02-17T13:03:26-08:00</updated>
+ <updated>2011-02-21T02:43:21-08:00</updated>
  <id>http://broadcastingadam.com/</id>
  <author>
    <name>Adam Hawkins</name>
    <email>adman1965@gmail.com</email>
  </author>
 
+ 
+ <entry>
+   <title>The Ruby Gem Challenge</title>
+   <link href="http://broadcastingadam.com/2011/02/the_ruby_gem_challenge"/>
+   <updated>2011-02-20T00:00:00-08:00</updated>
+   <content type="html"><![CDATA[<p>I am working on a gem ranking website. One of the metrics is test results. Getting test result for a random project can be a very difficult task. I&#8217;ve cloned 3,081 different gems onto my computer. I&#8217;ve written a simple bash script to execute this loop:</p>
+
+<pre><code>for repo in ~/repos/* ; do
+  cd ${repo}
+  rvm use 1.8.7@${repo}
+  bundle
+  rake
+done</code></pre>
+
+<p>Nothing fancy going on there. However, <strong>the results are appalling.</strong> Very few gems work out of the box on a clean machine. I think this a huge failure for gem developers. If you don&#8217;t have a rake task that can execute tests in a clean environment then you have a problem! I thought to myself, surely this cannot be the case. I tested well known gems like devise. No dice. I tested cancan. That didn&#8217;t work as well. I tried to test some of gem&#8217;s I&#8217;ve used. Not much luck there. I have the script running in a console right now. AASM just worked with 100% passing. I&#8217;ve tweeted some gems that work as well. Mail and HTTParty worked out of the box. HTTParty even had cucumber features passing! I think the gem authors (myself included) should rise to the occasion and make it easier for other people to test our gems! I think this would speak very highly of the ruby community. Everyone should try the Ruby Gem challenge out on their favorite gem:</p>
+
+<ol>
+<li>Clone repo into fresh directory</li>
+
+<li>Create empty gemset and bundle</li>
+
+<li>Bundle (If the gem does not use bunder, fail right there)</li>
+
+<li>Execute <code>rake</code></li>
+
+<li>Report results</li>
+</ol>
+
+<p>After running this test through many many gems, I have a new found respect for the authors of the gems that passed my tests. Try it out and let me and the authors know your results!</p>
+
+<p>PS. It will also be nearly impossible to get above an 80% ranking on whatgem when I implement this scheme. That will <strong>really</strong> sort out the good from the bad.</p>]]></content>
+ </entry>
  
  <entry>
    <title>Why I Love Volume 1: Sprockets</title>
