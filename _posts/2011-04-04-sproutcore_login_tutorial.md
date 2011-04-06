@@ -70,6 +70,8 @@ Now you can start the server and see a hello world page
     $ sc-server
     # head over to localhost:4020 and choose 'login_tutorial'
 
+![Welcome](/images/posts/sproutcore_login_tutorial/welcome.png)
+
 ## Creating the Login Page
 
 Take a peek at `apps/login_tutorial/main_page.js`. This file defines the
@@ -179,6 +181,8 @@ function with:
 
 Now, reboot the server and head back to the application. You should see
 a shiny login form.
+
+![Login Form](/images/posts/sproutcore_login_tutorial/login_form.png)
 
 ## Binding with a Controller
 
@@ -314,6 +318,8 @@ working, we'll use a simple web service to authenticate.
 
 Now, when you fill in both fields and press login, then you should see the
 original welcome message. Otherwise, you get a popup error message.
+
+![Error Message](/images/posts/sproutcore_login_tutorial/error.png)
 
 ## Connecting to the Web
 

@@ -4,7 +4,7 @@
 <title>BroadcastingAdam</title>
  <link href="http://broadcasting.com/atom.xml" rel="self"/>
  <link href="http://broadcasting.com"/>
- <updated>2011-04-05T18:20:50-07:00</updated>
+ <updated>2011-04-05T18:31:33-07:00</updated>
  <id>http://broadcastingadam.com/</id>
  <author>
    <name>Adam Hawkins</name>
@@ -57,6 +57,8 @@ $ sc-init login_tutorial</code></pre>
 
 <pre><code>$ sc-server
 # head over to localhost:4020 and choose &#39;login_tutorial&#39;</code></pre>
+
+<p><img alt='Welcome' src='/images/posts/sproutcore_login_tutorial/welcome.png' /></p>
 
 <h2 id='creating_the_login_page'>Creating the Login Page</h2>
 
@@ -149,6 +151,8 @@ $ sc-init login_tutorial</code></pre>
 } ;</code></pre>
 
 <p>Now, reboot the server and head back to the application. You should see a shiny login form.</p>
+
+<p><img alt='Login Form' src='/images/posts/sproutcore_login_tutorial/login_form.png' /></p>
 
 <h2 id='binding_with_a_controller'>Binding with a Controller</h2>
 
@@ -269,6 +273,8 @@ password: SC.TextFieldView.design({
   }</code></pre>
 
 <p>Now, when you fill in both fields and press login, then you should see the original welcome message. Otherwise, you get a popup error message.</p>
+
+<p><img alt='Error Message' src='/images/posts/sproutcore_login_tutorial/error.png' /></p>
 
 <h2 id='connecting_to_the_web'>Connecting to the Web</h2>
 
