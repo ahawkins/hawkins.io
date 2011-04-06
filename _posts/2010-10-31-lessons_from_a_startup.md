@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Lessons form a Startup
+title: Lessons From a Startup
 ---
 
 I’ve been working as the lead developer at Finnish start up for about 9 months now.
