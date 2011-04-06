@@ -25,7 +25,7 @@
           </div>
         </header>
         <article>
-          <p>Sproutcore is probably the coolest thing I&#8217;ve seen since I saw rails way back early in 2006. I think Sproutcore is the future of complex web application because it is an execellent way to create complicated (and elegant) UI&#8217;s using Javascript. It uses KVO (Key-Value-Observering) to keep the UI in sync with the model. Yehdua Katz put it this way: &#8220;the view always represents truth.&#8221; I will not write about Sproutcore (SC from now on) because there is plenty of information to read on what it is and how it works. They have an awesome <a href='http://guides.sproutcore.com'>guides site</a> to learn about it. However, there is still a lot of confusion on how implement some simple stuff in SC! I&#8217;ve been dabbling with SC for a few months now&#8211;and now I&#8217;m finally ready to pass on some knowledge. I write SaaS applications, so the first thing I ever consider is &#8220;the user has to login.&#8221; So that was my first hurdle with sproutcore. I had to solve this problem: &#8220;How can I create a login form with sproutcore and authenticate against a database of users?&#8221; Well in order to solve this problem we need to do a few things:</p>
+          <p>Sproutcore is probably the coolest thing I&#8217;ve seen since I saw rails way back early in 2006. I think Sproutcore is the future of complex web application because it is an excellent way to create complicated (and elegant) UI&#8217;s using Javascript. It uses KVO (Key-Value-Observing) to keep the UI in sync with the model. Yehdua Katz put it this way: &#8220;the view always represents truth.&#8221; I will not write about Sproutcore (SC from now on) because there is plenty of information to read on what it is and how it works. They have a <a href='http://guides.sproutcore.com'>guides site</a> to learn about it. However, there is still a lot of confusion on how to implement some simple stuff in SC! I&#8217;ve been dabbling with SC for a few months now&#8211;and now I&#8217;m finally ready to pass on some knowledge. I write SaaS applications, so the first thing I ever consider is &#8220;the user has to login.&#8221; That was my first hurdle with SC. I had to solve this problem: &#8220;How can I create a login form with sproutcore and authenticate against a database of users?&#8221; Well in order to solve this problem we need to do a few things:</p>
 
 <ol>
 <li>Create an SC application with a form for username/password</li>
@@ -35,13 +35,11 @@
 <li>Create an HTTP API to determine if the form is valid</li>
 
 <li>Return some information to SC</li>
-
-<li>Store that the user is logged in and notifty the SC application that it is in a different state.</li>
 </ol>
 
-<p>We&#8217;ll start out by creating a basic interface. We&#8217;ll have two pages. When the user goes to our application they&#8217;ll see the login form. If they login correcly, we&#8217;ll show them some different stuff.</p>
+<p>We&#8217;ll start out by creating a basic interface. We&#8217;ll have two pages. When the user goes to our application they&#8217;ll see the login form. If they login correcly, we&#8217;ll show them a different view.</p>
 
-<p>We need some way to get the data form the form to pass it off for processing. SC.ObjectController will do this for us. SC.ObjectController is a proxy to some underling object. However, we never bind directly the object, instead we bind to the controller. That way when some information changes in the controller (and thusly the underlying object) the various things bound to it will change. This is where KVO comes into play.</p>
+<p>We need some way to get the data from the form to pass it off for processing. SC.ObjectController will do this for us. SC.ObjectController is a proxy to some underling object. However, we never bind directly to the object, instead we bind to the controller. That way when some information changes in the controller (and thusly the underlying object) the various things bound to it will change. This is where KVO comes into play.</p>
 
 <p>We also need something to process the data in the form. The processing code works along these lines:</p>
 
@@ -51,13 +49,13 @@
 <li>Tell the UI to update according to the HTTP response</li>
 </ol>
 
-<p>We&#8217;ll use a state chart framework to transition the application from a logged out state to the logged in state. State charts a very nice way to model applications. I suggest you google them to learn more about them. Our simple application will only have 2 states: logged in/out.</p>
+<p>We&#8217;ll use a state chart framework to transition the application from a logged out state to the logged in state. State charts are good way to model applications. I suggest you google them to learn more about them. Our simple application will only have 2 states: logged in/out.</p>
 
-<p>Once we have the sproutcore application working correclty with some mock login info, we&#8217;ll hook up a simple web service written with Sinatra.</p>
+<p>Once we have the SC application working correclty with some mock login info, we&#8217;ll hook up a simple web service written with Sinatra.</p>
 
-<h2 id='creating_sproutcore_application'>Creating Sproutcore application</h2>
+<h2 id='creating_the_sproutcore_application'>Creating the Sproutcore Application</h2>
 
-<p>Sproutcore comes with some generators (similar to Rails). It has a generator to create a basic application. <strong>I am using Sproutcore 1.5RC1 for this</strong> so make sure you have the proper gem version installed. You can install the gem and generate a new application like this:</p>
+<p>Sproutcore comes with some generators (similar to Rails). It has a generator to create a basic application. <strong>I am using Sproutcore 1.5RC1 for this.</strong> Ensure the proper version is installed. You can install the gem and generate a new application like this:</p>
 
 <pre><code>$ # enter a fresh directory
 $ rvm use 1.9.2@sproutcore-login-tutorial # if you want to use rvm
@@ -71,7 +69,7 @@ $ sc-init login_tutorial</code></pre>
 
 <h2 id='creating_the_login_page'>Creating the Login Page</h2>
 
-<p>Take a peek at <code>apps/login_tutorial/main_page.js</code>. This file defines the intial view in our application. It creates a page with a label on it. Every SC.Page must have a SC.MainPane as the mainPane property. The mainPane contains the objects that are part of the view and displayed on the page. We&#8217;ll use this code as an example to create a new page that shows our login form. We&#8217;ll reserve the main page for the logged in state since it&#8217;s feasible to say that 99% of time the user is logged in.</p>
+<p>Take a peek at <code>apps/login_tutorial/main_page.js</code>. This file defines the intial view in our application. It creates a page with a label on it. Every <code>SC.Page</code> must have a <code>SC.MainPane</code> as the mainPane property. The mainPane contains the objects that are part of the view and displayed on the page. We&#8217;ll use this code as an example to create a new page that shows our login form. We&#8217;ll reserve the main page for the logged in state since it&#8217;s feasible to say that 99% of time the user is logged in.</p>
 
 <p>Create a file named: <code>apps/login_tutorial/resource/login_page.js</code>.</p>
 
@@ -82,7 +80,7 @@ $ sc-init login_tutorial</code></pre>
     })
 }); </code></pre>
 
-<p>Inside the mainPane will create a form with 2 texboxes and a button to submit the form. Here is the scaffold code you can use to create the view:</p>
+<p>Inside the mainPane there will be view with 2 text feilds and a button to submit the form. Here is the scaffold code you can use to create the view:</p>
 
 <pre><code>LoginTutorial.loginPage = SC.Page.design({
   mainPane: SC.MainPane.design({
@@ -123,11 +121,11 @@ $ sc-init login_tutorial</code></pre>
 
 <h2 id='configuring_the_state_chart'>Configuring the State Chart</h2>
 
-<p>Firs thing we have to update the <code>Buildfile</code> in the root directory to require the state chart framework. Change the only line in the file to:</p>
+<p>Firs, update the <code>Buildfile</code> in the root directory to require the state chart framework. Change the only line in the file to:</p>
 
 <pre><code>config :all, :required =&gt; [:sproutcore, &#39;sproutcore/statechart&#39;]</code></pre>
 
-<p>Now create a file named: <code>apps/login_tutorial/core_states.js</code>. This file define the state chart. It will have 2 states: loggedIn and loggedOut. When we enter the logged out state, the login form will be displayed. The form will be removed when we leave the state. The main page will be displayed when we enter the logged in state. Here is the code:</p>
+<p>Now create a file named: <code>apps/login_tutorial/core_states.js</code>. This file defines the state chart. It will have 2 states: loggedIn and loggedOut. When we enter the logged out state, the login form will be displayed. The form will be removed when we leave the state. The main page will be displayed when we enter the logged in state. Here is the code:</p>
 
 <pre><code>LoginTutorial.statechart = SC.Statechart.create({
   rootState: SC.State.design({
@@ -163,7 +161,7 @@ $ sc-init login_tutorial</code></pre>
 
 <h2 id='binding_with_a_controller'>Binding with a Controller</h2>
 
-<p>Now we need to create a controller. A controller manages data for us. We&#8217;ll create a controller with two properties and bind them to values in the login form. First generate a controller:</p>
+<p>Now we need to create a controller. A controller manages data for us. We&#8217;ll create a controller with two properties and bind them to the values in the login form. First generate a controller:</p>
 
 <pre><code>$ sc-gen controller LoginTutorial.loginController</code></pre>
 
@@ -192,7 +190,7 @@ password: SC.TextFieldView.design({
   valueBinding: &#39;LoginTutorial.loginController.password&#39;
 }),</code></pre>
 
-<p>Reload the page and now you can type stuff into the fields. Then you can check controller properties in the console. So for example, if you type &#8216;Adman65&#8217; into the user name field you could evalue this in the console:</p>
+<p>Reload the page and now you can type stuff into the fields. Then you can check controller properties in the console. So for example, if you type &#8216;Adman65&#8217; into the user name field you could evaluate this in the console:</p>
 
 <pre><code>&gt; LoginTutorial.loginController.userName
 &quot;Adman65&quot;</code></pre>
@@ -203,7 +201,7 @@ password: SC.TextFieldView.design({
 
 <h2 id='making_the_form_do_something'>Making the Form Do Something</h2>
 
-<p>The next step is make the login button do something. Pressing the button fires an event. We can configure the button to call a method on a responder. A responder is an object that knows how to handle the action. We can set the responder property on our view so all actions are processed by the same object. Our statechart will do the processing. Here is the strategy:</p>
+<p>The next step is to make the login button do something. Pressing the button fires an event. We can configure the button to call a method on a responder. A responder is an object that knows how to handle the action. We can set the responder property on a view so all actions are processed by the same object. Our statechart is the responder for this example. Here is the strategy:</p>
 
 <ol>
 <li>Tell the view that state chart will handle events fired from it</li>
@@ -212,7 +210,7 @@ password: SC.TextFieldView.design({
 
 <li>Add a method to handle the action</li>
 
-<li>Use that action to check the credentials</li>
+<li>Use that action to authenticate using the credentials</li>
 </ol>
 
 <p>Set the responder like this:</p>
@@ -266,7 +264,7 @@ password: SC.TextFieldView.design({
 
 <h2 id='mock_authentication'>Mock Authentication</h2>
 
-<p>At this point all we need to do is check the credentials in the authenticate method we just added. For now we&#8217;ll just check to see if the user has filled in both things, then move to logged in state. If either of the values is blank we&#8217;ll show an errors. Once we the UI working correctly, we&#8217;ll added a simple web service to check against.</p>
+<p>At this point we can check the credentials in the authenticate method we just added. For now we&#8217;ll just check to see if the user has filled in both things, then move to logged in state. We&#8217;ll show an error if either value is missing. Once the UI working, we&#8217;ll use a simple web service to authenticate.</p>
 
 <pre><code>authenticate: function() {
     var userName = LoginTutorial.getPath(&#39;loginController.userName&#39;);
@@ -279,11 +277,11 @@ password: SC.TextFieldView.design({
     }
   }</code></pre>
 
-<p>Now, if you fill in both fields and hit login then you should see the original welcome message. Otherwise, you get an popup error message.</p>
+<p>Now, when you fill in both fields and press login, then you should see the original welcome message. Otherwise, you get a popup error message.</p>
 
 <h2 id='connecting_to_the_web'>Connecting to the Web</h2>
 
-<p>No we&#8217;ll create a simple sintra site that accepts a post and does the same basic checking. Here is <code>webservice.rb</code>:</p>
+<p>Now we&#8217;ll create a simple sinatra site that accepts a post and does the same basic checking. Here is <code>webservice.rb</code>:</p>
 
 <pre><code>require &#39;rubygems&#39;
 require &#39;sinatra&#39; # make sure you install this gem
@@ -331,7 +329,7 @@ end</code></pre>
   }
 }),</code></pre>
 
-<p>We user SC.Request to create a HTTP POST ajax call. The second argument is the data to send. Calling .json() will set the request body to JSON encoded data. notify() adds a callback to handle the response. Finally, send() actually sends the request. The first argument to the callback is always the response. We check to see if it&#8217;s ok then go to logged in state, else show an error message.</p>
+<p>We use <code>SC.Request</code> to create a HTTP POST ajax call. The second argument is the body. Calling .json() will encode the body argument when sending the request. notify() adds a callback to handle the response. Finally, send() actually sends the request. The first argument to the callback is always the response. We check to see if it&#8217;s ok then go to logged in state, else show an error message.</p>
 
 <p>Finally, we have to update the build file to proxy &#8216;/login&#8217; to sinatra. Add this line to your <code>Buildfile</code>:</p>
 
