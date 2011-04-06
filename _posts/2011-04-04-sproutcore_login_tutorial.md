@@ -392,6 +392,7 @@ intended to give you a rough overview of how you can string together a
 controller, view, state chart, an web service to authenticate users and
 update the UI accordingly. Here is some further reading:
 
+* [Source](http://github.com/Adman65/sproutcore-login-tutorial)
 * [More detailed login tutorial](http://blog.nextfinity.net/loginlogout-example-app-pt-1/)
 * [SC.Request](http://wiki.sproutcore.com/w/page/12412900/Foundation-Ajax%20Requests)
 * [More about statecharts in SC](http://frozencanuck.wordpress.com/2010/11/15/ki-now-the-official-statechart-framework-for-sproutcore/)
