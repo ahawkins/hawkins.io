@@ -86,10 +86,10 @@ Create a file named: `apps/login_tutorial/resource/login_page.js`.
 
 Here is the skeleton:
 
-   LoginTutorial.loginPage = SC.Page.design({
-      mainPane: SC.MainPane.design({
-      })
-  }); 
+    LoginTutorial.loginPage = SC.Page.design({
+        mainPane: SC.MainPane.design({
+        })
+    }); 
 
 Inside the mainPane will create a form with 2 texboxes and a button to
 submit the form. Here is the scaffold code you can use to create the

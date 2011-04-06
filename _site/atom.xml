@@ -4,7 +4,7 @@
 <title>BroadcastingAdam</title>
  <link href="http://broadcasting.com/atom.xml" rel="self"/>
  <link href="http://broadcasting.com"/>
- <updated>2011-04-05T17:13:48-07:00</updated>
+ <updated>2011-04-05T17:17:33-07:00</updated>
  <id>http://broadcastingadam.com/</id>
  <author>
    <name>Adam Hawkins</name>
@@ -68,7 +68,10 @@ $ sc-init login_tutorial</code></pre>
 
 <p>Here is the skeleton:</p>
 
-<p>LoginTutorial.loginPage = SC.Page.design({ mainPane: SC.MainPane.design({ }) });</p>
+<pre><code>LoginTutorial.loginPage = SC.Page.design({
+    mainPane: SC.MainPane.design({
+    })
+}); </code></pre>
 
 <p>Inside the mainPane will create a form with 2 texboxes and a button to submit the form. Here is the scaffold code you can use to create the view:</p>
 
