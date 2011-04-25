@@ -400,6 +400,3 @@ update the UI accordingly. Here is some further reading:
 * [More about statecharts in SC](http://frozencanuck.wordpress.com/2010/11/15/ki-now-the-official-statechart-framework-for-sproutcore/)
 * [Sproutcore Guides](http://guides.sproutcore.com)
 * [More about Sinatra](http://www.sinatrarb.com/intro.html)
-
-Feel free to hit my up twitter @Adman65 or as Adman65 on #sproutcore in
-freenode.

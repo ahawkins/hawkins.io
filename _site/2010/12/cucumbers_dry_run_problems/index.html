@@ -63,6 +63,15 @@ end</code></pre>
 <p>But it won&#8217;t be able to find the gem since the gem environment is not loaded when the file is required. In dry run mode cucumber does not load files that match this regular expression: <code>support\/env\..*</code>. Interestingly Cucumber does not simply select features/support/env.rb since that is the standard file. That means you can name files &#8220;env.specjour.rb&#8221; or &#8220;env.capybara.rb&#8221; to have them execluded in dry run mode. Although, this issue is only present when you run features using the cucumber binary. If you run features through rake then you will not have problems since the complete rails environment is loaded before cucumber is loaded.</p>
 
 <p>tl;dr PROTIP: put things you would&#8217;ve added to env.rb in a file in /features/support/customer_modification_.rb. If you run those features with rake you&#8217;ll be ok. If you run those features with the cucumber command you&#8217;ll be ok. If those modifications required env.rb to be loaded and you run features with cucumber in dry run mode name them: features/support/env.modification.rb.</p>
+
+
+
+          <h3>Contact Me</h3>
+          <p>
+            Find a problem or have a question about this post? <a href="http://twitter.com/Adman65/">@Adman65</a> on
+            Twitter or Adman65 on #freenode. Find me in (#rubyonrails or
+            #sproutcore). You can find my code on <a href="http://github.com/Adman65/">GitHub</a>
+          </p>
         </article>
       </div>
     </div>
