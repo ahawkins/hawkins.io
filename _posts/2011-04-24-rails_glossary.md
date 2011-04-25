@@ -178,7 +178,7 @@ specify attributes as a hash. You can also include ruby code inside
 the templates. Here is an example:
 
     .post#post_5 
-      .content= simple_format(@post.content
+      .content= simple_format(@post.content)
 
 ## Heroku
 
