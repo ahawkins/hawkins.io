@@ -40,214 +40,486 @@ caching:
      the Rails cache. You may cache a large complicated query that you
      don't want to wait to reinstantiate a ton of AR::Base objects.
 
-## Sweepers: LOL WUT
+## Under the Hood
 
-Part of this tutorial revolves making it easier to do caching in your
-application. Many guides like to throw around sweepers all day. Sweepers
-have their uses. However, most of the time you **don't need a sweeper.**
-This because we can construct the cache key in such a way that it
-changes as the object is updated. This is exactly how
-`ActiveRecord::Base#cache_key` works. You may not be familiar with this
-method. It basically constructs a key like:
+All the caching layers are built on top of the next one. Page caching is
+the only exception because it does not use `Rails.cache` it writes
+content to disk. The cache is essentially a key-value store. Different
+things can be presisted. Strings are most common (for HTML fragments).
+More complicated objects can be presisted as well. Let's go through some
+examples of manually using the cache to store things. I am using
+memcached with dalli for all these examples. Any driver that
+implements the cache store pattern should work.
 
-    posts/1/123847192387 # last key is @post.updated_at.to_i
+    # Rails.cache.write takes two value: key and a value
+    > Rails.cache.write 'foo', 'bar'
+    => true
 
-So say we had some thing like this in the view
+    # We can read an object back with read
+    > Rails.cache.read 'foo'
+    => "bar"
 
-    <% cache @post do %>
-      <%= render :partial => 'posts/post', :locals => {:post => @post} %>
+    # We can store a complicated object as well
+    > hash = {:this => {:is => 'a hash'}}
+    > Rails.cache.write 'complicated-object', object
+    > Rails.cache.read 'complicated-object'
+    => {:this=>{:is=>"a hash"}}
+
+    # If we want something that doesn't exist, we get nil
+    > Rails.cache.read 'we-havent-cached-this-yet'
+    => nil
+
+    # "Fetch" is the most common pattern. You give it a key and a block
+    # to execute to store if the cache misses. The block is not executed
+    # if there is a cache hit.
+    > Rails.cache.fetch 'huge-array' do
+        huge_array = Array.new
+        1000000.times { |i| huge_array << i }
+        huge_array # retrun value is stored in cache
+      end
+    => [huge array] # took some time to generate
+    > Rails.cache.read 'huge-array'
+    => [huge array] # but returned instantly
+
+    # You can also delete everything from the cache
+    > Rails.cache.clear 
+    => [true]
+
+Those are the basics of interacting withe the Rails cache. The rails
+cache is a wrapper around whatever functionality is provided by the
+underlying storage system. Now we are ready to move up a layer.
+
+# Understanding Fragment Caching
+
+Fragment caching is taking rendered HTML fragments and storing them in
+the cache. Rails provides a `cache` view helper for this. It's most
+basic form takes no arguments besides a block. Whatever is rendered
+during the block will be written back to the cache. The basic principle
+behind fragment caching is that it takes much less time fetch
+prerendered HTML from the cache, then it takes to generate a fresh copy.
+This is very true. If you haven't noticed, view generation can be very
+costly. Let's say you have generated a basic scaffold for a post:
+
+    $ rails g scaffold post title:string content:text author:string
+    # that will generate some views to play with
+
+Let's start with the most common use case: caching information specific
+to one thing. IE: One post. Here is a show view:
+
+    <!-- nothing fancy going on here -->
+    <p>
+      <b>Title:</b>
+      <%= @post.title %>
+    </p>
+
+    <p>
+      <b>Content:</b>
+      <%= @post.content %>
+    </p>
+
+    <p>
+      <b>Author:</b>
+      <%= @post.author %>
+    </p>
+
+Let's say we wanted to cache fragment. Simple wrap it in `cache` and
+Rails will do it.
+
+    <%= cache "post-#{@post.id}" do %>
+      <p>
+        <b>Title:</b>
+        <%= @post.title %>
+      </p>
+
+      <p>
+        <b>Content:</b>
+        <%= @post.content %>
+      </p>
+
+      <p>
+        <b>Author:</b>
+        <%= @post.author %>
+      </p>
     <% end %>
 
-The cache method will expand the arguments using the `cache_key` method
-and generate a key like `views/some_file/posts/1/132487328` and store
-the result of the block in the cache with that key. We all know by now
-that a blog post will have many comments (mostly spam though :( )
+The first argument is the key for this fragment. The rendered HTML is
+stored with this key: `views/posts-1`. Wait what? Where did that 'views'
+come from? The `cache` view helper automatically prepends 'view' to all
+keys. This is important later. When you first load the page you'll see
+this in the log:
 
-    class Post < ActiveRecord::Base
-      has_many :comments
-    end
+  Exist fragment? views/post-2 (1.6ms)
+  Write fragment views/post-2 (0.9ms)
 
-    class Comment < ActiveRecord::Base
-      belongs_to :post
-    end
+You can see the key and the operations. Rails is checking to see if the
+specific key exists. It will fetch it or write it. In this case, it has
+not been stored so it is written. When you reload the page, you'll see a
+cache hit:
 
-Then in the posts partial we have something along these lines:
+  Exist fragment? views/post-2 (0.6ms)
+  Read fragment views/post-2 (0.0ms)
 
-    <h2><%= h(@post.title) %></h2>
-    <%= simple_format(@post.content) %>
+There we go. We got HTML from the cache instead of rendering it. Look at
+the response times for the two requests:
 
-    <% post.comments.each do |comment| %>
-      <%= simple_format(comment.message) %>
-    <% end %>
+  Completed 200 OK in 17ms (Views: 11.6ms | ActiveRecord: 0.1ms)
+  Completed 200 OK in 16ms (Views: 9.7ms | ActiveRecord: 0.1ms)
 
-So what happens when a comment is made? We know we have to expire the
-that fragment. Question is how? Well, we just tell the comment to touch
-the post when it's updated. This will change the post's `cache_key` and
-thusly **cause a cache miss** the next time it is request causing the
-partial to be rerendered. Simply add `:touch => true` to the
-`belongs_to` association like so:
+Very small differences in this case. 2ms different in view generation.
+This is a very simple example, but it can make a world of difference in
+more complicated situations. 
+
+You are probably asking the question: "What happens when the post
+changes?" This is an excellent question! What well if the post changes,
+the cached content will **not** be correct. It is up to **us** to remove
+stuff from the cache **or** figure out a way to get new content from the
+cache. Let's assume that our blog posts now have comments. What happens
+when a comment is created? How can handle this?
+
+This is a very simple problem. What if we could figured out a
+solution to this problem: How can we create a cache miss when the
+associated object changes? We've already demonstrated how we can
+explicity set a cache key. What if we made a key that's dependent on the
+time the object was last updated? We can create a key composed of the
+record's ID and it's updated_at timestamp! This way the cache key will
+change as the content changes **and we will not have to expire things
+manually.** (We'll come back to sweepers later). Let's change our cache
+key to this:
+
+    <% cache "post-#{@post.id}", @post.updated_at.to_i do %>
+
+Now we can see we have a new cache key that's dependent on the objects
+timestamps. Check out the rails log:
+
+    Exist fragment? views/post-2/1304291241 (0.5ms)
+    Write fragment views/post-2/1304291241 (0.4ms)
+
+Cool! Now let's make it so creating a comment updates the post's
+timestamp:
 
     class Comment < ActiveRecord::Base
       belongs_to :post, :touch => true
     end
 
-Whenever a comment is created/saved/updated/destroyed the post's
-`updated_at` method will change causing a miss. This concept is known as
-**autoexpiring cache keys**. This is wonderful! Simply because declaring
-some options in the model layer will make it easier to main performance
-in the view layer. This works out very nicely in memcached because it
-uses an LRU (Least Recently Used) replacement policy. That means, when
-its alloted memory is fill it will make room by deleting the oldest
-blocks. Everytime a cache hit occurs, it is moved to the top of the
-list. If a key is never requested it will slowly move to the bottom the
-stack and be dumped (aka evicted) when something new needs to be stored.
+Now all comments will touch the post and change the `updated_at`
+timestamp. You can see this in action by `touch`'ing a post.
 
-## Getting More Milage from Fragment Caching
+    Post.find(1).touch
 
-I use fragment caching a ton. There are situtations where you want to
-display the same data a different way. It may be a list of posts, or who
-know what--it's just a different view of the same data. If you were
-using a sweeper, you'd have to keep track of all the different actions
-that could change the data and sweep accordingly. Luckily for Rails
-programmers, it's very easy to construct cache keys on the fly so you
-never have to worry about **what they actually are.** We'll come back to
-this point later. 
+    # refresh the page
+    Exist fragment? views/post-2/1304292445 (0.4ms)
+    Write fragment views/post-2/1304292445 (0.4ms)
 
-Here's our scenario: We have a large fragment that contains the post. 
-We also have a large fragment for metadata and other random stuff in the
-sidebar. It contains the number of comments, tags, and some other stuff.
-For this example, _it's just stuff_. 
+This concept is known as: **auto expiring cache keys.** You create a
+composite key with the normal key and a timestamp. This will create some
+memory build up as objects are updated and no longer create cache hits.
+For example. You have that fragment. It is cached. Then someone updates
+the post. You now have two versions of the fragment cached. If there are
+10 updates, then there are 10 different versions. Luckily for you, this
+is not a problem for memcached! Memcached uses a LRU replacement policy.
+LRU stands for Least Recently Used. That means the key that hasn't been
+request in the longest time will be replaced with new content needs to
+be stored. For example, assume your cache can only hold 10 posts. The
+next update will create a new key and hence new content. Version 0 will
+be deleted and version 11 will be stored in the cache. The total amount
+of memory is cycled between things that are requested. There are two
+things to consider in this approach. 1: You will not be able to ensure
+that content is kept in the cache as long as possible. 2. You will never
+have to worry about expiring things manually as long as timestamps are
+updated in the model layer. I've found it is orders of magnitude easier
+to add a few `:touch => true`'s to my relationships than it is to
+maintain sweepers. More on sweepers later. We must continue exploring
+cache keys.
 
-Assume we have two partials:
+Rails uses auto-expiring cache keys by **default.** The problem is they
+are not mentioned at all the documentation or in the guides. There is
+one very handy method: `ActiveRecord::Base.cache_key`. This will
+generate a key like this: `posts/2-20110501232725`. **This is the
+exact same thing we did ourselves.** This method is very important
+because depending on what type of arguements you pass into the `cache`
+method it will be called on them. For the time being, this code is
+functionally equall to our previous examples.
 
-    /views/posts/_post
-    /views/posts/_meta
+    <%= cache @post do %>
 
-This fragments are represenative of the underlying data and will to be
-expired at the same time. We can create a custom cache key for each
-framgent like this:
+The `cache` helper takes different forms for arguments. Here are some
+examples:
 
-    <% cache [@post, 'main'] %>
-      # render the partial
-    <% end %>
+    cache 'explicit-key'      # views/explicit-key
+    cache @post               # views/posts/2-1283479827349
+    cache [@post, 'sidebar']  # views/posts/2-2348719328478/sidebar
+    cache [@post, @comment]   # views/posts/2-2384193284878/comments/1-2384971487
+    cache :hash => :of_things # views/localhost:3000/posts/2?hash_of_things
 
-    <% cache [@post, 'meta' %] %>
-      <%= render :partial => 'meta', :locals => {:post => @post} %>
-    <% end %>
+If an `Array` is the first arguments, Rails will use cache key expansion
+to generate a string key. This means calling doing logic on each object
+then joining each result together with a '/'. Essentially, if the object
+responds to `cache_key`, it will use that. Else it will do various
+things. Here's the source for `expand_cache_key`:
 
+    def self.expand_cache_key(key, namespace = nil)
+      expanded_cache_key = namespace ? "#{namespace}/" : ""
 
-This will generate two keys: `views/something/posts/1/132132487/main`
-and `views/something/posts/1/132132487/meta`. You can use this to cache
-many different fragments. Note: I've used a random string of numbers for
-the timestamp. 
+      prefix = ENV["RAILS_CACHE_ID"] || ENV["RAILS_APP_VERSION"]
+      if prefix
+        expanded_cache_key << "#{prefix}/"
+      end
 
-You can also call `cache` with no arguments will used the context of the
-request to fill in a cache key. This is how the Rails [docs](http://api.rubyonrails.org/classes/ActionController/Caching/Fragments.html) demonstrate it. They also illustrate
-how you can use call `expire_fragment` in the sweeper to invalidate
-it--but now we know a trick around that. 
+      expanded_cache_key <<
+        if key.respond_to?(:cache_key)
+          key.cache_key
+        elsif key.is_a?(Array)
+          if key.size > 1
+            key.collect { |element| expand_cache_key(element) }.to_param
+          else
+            key.first.to_param
+          end
+        elsif key
+          key.to_param
+        end.to_s
 
-These fragment caching examples are **not** a good way to actually cache
-this kind of content. They are merely provided as a example of how you
-can generate auto-expiring cache keys for your various view fragments. A
-Blog post is the perfect place to apply action caching. Odds, are the
-page with the post doesn't change much except there filters in place.
+      expanded_cache_key
+    end
 
-## Auto Expiring w/Action Caching
+This is where all the magic happens. Our simple fragment caching example
+could easily be converted into an idea like this: The post hasn't
+changed, so cache the entire result of /posts/1. You can do with this
+action caching or page caching.
 
-We can use auto expiring keys just as before with action caching. Let's
-take a look at a simple controller for showing the post. As an example,
-we'll have a before filter that tracks how many people have been to this
-page. 
+## Moving on to Action Caching
+
+Action caching is an around filter for spcific controller actions. It is
+different from page caching since before filters are run and may prevent
+access to certain pages. For example, you only want to cache if the user
+is logged in. If the user is not logged in they should be redirect to
+the log in page. This is different than page caching. Page caching
+bypasses the rails stack completely. Most web applications for legitmate
+complexity cannot use page caching. Action caching is the next logical
+step for most web applications. Let's break the idea down: If the post
+hasn't changed, return the entire cached page as the HTTP response, else
+render the show view, cache it, and return that as the HTTP response. Or
+in code:
+
+    Rails.cache.fetch 'views/localhost:3000/posts/1' do
+      @post = Post.find params[:id]
+      render :show
+    end
+
+Declaring action caching is easy. Here's how you can cache the show
+action:
 
     class PostsController < ApplicationController
-      before_filter :update_view_counter
+
+      caches_action :show
 
       def show
-        @post = post
-      end
-
-      def post
-        Post.find params[:id]
-      end
-
-      private
-      def update_view_counter
         # do stuff
       end
     end
 
-We can easily cache the entire action without any extra effort--and
-we'll never have to sweep it ourself. Here's how:
+Now refresh the page and look at what's been cached.
 
-    before_filter :update_view_counter
+    Started GET "/posts/2" for 127.0.0.1 at 2011-05-01 16:54:43 -0700
+      Processing by PostsController#show as HTML
+      Parameters: {"id"=>"2"}
+    Read fragment views/localhost:3000/posts/2 (0.5ms)
+      Post Load (0.1ms)  SELECT "posts".* FROM "posts" WHERE "posts"."id" = 2 LIMIT 1
+    Rendered posts/show.html.erb within layouts/application (6.1ms)
+    Write fragment views/localhost:3000/posts/2 (0.5ms)
+    Completed 200 OK in 16ms (Views: 8.6ms | ActiveRecord: 0.1ms)
 
-    caches_action :post, :cache_path => proc do |c|
-      # c is the instance of the controller handling the request
-      c.post_url(c.post, :tag => c.post.updated_at.to)
+Now that the show action for post #2 is cached, refresh the page and see
+what happens.
+
+    Started GET "/posts/2" for 127.0.0.1 at 2011-05-01 16:55:27 -0700
+      Processing by PostsController#show as HTML
+      Parameters: {"id"=>"2"}
+    Read fragment views/localhost:3000/posts/2 (0.6ms)
+    Completed 200 OK in 1ms
+
+Damn. 16ms vs 1ms. You can see the difference! You can also see Rails
+reading that cache key. **The cache key is generated off the url with
+action caching.** Action caching is a combination of a before and around
+filter. The around filter is used to capture the output and the before
+filter is used to check to see if it's been cached. It works like this:
+
+  1. Execute before filter to check to see if cache key exists?
+    2. Key exists? - Read from cache and return HTTP Response. This
+       triggers a `render` and **prevents any further code from being
+       executed.**
+    3. No key? - Call all controller and view code. Cache output using
+       Rails.cache and return HTTP response.
+
+Now you are probably asking the same question as before: "What do we do
+when the post changes?" We do the same thing as before: we create a
+composite key with a string and a timestamp. The question now is, how do
+we generate a special key using action caching? 
+
+Action caching generates a key from the current url. You can pass extra
+options using a the `:cache_path` option. Whatever is in this value is
+passed into `url_for` using the currrent parameters. Remember in the
+view cache key examples what happened when we passed in a hash? We got a
+much different key than before: 
+
+  views/localhost:3000/posts/2?hash_of_things
+
+Rails generated a URL based key instead of the standard views key. This
+is because you may different servers and things like that. This ensures
+that each server has it's own cache key. IE, server one does not collide
+with server 2. We could generate our own url for this resource by doing
+something like this:
+
+    url_for(@post, :tag => @post.updated_at.to_i)
+
+This will generate this url:
+
+    http://localhost:3000/posts/1?tag=234897123978
+
+Notice the '?tag=23481329847'. Look familar from anywhere? Rails uses
+this method to tag GET urls for static assets. That way the browser does
+not send a new HTTP request when it sees 'application.css?1234' since it
+is caching it. We can use this strategy to with action caching as well.
+
+    caches_action :show, :cache_path => proc { |c|
+      # c is the instance of the controller. Since action caching
+      # is declared at the class level, we don't have access to instance
+      # variables. If cache_path is a proc, it will be evaluated in the
+      # the context of the current controller. This is the same idea
+      # as validations with the :if and :unless options
+      #
+      # Remember, what is returned from this block will be passed in as
+      # extra parameters to the url_for method.
+      post = Post.find c.params[:id]
+      {:tag => post.updated_at.to_i}
     end
 
-And there ya have it! Now whenever anyone tries to go to that page will
-generate a cache key like: `example.com/posts/1?tag=1238478174`. Options
-returned by the `:cache_path` proc will be passed into a route helper
-similar to `post_path`. Basically, we end up with a key that's equal to
-calling: `post_path(@post, :tag => 132489739847)`. That was easy. You
-can throw as many parameters (I like to think of them as tags) in there
-as you like as long as you don't overflow your cache store's key limits.
-You may never run into this problem, but there are situtations where you
-might. 
+This calls `url_for` with the parameters already assigned by it through
+the router and whatever is returned by the block. Now if you refresh the
+page, you'll have this:
 
-## Actions with Many Query Parameters
+  Started GET "/posts/2" for 127.0.0.1 at 2011-05-01 17:11:22 -0700
+    Processing by PostsController#show as HTML
+    Parameters: {"id"=>"2"}
+  Read fragment views/localhost:3000/posts/2?tag=1304292445 (0.5ms)
+  Rendered posts/show.html.erb within layouts/application (1.7ms)
+  Write fragment views/localhost:3000/posts/2?tag=1304292445 (0.5ms)
+  Completed 200 OK in 16ms (Views: 4.4ms | ActiveRecord: 0.1ms)
 
-Let's say have a complicated index type action where you allow the user
-to create all sorts of cool conditions, limits, paginations, orderings,
-and all that jazz on a user's posts. We can cache all these different
-combinations using action caching. We know that each combination of
-input parameters has to be cached with a different key than the others.
-We also do not want to worry about expiring the pages since there are a
-ton of different combos. Let's take a look at a general controller:
+And volia! Now we have an expiring cache key for our post! Let's dig a
+little deeper. We know the key. Let's look into the cache and see what
+it actually is! You can see the key from the log. Look it up in the
+cache.
 
+    > Rails.cache.read 'views/localhost:3000/posts/2?tag=1304292445'
+    => "<!DOCTYPE html>\n<html>\n<head>....."
+
+It's just a straight HTML string. Easy to use and return as the body.
+This method works well for singular resources. How can we handle the
+index action? I've created 10,000 posts. It takes a good amount of time
+to render that page on my computer. It takes over 10 seconds. The
+question is, how can we cache this? We could use the most recently
+updated post for the timestamp. That way, when one post is updated, it
+will move to the top and create a new cache key. Here is the code
+without any action caching:
+
+  Started GET "/posts" for 127.0.0.1 at 2011-05-01 17:18:11 -0700
+    Processing by PostsController#index as HTML
+    Post Load (54.1ms)  SELECT "posts".* FROM "posts" ORDER BY updated_at DESC LIMIT 1
+  Dalli::Server#connect localhost:11212
+  Read fragment views/localhost:3000/posts?tag=1304292445 (1.5ms)
+  Rendered posts/index.html.erb within layouts/application (9532.3ms)
+  Write fragment views/localhost:3000/posts?tag=1304292445 (36.7ms)
+  Completed 200 OK in 10088ms (Views: 9535.6ms | ActiveRecord: 276.2ms)
+
+Now with action caching:
+
+  Started GET "/posts" for 127.0.0.1 at 2011-05-01 17:20:47 -0700
+    Processing by PostsController#index as HTML
+    Post Load (0.9ms)  SELECT "posts".* FROM "posts" ORDER BY updated_at DESC LIMIT 1
+  Read fragment views/localhost:3000/posts?tag=1304295632 (1.0ms)
+  Completed 200 OK in 11ms
+
+Here's the code for action caching:
+
+    caches_action :index, :cache_path => proc {|c|
+      post = Post.order('updated_at DESC').limit(1).first
+      {:tag => post.updated_at.to_i}
+    }
+
+These are simple examples designed to show you who can create auto
+expiring keys for different situations. At this point we have not add to
+expire any thing ourselves! The keys have done it all for us. However,
+there are some times when you want more precise control over how things
+exist in the cache. Enter Sweepers.
+
+## Sweepers
+
+Sweepers are HTTP request dependent observers. They are loaded into
+controllers and observer models the same way standard observers do.
+However there is one very important different. **They are only used
+through HTTP requests.** This means if you have things being created
+outside the context of HTTP requests sweepers will do you know good. For
+example, say you have a background process running that syncs with an
+external system. Creating a new model will not make it to any sweeper.
+So, if you have anything cached. It is up to you to expire it.
+Everything I've demonstrated so far can be done with sweepers. 
+
+Each `cache_*` method has an opposite `expire_*` method. Here's the
+mapping:
+
+  1. caches_page , expire_page
+  2. caches_action , expire_action
+  3. cache , expire_fragment
+
+Their arguments work the same with using cache_key_expansion to find a
+key to read or delete. Depending on the complexity of your application,
+it may be very to use sweepers or it may be impossible. Our simple
+examples can use sweepers easily. We only need to tie into the save
+event. For example, when a update or delete happens we need to expire
+the cache for that specific post. When a create, update, or delete
+happens we need to expire the index action. Here's what a the sweeper
+would look like:
+
+    class PostSweeper < ActionController::Caching::Sweeper
+      observe Post
+
+      def after_create(post)
+        expire_action :index
+        expire_action :show, :id => post
+        # this is the same as the previous line
+        expire_action :controller => :posts, :action => :show, :id => @post.id
+      end
+    end
+
+    # then in the controller, load the sweeper
     class PostsController < ApplicationController
-
-      def index
-        @posts = filtered_posts
-      end
-
-      private
-      def filtered_posts
-        # load users posts
-        #
-        # I'll leave this code out since you have a good idea
-        # of what it's like to write some nice case statements
-        # and other code with a ton of branches :)
-        #
-        # apply more complicated filter logic
-        #
-        # return posts
-      end
+      cache_sweeper :post_sweeper
     end
 
-How can we generate a unique key for each combination of input
-parameters? Use a secure cryptographic hash. A secure hash means there
-are no collisions. This means we will not have a key conflict--IE a
-search ordered by the post date and one by the number of comments will
-never have the same key. We can take all the parameters and dump them
-into a hashing function (along with the user's timestamp) to generate an
-auto expiring key for all combinations of search parameters! Here's the
-code
+I will not go into much depth on sweepers because they are the only
+thing covered in the rails caching guide. The work, but I feel they are
+clumsy for complex applications. Let's say you have comments for posts.
+What do you do when a comment is created for a post? Well, you have to
+either create a comment sweeper or load the post sweeper into the
+comments controller. You can do either. However, depending on the
+complexity of your model layer, it may quickly infeasible to do cache
+expiration with sweepers. For example, let say you have a Customer. A
+customer has 15 different types of associated things. Do you want to put
+the sweeper into 15 different controllers? You can, but you may forget
+to at some point. 
 
-    require 'digest/sha1'
-    class PostsController < ApplicationController
-      # make sure post belongs_to :user, :touch => true
+The real problem with sweepers is that they cannot be used once your
+application works outside of HTTP requests. They can also be clumsy. I
+personally feel it's much easier to create auto expiring cache keys and
+only uses sweepers when I want to tie into very specific events.
 
-      caches_action :index, :cache_path => proc do |c|
-        timestamp = User.find(c.params[:user_id]).to_i
-        tag = Digest::SHA1.hex_digest(c.params.to_s + timestamp.to_s)
-        posts_url(tag)
-      end
-
-      # ....
-    end
-
-Now we'll get a key like: `example.com/posts?tag=e3282090ae22d23113ab038ce188ae334cc51df7`.
-Granted, you cannot discern what the key is for, but you can cache every
-combination of input parameters. Not bad for four lines of code.
+Now you should have a good grasp on how the Rails caching methods work.
+We've covered how fragment caching uses the current view to generate a
+cache key. We introduced the concept of auto expiring cache keys using
+`ActiveRecord#cache_key` to automatically expire cached content. We
+introduced action caching and how it uses `url_for` to generate a cache
+key. Then we covered how you can pass things into `url_for` to generate
+a time stamped key to expire actions automatically. We've skipped page
+caching because it's not applicable to many Rails applications. Now that
+we understand how caching works we can address shortcomings in the
+system.
