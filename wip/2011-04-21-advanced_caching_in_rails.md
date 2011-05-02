@@ -148,22 +148,22 @@ come from? The `cache` view helper automatically prepends 'view' to all
 keys. This is important later. When you first load the page you'll see
 this in the log:
 
-  Exist fragment? views/post-2 (1.6ms)
-  Write fragment views/post-2 (0.9ms)
+> Exist fragment? views/post-2 (1.6ms)
+> Write fragment views/post-2 (0.9ms)
 
 You can see the key and the operations. Rails is checking to see if the
 specific key exists. It will fetch it or write it. In this case, it has
 not been stored so it is written. When you reload the page, you'll see a
 cache hit:
 
-  Exist fragment? views/post-2 (0.6ms)
-  Read fragment views/post-2 (0.0ms)
+> Exist fragment? views/post-2 (0.6ms)
+> Read fragment views/post-2 (0.0ms)
 
 There we go. We got HTML from the cache instead of rendering it. Look at
 the response times for the two requests:
 
-  Completed 200 OK in 17ms (Views: 11.6ms | ActiveRecord: 0.1ms)
-  Completed 200 OK in 16ms (Views: 9.7ms | ActiveRecord: 0.1ms)
+> Completed 200 OK in 17ms (Views: 11.6ms | ActiveRecord: 0.1ms)
+> Completed 200 OK in 16ms (Views: 9.7ms | ActiveRecord: 0.1ms)
 
 Very small differences in this case. 2ms different in view generation.
 This is a very simple example, but it can make a world of difference in
@@ -191,8 +191,8 @@ key to this:
 Now we can see we have a new cache key that's dependent on the objects
 timestamps. Check out the rails log:
 
-    Exist fragment? views/post-2/1304291241 (0.5ms)
-    Write fragment views/post-2/1304291241 (0.4ms)
+> Exist fragment? views/post-2/1304291241 (0.5ms)
+> Write fragment views/post-2/1304291241 (0.4ms)
 
 Cool! Now let's make it so creating a comment updates the post's
 timestamp:
@@ -206,9 +206,8 @@ timestamp. You can see this in action by `touch`'ing a post.
 
     Post.find(1).touch
 
-    # refresh the page
-    Exist fragment? views/post-2/1304292445 (0.4ms)
-    Write fragment views/post-2/1304292445 (0.4ms)
+> Exist fragment? views/post-2/1304292445 (0.4ms)
+> Write fragment views/post-2/1304292445 (0.4ms)
 
 This concept is known as: **auto expiring cache keys.** You create a
 composite key with the normal key and a timestamp. This will create some
@@ -319,23 +318,22 @@ action:
 
 Now refresh the page and look at what's been cached.
 
-    Started GET "/posts/2" for 127.0.0.1 at 2011-05-01 16:54:43 -0700
-      Processing by PostsController#show as HTML
-      Parameters: {"id"=>"2"}
-    Read fragment views/localhost:3000/posts/2 (0.5ms)
-      Post Load (0.1ms)  SELECT "posts".* FROM "posts" WHERE "posts"."id" = 2 LIMIT 1
-    Rendered posts/show.html.erb within layouts/application (6.1ms)
-    Write fragment views/localhost:3000/posts/2 (0.5ms)
-    Completed 200 OK in 16ms (Views: 8.6ms | ActiveRecord: 0.1ms)
+> Started GET "/posts/2" for 127.0.0.1 at 2011-05-01 16:54:43 -0700
+>   Processing by PostsController#show as HTML
+>   Parameters: {"id"=>"2"}
+> Read fragment views/localhost:3000/posts/2 (0.5ms)
+> Rendered posts/show.html.erb within layouts/application (6.1ms)
+> Write fragment views/localhost:3000/posts/2 (0.5ms)
+> Completed 200 OK in 16ms (Views: 8.6ms | ActiveRecord: 0.1ms)
 
 Now that the show action for post #2 is cached, refresh the page and see
 what happens.
 
-    Started GET "/posts/2" for 127.0.0.1 at 2011-05-01 16:55:27 -0700
-      Processing by PostsController#show as HTML
-      Parameters: {"id"=>"2"}
-    Read fragment views/localhost:3000/posts/2 (0.6ms)
-    Completed 200 OK in 1ms
+> Started GET "/posts/2" for 127.0.0.1 at 2011-05-01 16:55:27 -0700
+>   Processing by PostsController#show as HTML
+>   Parameters: {"id"=>"2"}
+> Read fragment views/localhost:3000/posts/2 (0.6ms)
+> Completed 200 OK in 1ms
 
 Damn. 16ms vs 1ms. You can see the difference! You can also see Rails
 reading that cache key. **The cache key is generated off the url with
@@ -343,12 +341,12 @@ action caching.** Action caching is a combination of a before and around
 filter. The around filter is used to capture the output and the before
 filter is used to check to see if it's been cached. It works like this:
 
-  1. Execute before filter to check to see if cache key exists?
-    2. Key exists? - Read from cache and return HTTP Response. This
-       triggers a `render` and **prevents any further code from being
-       executed.**
-    3. No key? - Call all controller and view code. Cache output using
-       Rails.cache and return HTTP response.
+1. Execute before filter to check to see if cache key exists?
+  2. Key exists? - Read from cache and return HTTP Response. This
+     triggers a `render` and **prevents any further code from being
+     executed.**
+  3. No key? - Call all controller and view code. Cache output using
+     Rails.cache and return HTTP response.
 
 Now you are probably asking the same question as before: "What do we do
 when the post changes?" We do the same thing as before: we create a
@@ -361,7 +359,7 @@ passed into `url_for` using the currrent parameters. Remember in the
 view cache key examples what happened when we passed in a hash? We got a
 much different key than before: 
 
-  views/localhost:3000/posts/2?hash_of_things
+> views/localhost:3000/posts/2?hash_of_things
 
 Rails generated a URL based key instead of the standard views key. This
 is because you may different servers and things like that. This ensures
@@ -373,7 +371,7 @@ something like this:
 
 This will generate this url:
 
-    http://localhost:3000/posts/1?tag=234897123978
+> http://localhost:3000/posts/1?tag=234897123978
 
 Notice the '?tag=23481329847'. Look familar from anywhere? Rails uses
 this method to tag GET urls for static assets. That way the browser does
@@ -397,13 +395,13 @@ This calls `url_for` with the parameters already assigned by it through
 the router and whatever is returned by the block. Now if you refresh the
 page, you'll have this:
 
-  Started GET "/posts/2" for 127.0.0.1 at 2011-05-01 17:11:22 -0700
-    Processing by PostsController#show as HTML
-    Parameters: {"id"=>"2"}
-  Read fragment views/localhost:3000/posts/2?tag=1304292445 (0.5ms)
-  Rendered posts/show.html.erb within layouts/application (1.7ms)
-  Write fragment views/localhost:3000/posts/2?tag=1304292445 (0.5ms)
-  Completed 200 OK in 16ms (Views: 4.4ms | ActiveRecord: 0.1ms)
+> Started GET "/posts/2" for 127.0.0.1 at 2011-05-01 17:11:22 -0700
+>   Processing by PostsController#show as HTML
+>   Parameters: {"id"=>"2"}
+> Read fragment views/localhost:3000/posts/2?tag=1304292445 (0.5ms)
+> Rendered posts/show.html.erb within layouts/application (1.7ms)
+> Write fragment views/localhost:3000/posts/2?tag=1304292445 (0.5ms)
+> Completed 200 OK in 16ms (Views: 4.4ms | ActiveRecord: 0.1ms)
 
 And volia! Now we have an expiring cache key for our post! Let's dig a
 little deeper. We know the key. Let's look into the cache and see what
@@ -422,22 +420,21 @@ updated post for the timestamp. That way, when one post is updated, it
 will move to the top and create a new cache key. Here is the code
 without any action caching:
 
-  Started GET "/posts" for 127.0.0.1 at 2011-05-01 17:18:11 -0700
-    Processing by PostsController#index as HTML
-    Post Load (54.1ms)  SELECT "posts".* FROM "posts" ORDER BY updated_at DESC LIMIT 1
-  Dalli::Server#connect localhost:11212
-  Read fragment views/localhost:3000/posts?tag=1304292445 (1.5ms)
-  Rendered posts/index.html.erb within layouts/application (9532.3ms)
-  Write fragment views/localhost:3000/posts?tag=1304292445 (36.7ms)
-  Completed 200 OK in 10088ms (Views: 9535.6ms | ActiveRecord: 276.2ms)
+> Started GET "/posts" for 127.0.0.1 at 2011-05-01 17:18:11 -0700
+>   Processing by PostsController#index as HTML
+>   Post Load (54.1ms)  SELECT "posts".* FROM "posts" ORDER BY updated_at DESC LIMIT 1
+> Dalli::Server#connect localhost:11212
+> Read fragment views/localhost:3000/posts?tag=1304292445 (1.5ms)
+> Rendered posts/index.html.erb within layouts/application (9532.3ms)
+> Write fragment views/localhost:3000/posts?tag=1304292445 (36.7ms)
+> Completed 200 OK in 10088ms (Views: 9535.6ms | ActiveRecord: 276.2ms)
 
 Now with action caching:
 
-  Started GET "/posts" for 127.0.0.1 at 2011-05-01 17:20:47 -0700
-    Processing by PostsController#index as HTML
-    Post Load (0.9ms)  SELECT "posts".* FROM "posts" ORDER BY updated_at DESC LIMIT 1
-  Read fragment views/localhost:3000/posts?tag=1304295632 (1.0ms)
-  Completed 200 OK in 11ms
+> Started GET "/posts" for 127.0.0.1 at 2011-05-01 17:20:47 -0700
+>   Processing by PostsController#index as HTML
+> Read fragment views/localhost:3000/posts?tag=1304295632 (1.0ms)
+> Completed 200 OK in 11ms
 
 Here's the code for action caching:
 
@@ -467,9 +464,9 @@ Everything I've demonstrated so far can be done with sweepers.
 Each `cache_*` method has an opposite `expire_*` method. Here's the
 mapping:
 
-  1. caches_page , expire_page
-  2. caches_action , expire_action
-  3. cache , expire_fragment
+1. caches_page , expire_page
+2. caches_action , expire_action
+3. cache , expire_fragment
 
 Their arguments work the same with using cache_key_expansion to find a
 key to read or delete. Depending on the complexity of your application,
@@ -649,6 +646,8 @@ of code.
 
 Now we can merrily go about our business expiring cache'd content from
 **anywhere.** Here are some examples:
+
+    App.cache # reference to a Cache instance
 
     App.expire_fragment @post
     App.expire_fragment [@post, 'sidebar']
