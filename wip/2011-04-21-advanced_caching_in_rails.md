@@ -523,3 +523,162 @@ a time stamped key to expire actions automatically. We've skipped page
 caching because it's not applicable to many Rails applications. Now that
 we understand how caching works we can address shortcomings in the
 system.
+
+## Moving Away from the HTTP Request
+
+Now we're going to write some code to address problems in the Rails
+caching system. We know that action caching is dependent on URLS.
+Fargment caching is dependent on the view being rendered. However, we
+know that both of these methods use `Rails.cache` under the covers to
+store content. We can use `Rails.cache` any where in our code. Unlike
+`caches_path`, `caches_action` and `cache` that will no hit the cache
+if `perform_caching` is set to false, the `Rails.cache` methods will
+**always** execute aganist the cache. Ideally, it would be nice to
+create a simple observer for our models. What it would be cool if we had
+a class like this:
+
+    class Cache 
+      def self.expire_page(*args)
+        # do stuff
+      end
+
+      def self.expire_action(*args)
+        # do stuff
+      end
+
+      def self.expire_fragment(*args)
+        # do stuff
+      end
+    end
+
+Then we can use that utility class anywhere in our code to expire
+different things we have cached. First, we need to be able to generate
+URL's from something other than a controller. You may be familar with
+this problem. Mailers are not controllers, but you can still generate
+URL's. You need a host name to generate paths. The controller have this
+information because they accept HTTP requests which have that
+information. Mailer do not. That's why the hostname must be configured
+in the different environments. We can create a frakenstein class that
+takes parts of ActionMailer to generate URLS. Once we can generate URL's
+we can expire pages and actions. URL generation is included this module
+`Rails.application.routes.url_helpers`. That's a shortcut method for the
+generated module which contains `url_for`, `path_for` and all the named
+route helpers. We also need a class level variable for the host name.
+Here's what we can do so far:
+
+    class Cache
+      include Rails.application.routes.url_helpers # for url generation
+
+      def self.default_url_options
+        ActionMailer::Base.default_url_options
+      end
+
+      def expire_action(*args)
+        # do stuff
+      end
+
+      def expire_fragment(*args)
+        # do stuff
+      end
+    end
+
+Now we can pull in some knowledge on how the cache system works to fill
+in the gaps. Some of this comes from reading the various source files
+and observation in generating the cache keys. Here is the complete
+class:
+
+    # will not work in Rails 2 -- Rails 3 only!
+    class Cache
+      include Rails.application.routes.url_helpers # for url generation
+
+      def self.default_url_options
+        ActionMailer::Base.default_url_options
+      end
+
+      def expire_action(key, options = {})
+        expire(key, options)
+      end
+
+      def expire_fragment(key, options={})
+        expire(key, options)
+      end
+
+      private
+      def caching_enabled?
+        return ActionController::Base.perform_caching
+      end
+
+      def expire(key, options = {})
+        return unless caching_enabled?
+        Rails.cache.delete expand_cache_key(key), options
+      end
+
+      def expand_cache_key(key)
+        # if the key is a hash, then use url for
+        # else use expand_cache_key like fragment caching
+        to_expand = key.is_a?(Hash) ? url_for(key).split('://').last : key
+        ActiveSupport::Cache.expand_cache_key to_expand, :views
+      end
+    end
+
+Since action and fragment caching all use Rails.cache under the hood, we
+can simply generate the keys ourselves and remove them manually--all
+without the fuss of HTTP Requests. Now you can create an initializer to
+define a method on your application namespace so it's globally
+accessible. I like this way because it's easy to reference in any piece
+of code.
+
+    # config/initializers/cache.rb
+    require 'cache'
+
+    module App # whatever you application module is
+      class << self
+        def cache
+          @cache ||= Cache.new
+        end
+
+        def expire_fragment(*args)
+          cache.expire_fragment(*args)
+        end
+
+        def expire_action(*args)
+          cache.expire_fragment(*args)
+        end
+      end
+    end
+
+Now we can merrily go about our business expiring cache'd content from
+**anywhere.** Here are some examples:
+
+    App.expire_fragment @post
+    App.expire_fragment [@post, 'sidebar']
+    App.expire_fragment 'explicit-key'
+
+    # in a controller
+    App.expire_fragment post_url(@post)
+    # Have to pass in the hash since it's most likely
+    # that you won't have access to the url helpers
+    # in whatever scope your're in.
+    App.expire_action :action => :show, :controller => :posts, :id => @post, :tag => @post.updated_at.to_i
+
+The `expire_fragment` and `expire_action` methods work just like the
+ones described in the Rails guides. Only difference is, you can use them
+anywhere. Now we can easily call this code in an observer. The observer
+events will fire everytime they happen **anywhere in the codebase.**
+Here's an example. I am assuming a Todo is created outside an HTTP
+request through a backround process. The observer will capture the
+event. 
+
+    class TodoObserver < ActivRecord::Observer
+      def after_create
+        App.expire_fragment :controller => :todos, :action => :index
+      end
+    end
+
+The beauty here is that we can use this code anywhere. If you have more
+complicated cache expirations you may have to use a background job. This
+may not be acceptable because of processing time, but in some situations
+you can afford a sweeping delay if the sweeping process takes a long
+time. You could easily use this code with DelayedJob or Resque if
+needed. After all, the generated rails code does reference a cache
+observer--now you know how to write one.
