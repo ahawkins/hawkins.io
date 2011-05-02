@@ -681,3 +681,266 @@ you can afford a sweeping delay if the sweeping process takes a long
 time. You could easily use this code with DelayedJob or Resque if
 needed. After all, the generated rails code does reference a cache
 observer--now you know how to write one.
+
+## Tagged Based Caching
+
+This is an approach I came up with to work in this situation:
+
+1. Maintain control over how long things are cached
+2. Large number of different associations. Actions or fragments no
+   longer related to a specific resource. 
+3. Content could be invalidated through HTTP requests or any number of
+   background process.
+4. Hard to maintain specific keys. I thought of it as "resources".
+
+There is a ton of cached content in the system. Many different actions
+and fragments. There was also a cache heiharchy. Expiring a specific
+fragment would have to expire an action (so a cache miss would occur
+when a page was requested thus, causing the new fragment to be
+displayed) while other things on pages are still cached. One question to
+ask, is how can I expire groups of things based on certain events? Well,
+first you need a way to associate different keys. Once you can associate
+different keys, then you can expire them together. Since you're tracking
+the keys being sent to `Rails.cache`, you can simply use `Rails.cache`
+to delete them. All of this is possible through one itty-bitty detail of
+the Rails caching system. 
+
+You may have noticed something in the `Cache` class in the previous
+section. There is a second argument for `options`. Anything in the
+`option` argument is passed to the cache store. This is where can tie in
+the grouping logic. Also, since action and fragment caching use the same
+mechanism to write to the cache, we simply have to override the
+`write_fragment` method to add our tagging logic.
+
+Through all of this trickery, you'll be able to express this type of
+statement:
+
+    App.cache.expire_tag 'stats' 
+    App.cache.expire_tag @account
+
+The content could from anywhere, but all you know is that's stale.
+
+This is exactly where [Cashier](http://rubygems.org/gems/cashier) comes
+in. It is (my gem) that allows you associate actions and fragments with
+one or more tags, then expire based of tags. Of course you can expire
+the cache from anywhere in your code. Here are some examples:
+
+
+    caches_action :stats, :tag => proc {|c|
+      "account-#{Account.find(c.params[:id]).id}"
+    }
+
+    caches_action :show, :tag => 'account'
+    caches_cation :show, :tag => %w(account customer)
+
+    <%= cache @post, :tag => 'customer' do %>
+
+Then you can expire like this:
+
+    Cashier.expire 'account' # wipe all keys tagged 'account'
+
+All this is possible through this module:
+
+    module Cashier
+      module ControllerHelper
+        def self.included(klass)
+          klass.class_eval do
+            def write_fragment_with_tagged_key(key, content, options = nil)
+              if options && options[:tag] && Cashier.perform_caching? 
+                tags = case options[:tag].class.to_s
+                       when 'Proc', 'Lambda'
+                         options[:tag].call(self)
+                       else 
+                         options[:tag]
+                       end
+                Cashier.store_fragment fragment_cache_key(key), *tags
+              end
+              write_fragment_without_tagged_key(key, content, options)
+            end
+            alias_method_chain :write_fragment, :tagged_key
+          end
+        end
+      end
+    end
+
+I higly recommend you checkout [Cashier](http://rubygems.org/gems/cashier).
+It may be useful in your application especially if you have complicated
+relationships with high performance requirements.
+
+## Caching Complicated Actions (or Methods)
+
+Let's say you have an index action. However, it's more complicated than
+a normal scaffold index. The user can search, filer, sort and apply
+different query options. Think for example a form build with MetaWhere
+or Sunspot. There are infinite number of combinations, but the data is
+always the same. That is, a search for "EC2" will always have the same
+results as another search for "EC2" as long as the underlying data
+hasn't changed. We could easily cache the index action if we could
+figured how to represent each unique combination of input parameters as
+a key value. Memcached also has a key length limit. I don't know what it
+is off the top of my head, but you should try to keep the key short.
+How can we do this? We use a **cryptographic hash.** A cryptographic
+hash is guaraunteed to be unique given a unique set of input parameters.
+This means there no collisons.
+
+    hash(key1) != hash(key2) # will always be true
+
+The Ruby Standard Library comes with SHA1. SHA1 is good hashing function
+so we'll have no problems using it for these examples. It takes a string
+input and generates a hash. We'll create a composite key with a
+timestamp and string representation of the input parameters.
+
+  require 'digest/sha1'
+
+  class ComplicatedSearchController < ApplicationController
+
+    caches_action :search, :cache_path => proc {|c|
+      timestamp = Model.most_recently_updated.updated_at
+      string = timestamp + c.params.inspect
+      {:tag => Digest::SHA.hexdigest(string)}
+    }
+  end
+
+That will cache every combination of input parameters you can throw at
+it. This is perfect for actions with pagination as well. It's perfect
+for anything that uses the same underlying data based on input
+parameters. This can save your bacon if a search takes a few seconds. If
+one user just did the same search, the second user won't have to wait at
+all. Hell, they might even be impressed.
+
+## Bringing Caching into the Model Layer
+
+Caching isn't just for views. Some DB operations or methods make be
+computationally intensive. We can use `Rails.cache` inside the models to
+make them more effecient. Let's say you wanted to cached the listing of
+all the top 100 posts on reddit.
+
+    class Post
+      def self.top_100
+        timestamp = Post.most_recently_updated.updated_at
+        Rails.cache.fetch ['top-100', timestamp.to_i'].join('/') do
+          order('vote_count DESC').limit(100).all
+        end
+      end
+    end
+
+I've used the `most_recently_updated` method a few times. It is not a
+defined method, but a method named so that you understand what it is
+doing. We can use these concepts to do more fun stuff. My main project
+has companies and customers. An account has many customers and
+companies. It's typical that I need to retreive all the customers per an
+account. This can be 10000 records. That takes time. ActiveRecord
+instantiation on that order is not free. However, I only care about
+customers or companies in the scope of a specific account. That means, I
+only use the account and customers/companies association. Rails gives
+you the ability to specifiy a different attribute for `:touch` on
+`belongs_to`. I use this to my advantage to create an
+'association_name_updated_at` column. Then specify :touch =>
+'association_name_updated_at'. Here's how it looks in code:
+
+    class Account < ActiveRecord::Base
+      has_many :customers
+    end
+
+    class Customers < ActiveRecord::Base
+      belongs_to :account, :touch => :customers_updated_at
+    end
+
+That gives me a timestamp I can use to generate all keys. Now I can use
+Rails.cache to fetch different queries and keep them all cached. You can
+wrap this functionality in a module and include in other associations.
+
+    require 'digest/sha1'
+
+    module CachedFinderExtension
+      def cached(options = {})
+        key = Digest::SHA1.hexdigest(options.to_s)
+        association_name = proxy_reflection.name
+        owner_key = [proxy_owner.class.to_s.underscore, proxy_owner.id].join('/')
+        tag = proxy_owner.send("#{association_name}_updated_at").to_i
+
+        Rails.cache.fetch [owner_key, association_name, tag, key].join('/') do
+          all options
+        end
+      end
+    end
+
+`all` is a method that takes many options. We don't really care what's
+passed in, we just need to be able to generate a cache key based on the
+input paramters. Since we know when the association was last updated,
+the method will return fresh content depending if records have been
+modified. Include the extension in your association and you're on your
+way!
+
+    class Account < ActiveRecord::Base
+      has_many :customers, :extend => CachedFinderExentsion
+    end
+
+    # all find's now automatically cached and expired
+    @account.customers.cached(:conditions => {:name => 'Adam'})
+    @account.customers.cache(:order => 'name ASC', :limit => 10})
+
+These are just examples of what you can do with caching in the model
+layer. You could even write the type of cached finder extension for
+ActiveRecord::Base. This is different from SQL caching since it only
+persists through request--this is cached throughout the entire
+application.
+
+## Time to Cash Out
+
+I've covered a ton of material in this article. I've given a through
+explanation of how all the Rails cache layers fit together and how to
+use the lowest level to it's full potential. I've provided a solution
+for managin the cache outside the HTTP request cycle as well as shown
+you how to bring caching into the model layer. This is not the
+be-all-and-all of caching in Rails. It is a indepth look at caching in a
+Rails application. I'll leave you with a quick summary of everything
+covered and some few goodies.
+
+### Page Caching
+
+1. The honest to goodness best caching ever. Bypass Rails completely.
+2. Usually not applicable to any web application. Have a form? No good,
+   the `form_authenticity_token` will be no good and Rails will reject
+   it.
+
+### Action Caching
+
+1. Most bang for the buck. Can usually be applied in many different
+   circumstances.
+2. Uses fragment caching under the covers.
+3. Generates a cache key based off the current url and whatever other
+   options are passed in
+4. Get more mileage by caching actions with an composite timestamped
+   key.
+
+### Fragment Caching
+
+1. Good for caching reusable bits of HTML. Think shared partials or
+   forms.
+2. Use a good cache key for each cache block.
+3. Don't go overboard. Requests to memcached are not free. Maximize
+   benefits by caching a small number of large fragments instead of a
+   large number of small fragments.
+4. Use auto expiring cache keys to invalidate the cache automatically.
+
+### General Points
+
+1. Don't worry about sweepers unless you have too.
+2. Understand the limitations of Rail's HTTP request cycle 
+3. Use cryptographic hashes to generate cache keys when permutations of
+   input parameters are invloved.
+4. Don't be afraid to use Rails.cache in your models.
+5. Only use sweepers when you have to.
+6. Tagged based caching is useful in certain situations.
+7. Conslidate your cache expritation logic in one place so it's easily
+   testable.
+8. Test with caching turned on in complex applications.
+9. Look into [Varnish](http://www.varnish-cache.org/) for more epic
+   wins.
+10. belongs to with `:touch => true` is your friend.
+11. Use association timestamps
+12. Spend time upfront considering your cache strategy.
+13. Be weary of examples with expire by regex. This only works on cache
+    stores that have the ability to iterate over all keys. **Memcached**
+    is not one of those.
