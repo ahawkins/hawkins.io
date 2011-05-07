@@ -45,8 +45,8 @@ caching:
 All the caching layers are built on top of the next one. Page caching is
 the only exception because it does not use `Rails.cache` it writes
 content to disk. The cache is essentially a key-value store. Different
-things can be presisted. Strings are most common (for HTML fragments).
-More complicated objects can be presisted as well. Let's go through some
+things can be persisted. Strings are most common (for HTML fragments).
+More complicated objects can be persisted as well. Let's go through some
 examples of manually using the cache to store things. I am using
 memcached with dalli for all these examples. Any driver that
 implements the cache store pattern should work.
@@ -96,7 +96,7 @@ the cache. Rails provides a `cache` view helper for this. It's most
 basic form takes no arguments besides a block. Whatever is rendered
 during the block will be written back to the cache. The basic principle
 behind fragment caching is that it takes much less time fetch
-prerendered HTML from the cache, then it takes to generate a fresh copy.
+pre-rendered HTML from the cache, then it takes to generate a fresh copy.
 This is very true. If you haven't noticed, view generation can be very
 costly. Let's say you have generated a basic scaffold for a post:
 
@@ -179,7 +179,7 @@ when a comment is created? How can handle this?
 This is a very simple problem. What if we could figured out a
 solution to this problem: How can we create a cache miss when the
 associated object changes? We've already demonstrated how we can
-explicity set a cache key. What if we made a key that's dependent on the
+explicitly set a cache key. What if we made a key that's dependent on the
 time the object was last updated? We can create a key composed of the
 record's ID and it's updated_at timestamp! This way the cache key will
 change as the content changes **and we will not have to expire things
@@ -202,7 +202,7 @@ timestamp:
     end
 
 Now all comments will touch the post and change the `updated_at`
-timestamp. You can see this in action by `touch`'ing a post.
+time stamp. You can see this in action by `touch`'ing a post.
 
     Post.find(1).touch
 
@@ -210,7 +210,7 @@ timestamp. You can see this in action by `touch`'ing a post.
     Write fragment views/post-2/1304292445 (0.4ms)
 
 This concept is known as: **auto expiring cache keys.** You create a
-composite key with the normal key and a timestamp. This will create some
+composite key with the normal key and a time stamp. This will create some
 memory build up as objects are updated and no longer create cache hits.
 For example. You have that fragment. It is cached. Then someone updates
 the post. You now have two versions of the fragment cached. If there are
@@ -235,9 +235,9 @@ are not mentioned at all the documentation or in the guides. There is
 one very handy method: `ActiveRecord::Base.cache_key`. This will
 generate a key like this: `posts/2-20110501232725`. **This is the
 exact same thing we did ourselves.** This method is very important
-because depending on what type of arguements you pass into the `cache`
+because depending on what type of arguments you pass into the `cache`
 method it will be called on them. For the time being, this code is
-functionally equall to our previous examples.
+functionally equal to our previous examples.
 
     <%= cache @post do %>
 
@@ -287,12 +287,12 @@ action caching or page caching.
 
 ## Moving on to Action Caching
 
-Action caching is an around filter for spcific controller actions. It is
+Action caching is an around filter for specific controller actions. It is
 different from page caching since before filters are run and may prevent
 access to certain pages. For example, you only want to cache if the user
 is logged in. If the user is not logged in they should be redirect to
 the log in page. This is different than page caching. Page caching
-bypasses the rails stack completely. Most web applications for legitmate
+bypasses the rails stack completely. Most web applications for legitimate
 complexity cannot use page caching. Action caching is the next logical
 step for most web applications. Let's break the idea down: If the post
 hasn't changed, return the entire cached page as the HTTP response, else
@@ -350,12 +350,12 @@ filter is used to check to see if it's been cached. It works like this:
 
 Now you are probably asking the same question as before: "What do we do
 when the post changes?" We do the same thing as before: we create a
-composite key with a string and a timestamp. The question now is, how do
+composite key with a string and a time stamp. The question now is, how do
 we generate a special key using action caching? 
 
 Action caching generates a key from the current url. You can pass extra
-options using a the `:cache_path` option. Whatever is in this value is
-passed into `url_for` using the currrent parameters. Remember in the
+options using the `:cache_path` option. Whatever is in this value is
+passed into `url_for` using the current parameters. Remember in the
 view cache key examples what happened when we passed in a hash? We got a
 much different key than before: 
 
@@ -373,7 +373,7 @@ This will generate this url:
 
     http://localhost:3000/posts/1?tag=234897123978
 
-Notice the '?tag=23481329847'. Look familar from anywhere? Rails uses
+Notice the '?tag=23481329847'. Look familiar from anywhere? Rails uses
 this method to tag GET urls for static assets. That way the browser does
 not send a new HTTP request when it sees 'application.css?1234' since it
 is caching it. We can use this strategy to with action caching as well.
@@ -416,7 +416,7 @@ This method works well for singular resources. How can we handle the
 index action? I've created 10,000 posts. It takes a good amount of time
 to render that page on my computer. It takes over 10 seconds. The
 question is, how can we cache this? We could use the most recently
-updated post for the timestamp. That way, when one post is updated, it
+updated post for the time stamp. That way, when one post is updated, it
 will move to the top and create a new cache key. Here is the code
 without any action caching:
 
@@ -525,12 +525,12 @@ system.
 
 Now we're going to write some code to address problems in the Rails
 caching system. We know that action caching is dependent on URLS.
-Fargment caching is dependent on the view being rendered. However, we
+Fragment caching is dependent on the view being rendered. However, we
 know that both of these methods use `Rails.cache` under the covers to
 store content. We can use `Rails.cache` any where in our code. Unlike
 `caches_path`, `caches_action` and `cache` that will no hit the cache
 if `perform_caching` is set to false, the `Rails.cache` methods will
-**always** execute aganist the cache. Ideally, it would be nice to
+**always** execute against the cache. Ideally, it would be nice to
 create a simple observer for our models. What it would be cool if we had
 a class like this:
 
@@ -550,12 +550,12 @@ a class like this:
 
 Then we can use that utility class anywhere in our code to expire
 different things we have cached. First, we need to be able to generate
-URL's from something other than a controller. You may be familar with
+URL's from something other than a controller. You may be familiar with
 this problem. Mailers are not controllers, but you can still generate
 URL's. You need a host name to generate paths. The controller have this
 information because they accept HTTP requests which have that
-information. Mailer do not. That's why the hostname must be configured
-in the different environments. We can create a frakenstein class that
+information. Mailer do not. That's why the host name must be configured
+in the different environments. We can create a frankenstein class that
 takes parts of ActionMailer to generate URLS. Once we can generate URL's
 we can expire pages and actions. URL generation is included this module
 `Rails.application.routes.url_helpers`. That's a shortcut method for the
@@ -644,7 +644,7 @@ of code.
       end
     end
 
-Now we can merrily go about our business expiring cache'd content from
+Now we can merrily go about our business expiring cached content from
 **anywhere.** Here are some examples:
 
     App.cache # reference to a Cache instance
@@ -663,9 +663,9 @@ Now we can merrily go about our business expiring cache'd content from
 The `expire_fragment` and `expire_action` methods work just like the
 ones described in the Rails guides. Only difference is, you can use them
 anywhere. Now we can easily call this code in an observer. The observer
-events will fire everytime they happen **anywhere in the codebase.**
-Here's an example. I am assuming a Todo is created outside an HTTP
-request through a backround process. The observer will capture the
+events will fire every time they happen **anywhere in the codebase.**
+Here's an example. I am assuming a todo is created outside an HTTP
+request through a background process. The observer will capture the
 event. 
 
     class TodoObserver < ActivRecord::Observer
@@ -694,7 +694,7 @@ This is an approach I came up with to work in this situation:
 4. Hard to maintain specific keys. I thought of it as "resources".
 
 There is a ton of cached content in the system. Many different actions
-and fragments. There was also a cache heiharchy. Expiring a specific
+and fragments. There was also a cache hierarchy. Expiring a specific
 fragment would have to expire an action (so a cache miss would occur
 when a page was requested thus, causing the new fragment to be
 displayed) while other things on pages are still cached. One question to
@@ -780,8 +780,8 @@ figured how to represent each unique combination of input parameters as
 a key value. Memcached also has a key length limit. I don't know what it
 is off the top of my head, but you should try to keep the key short.
 How can we do this? We use a **cryptographic hash.** A cryptographic
-hash is guaraunteed to be unique given a unique set of input parameters.
-This means there no collisons.
+hash is guaranteed to be unique given a unique set of input parameters.
+This means there no collisions.
 
     hash(key1) != hash(key2) # will always be true
 
@@ -812,7 +812,7 @@ all. Hell, they might even be impressed.
 
 Caching isn't just for views. Some DB operations or methods make be
 computationally intensive. We can use `Rails.cache` inside the models to
-make them more effecient. Let's say you wanted to cached the listing of
+make them more efficient. Let's say you wanted to cached the listing of
 all the top 100 posts on reddit.
 
     class Post
@@ -828,12 +828,12 @@ I've used the `most_recently_updated` method a few times. It is not a
 defined method, but a method named so that you understand what it is
 doing. We can use these concepts to do more fun stuff. My main project
 has companies and customers. An account has many customers and
-companies. It's typical that I need to retreive all the customers per an
+companies. It's typical that I need to retrieve all the customers per an
 account. This can be 10000 records. That takes time. ActiveRecord
 instantiation on that order is not free. However, I only care about
 customers or companies in the scope of a specific account. That means, I
 only use the account and customers/companies association. Rails gives
-you the ability to specifiy a different attribute for `:touch` on
+you the ability to specific a different attribute for `:touch` on
 `belongs_to`. I use this to my advantage to create an
 'association_name_updated_at` column. Then specify :touch =>
 'association_name_updated_at'. Here's how it looks in code:
@@ -867,7 +867,7 @@ wrap this functionality in a module and include in other associations.
 
 `all` is a method that takes many options. We don't really care what's
 passed in, we just need to be able to generate a cache key based on the
-input paramters. Since we know when the association was last updated,
+input parameters. Since we know when the association was last updated,
 the method will return fresh content depending if records have been
 modified. Include the extension in your association and you're on your
 way!
@@ -889,8 +889,8 @@ application.
 ## CSRF and form\_authenticty\_token
 
 Rails uses a CSRF
-(Cross Site Request Forgery) token and a form authenticy token to
-protect your application aganist attacks. These are generated per
+(Cross Site Request Forgery) token and a form authentic token to
+protect your application against attacks. These are generated per
 request and each pages get unique values each time.
 `protect_from_forgery` is added by default to `ApplicationController`.
 You may have run into the problem before. You may have tried to submit
@@ -900,7 +900,7 @@ happens to your application.
 
 These tokens cause problems (depending on what Rails version) you're
 using with cached HTML. Caching a page or an action with a form may
-generate unthorized errors because the tokens were for a different
+generate unauthorized errors because the tokens were for a different
 session or request. There are parts of the cached pages that need to be
 _replaced_ with new values before the application can be used. This is a
 simple process, but it will take another HTTP request. 
@@ -910,8 +910,8 @@ related information that's never cached. That way, a cached action will
 load, then a separate request will be made for correct tokens. 
 
 NOTE: You may run into more problems with on Rails 2. This is because
-Rails 3 uses a form authenticty token and CSRF in a meta tag in the HEAD
-of the document. This is for ajax requests. You may notice the rails.js
+Rails 3 uses a form authenticity token and CSRF in a meta tag in the HEAD
+of the document. This is for AJAX requests. You may notice the rails.js
 file appends them to all AJAX requests. Forms submitted with AJAX with
 something like '$(form).serialize()` will send the
 `form_authenticty_token` since it's automatically included in all forms
