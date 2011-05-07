@@ -886,6 +886,86 @@ ActiveRecord::Base. This is different from SQL caching since it only
 persists through request--this is cached throughout the entire
 application.
 
+## CSRF and form\_authenticty\_token
+
+Rails uses a CSRF
+(Cross Site Request Forgery) token and a form authenticy token to
+protect your application aganist attacks. These are generated per
+request and each pages get unique values each time.
+`protect_from_forgery` is added by default to `ApplicationController`.
+You may have run into the problem before. You may have tried to submit
+a POST and received an Unauthorized response. This is the
+`form_authenticity_token` in action. You can fiddle with it and see what
+happens to your application.
+
+These tokens cause problems (depending on what Rails version) you're
+using with cached HTML. Caching a page or an action with a form may
+generate unthorized errors because the tokens were for a different
+session or request. There are parts of the cached pages that need to be
+_replaced_ with new values before the application can be used. This is a
+simple process, but it will take another HTTP request. 
+
+You'll need to create a controller to server up some configuration
+related information that's never cached. That way, a cached action will
+load, then a separate request will be made for correct tokens. 
+
+NOTE: You may run into more problems with on Rails 2. This is because
+Rails 3 uses a form authenticty token and CSRF in a meta tag in the HEAD
+of the document. This is for ajax requests. You may notice the rails.js
+file appends them to all AJAX requests. Forms submitted with AJAX with
+something like '$(form).serialize()` will send the
+`form_authenticty_token` since it's automatically included in all forms
+generated with `form_for` or `form_tag`.
+
+
+You need to create a new controller that responds_to JavaScript and
+return some JS for the browser to evaluate. Here's how you can replace
+the information in the meta tag for Rails 3. You can also use this
+logic to update all `form_authenticty_token` inputs on the page.
+
+    $("meta[name='csrf-token']").attr('content', '<% Rack::Utils.escape_html(request_forgery_protection_token) %>');
+    $("meta[name='csrf-param']").attr('content', '<% Rack::Utils.escape_html(form_authenticity_token) %>');
+
+    // you may also want to supply current application status as well.
+    // for example, you may want to know the current users's ID
+    // for use in your application JS
+    MyApp.userId = '<%= current_user.id %>';
+
+
+## Dealing with Relative Dates (or other content)
+
+Many Rails applications use `distance_of_times_in_words` throughout
+their application. This can cause major problems for any cached content
+with a data. For example, you have a fragment cached. That fragment was
+cached 1 month ago. 2 months ago, it's still in the cache. Since you
+stored a relative date in the cache, the fragment contains '1 month
+ago'. This is no good. You can solve this problem easily with
+JavaScript.
+
+JavaScript is better for handling dates/times than Rails is. This is
+because Rails needs to know what the user's time zone is, then marshal
+all times into that time zone. JavaScript is better because it use the
+local time zone by default. How often do you want to display a time in a
+different zone than user's current locale? You can dump the UTC
+representation of the date into the DOM, then use JS to parse them into
+relative or something like `strftime`. I've encapsulated this process in
+a helper in my Rails applications. Once all the data is in the DOM, you
+can do all the parsing in JavaScript.
+
+    def timestamp(time, options = {})
+      classes = %w(timestamp)
+      classes << 'past' if time.past?
+      classes << 'future' if time.future?
+
+      options[:class] ||= ""
+      options[:class] += classes.join(' ')
+
+      content_tag(:span, time.utc.iso8601, options)
+    end
+
+Then, when the page loads you can use a library like date.js to create
+more user friendly dates.
+
 ## Time to Cash Out
 
 I've covered a ton of material in this article. I've given a through
