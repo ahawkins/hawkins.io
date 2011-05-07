@@ -89,7 +89,7 @@ Those are the basics of interacting withe the Rails cache. The rails
 cache is a wrapper around whatever functionality is provided by the
 underlying storage system. Now we are ready to move up a layer.
 
-# Understanding Fragment Caching
+## Understanding Fragment Caching
 
 Fragment caching is taking rendered HTML fragments and storing them in
 the cache. Rails provides a `cache` view helper for this. It's most
@@ -342,11 +342,11 @@ filter. The around filter is used to capture the output and the before
 filter is used to check to see if it's been cached. It works like this:
 
 1. Execute before filter to check to see if cache key exists?
-  2. Key exists? - Read from cache and return HTTP Response. This
-     triggers a `render` and **prevents any further code from being
-     executed.**
-  3. No key? - Call all controller and view code. Cache output using
-     Rails.cache and return HTTP response.
+2. Key exists? - Read from cache and return HTTP Response. This
+   triggers a `render` and **prevents any further code from being
+   executed.**
+3. No key? - Call all controller and view code. Cache output using
+   Rails.cache and return HTTP response.
 
 Now you are probably asking the same question as before: "What do we do
 when the post changes?" We do the same thing as before: we create a
@@ -835,7 +835,7 @@ customers or companies in the scope of a specific account. That means, I
 only use the account and customers/companies association. Rails gives
 you the ability to specific a different attribute for `:touch` on
 `belongs_to`. I use this to my advantage to create an
-'association_name_updated_at` column. Then specify :touch =>
+'association_name_updated_at' column. Then specify :touch =>
 'association_name_updated_at'. Here's how it looks in code:
 
     class Account < ActiveRecord::Base
@@ -913,7 +913,7 @@ NOTE: You may run into more problems with on Rails 2. This is because
 Rails 3 uses a form authenticity token and CSRF in a meta tag in the HEAD
 of the document. This is for AJAX requests. You may notice the rails.js
 file appends them to all AJAX requests. Forms submitted with AJAX with
-something like '$(form).serialize()` will send the
+something like `$(form).serialize()` will send the
 `form_authenticty_token` since it's automatically included in all forms
 generated with `form_for` or `form_tag`.
 
