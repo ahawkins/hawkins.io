@@ -4,13 +4,423 @@
 <title>BroadcastingAdam</title>
  <link href="http://broadcasting.com/atom.xml" rel="self"/>
  <link href="http://broadcasting.com"/>
- <updated>2011-05-07T16:37:14-07:00</updated>
+ <updated>2011-06-10T11:48:11-07:00</updated>
  <id>http://broadcastingadam.com/</id>
  <author>
    <name>Adam Hawkins</name>
    <email>adman1965@gmail.com</email>
  </author>
 
+ 
+ <entry>
+   <title>Present Yourself - Presenters in Rails</title>
+   <link href="http://broadcastingadam.com/2011/06/present_yourself"/>
+   <updated>2011-06-10T00:00:00-07:00</updated>
+   <content type="html"><![CDATA[<p>Presenters are one of those interesting things that you don&#8217;t hear about very much. They are mentioned, and then flutter in the wind. If you google &#8220;presenters rails&#8221; you&#8217;ll get some links from a few years ago and that&#8217;s about it. There is perhaps some useful information there. Maybe you find something on cells. That&#8217;s most likely not what you want. I&#8217;m taking about presenters (insert Alan Iverson practice voice). Presenters are object designed to encapsulate information required to create a view. They slim down controllers and encourage view reusability. This post describes how I started using presenters and why it worked.</p>
+
+<h2 id='the_backstory__thats_a_god_damn_ton_of_instance_variables'>The Backstory - That&#8217;s a God Damn Ton of Instance Variables</h2>
+
+<p>I work on a complex project. It&#8217;s not one of those cookie-cutter Rails apps that deals with practically generated code. There is some real business going on here. Views are complicated things and it takes a fair amount of information to render views for certain objects. Here is an example of what I&#8217;m talking about for one page.</p>
+
+<ol>
+<li>The record itself.</li>
+
+<li>All the associated notes</li>
+
+<li>All the associated todos</li>
+
+<li>All the associated extra fields (think EAV)</li>
+
+<li>All the associated deals</li>
+
+<li>All the associate activities (with fancy filtering. This alone is massive where each activity as it&#8217;s own forms and required stuff)</li>
+
+<li>Statistics (3 different tables, 30 different statistics, custom ranges)</li>
+
+<li>A new email</li>
+
+<li>A new sms</li>
+
+<li>A new meeting</li>
+
+<li>A new deal</li>
+
+<li>The list goes on</li>
+</ol>
+
+<p>Everyone is used to seeing this:</p>
+
+<pre><code>def show
+  @customer = Customer.find params[:id]
+end</code></pre>
+
+<p>That&#8217;s all well in good for simple applications. What if you have this?</p>
+
+<pre><code>def show
+  @customer = Customer.find params[:id]
+
+  # insert 30 more lines of instantiation
+  # and other trickery to get the view to render
+end</code></pre>
+
+<p>That&#8217;s gonna get old real quick&#8211;especially if you have to do that for many different pages. The controller is becoming ove run run with logic <strong>only</strong> required for the view. All of that extra cruft is not related to the actual controller action of taking params and finding and object. <strong>It&#8217;s just noise.</strong> The solution is to move all that stuff into an object that knows how to <em>present</em> that specific view. Why do you want to to this? I think there are a few reasons.</p>
+
+<ol>
+<li>Keep controllers small and stupid. They should be kept small.</li>
+
+<li>Extract logic into a class where it&#8217;s easily testable</li>
+
+<li>Encourage view/template reusability since a view requires an object not a random assortment of instance variables.</li>
+
+<li>Keep views stupid since they depend on one object for everything.</li>
+</ol>
+
+<p>Now many of my previous complex controller actions look like this:</p>
+
+<pre><code>def show
+  customer = Customer.find params[:id]
+  @presenter = CustomerPresenter.new customer, current_user
+end</code></pre>
+
+<p>At this point, the presenter does all the required instantiation and other trickery that the view needs.</p>
+
+<h2 id='looking_at_a_presenter'>Looking at a Presenter</h2>
+
+<p>I created a common base class for all the presenters in my application. I call it ApplicationPresenter. Here&#8217;s the code: (Rails 2.3)</p>
+
+<pre><code>class ApplicationPresenter
+  extend ActiveSupport::Memoizable
+  include ActionController::UrlWriter
+  include ActionController::RecordIdentifier
+
+  def self.default_url_options
+    ActionMailer::Base.default_url_options
+  end
+
+  private
+  def t(*args)
+    I18n.translate(*args)
+  end
+end</code></pre>
+
+<p>This code enables me to do a few things:</p>
+
+<ol>
+<li>Memoize all methods so instantiation/querying only happens once</li>
+
+<li>Use named route helpers &amp; url_for/polymorphic_url etc in the presenter</li>
+
+<li>User <code>dom_id</code> and things like that. I use <code>dom_id</code> a ton in this project.</li>
+
+<li>Provide <code>t</code> in the presenters. This is mostly to prevent the views from figuring out how to find text themselves.</li>
+</ol>
+
+<p>The application is very compontentized. Pages are composed of different components. Each component has their own presenter. A page presenter will provide an interface for getting a presenter for each component. That presenter is passed into the partial as a local variable. It works out pretty well. Here is an example view. Most of the views look like this:</p>
+
+<pre><code>-# This is the dashboard type view
+
+- title @presenter.title
+
+= render :partial =&gt; &#39;announcements/announcement&#39;, :locals =&gt; {:presenter =&gt; @presenter.announcement_presenter}
+
+= render :partial =&gt; &quot;activities/activities&quot; , :locals =&gt; {:presenter =&gt; @presenter.activities_presenter}
+
+= render_statistics @presenter.statistics_presenter
+
+- content_for :sidebar do
+
+  = render :partial =&gt; &quot;todos/widget&quot;, :locals =&gt; { :presenter =&gt; @presenter.todo_widget_presenter }
+
+  = render :partial =&gt; &#39;users/widget&#39;, :locals =&gt; { :presenter =&gt; @presenter.user_widget_presenter }
+
+  = render :partial =&gt; &#39;customers/search_widget&#39;
+
+  = render :partial =&gt; &#39;companies/widget&#39;, :locals =&gt; {:presenter =&gt; @presenter.company_widget_presenter}</code></pre>
+
+<p>Now you know what a basic view looks like, here&#8217;s the code for that page&#8217;s presenter.</p>
+
+<pre><code>class DashboardPresenter &lt; ApplicationPresenter
+  def initialize(user)
+    @user = user
+  end
+
+  def user_widget_presenter
+    UserWidgetPresenter.new @user 
+  end
+  memoize :user_widget_presenter
+
+  def company_widget_presenter
+    CompanyWidgetPresenter.new @user
+  end
+  memoize :company_widget_presenter
+
+  def todo_widget_presenter
+    TodoWidgetPresenter.new @user, @user
+  end
+  memoize :todo_widget_presenter
+
+  def announcement_presenter
+    AnnouncementPresenter.new @user
+  end
+  memoize :announcement_presenter
+
+  def activities_presenter
+    DashboardActivitiesPresenter.new @user, @user
+  end
+  memoize :activities_presenter
+
+  def statistics_presenter
+    DashboardStatisticsPresenter.new @user
+  end
+  memoize :statistics_presenter
+
+  def title
+    t &#39;dashboard.page_title&#39;
+  end
+  memoize :title
+end</code></pre>
+
+<p>The main page presenters really don&#8217;t have much to them. The just create presenters for all the different components I want on that page. However, some of the individual presenters can get pretty hairy. I&#8217;ll share a simple one first:</p>
+
+<pre><code>class NotesPresenter &lt; ApplicationPresenter
+  def initialize(record)
+    @record = record
+  end
+
+  def notes
+    @record.notes.all(:include =&gt; :user)
+  end
+  memoize :notes
+
+  def show_explanation?
+    @record.notes.count == 0
+  end
+  memoize :show_explanation?
+
+  def explanation
+    t(&#39;explanations.notes&#39;)
+  end
+  memoize :explanation
+end</code></pre>
+
+<p>Now for the hairy one:</p>
+
+<pre><code>class DealsPresenter &lt; ApplicationPresenter
+
+  PER_PAGE = 35
+
+  def initialize(user, params)
+    @user = user
+    @params = params
+  end
+
+  def deals
+    if @user.is_a?(Manager)
+      bucket = account.deals
+    else
+      bucket = @user.deals
+    end
+
+    case filter
+    when &#39;user&#39;
+      bucket = bucket.with_user(account.users.find(@params[:user_id]))
+    when &#39;status_pending&#39;
+      bucket = bucket.pending
+    when &#39;status_closed&#39;
+      bucket = bucket.closed
+    when &#39;status_rejected&#39;
+      bucket = bucket.rejected
+    when &#39;status_paid&#39;
+      bucket = bucket.paid
+    when &#39;due_this_week&#39;
+      bucket = bucket.due_between(Time.zone.now.beginning_of_week..Time.zone.now.end_of_week)
+    when &#39;due_this_month&#39;
+      bucket = bucket.due_between(Time.zone.now.beginning_of_month..Time.zone.now.end_of_month)
+    when &#39;due_overdue&#39;
+      bucket = bucket.overdue
+    else
+      bucket
+    end
+
+    bucket.paginate :order =&gt; &quot;#{ordered_column} #{sort_direction}&quot;,
+                    :include =&gt; [{:customer =&gt; :company}, :user],
+                    :page =&gt; @params[:page],
+                    :per_page =&gt; PER_PAGE
+  end
+  memoize :deals
+
+  def filters_presenter
+    presenter = FiltersPresenter.new
+
+    presenter.filter I18n.translate(&#39;deals.filters.all_deals&#39;), deals_path, :class =&gt; (filter == &#39;all&#39; ? &#39;selected&#39; : &#39;unselected&#39;)
+
+    text = case filter
+           when &#39;user&#39;
+             I18n.translate(&#39;deals.filters.filtered_by_user&#39;, :user =&gt; account.users.find(@params[:user_id]))
+           else
+             I18n.translate(&#39;deals.filters.by_user&#39;)
+           end
+
+    if @user.is_a?(Manager)
+      presenter.dropdown text, :class =&gt; (filter == &#39;user&#39; ? &#39;selected&#39; : &#39;unselected&#39;) do |drop_down|
+        account.users.alphabetical.except(@user).each do |user|
+          drop_down.filter user, deals_path(:filter =&gt; :user, :user_id =&gt; user.id)
+        end
+      end
+    end
+
+    text = case filter
+           when &#39;status_pending&#39;
+             I18n.translate(&#39;deals.filters.status_pending&#39;)
+           when &#39;status_closed&#39;
+             I18n.translate(&#39;deals.filters.status_closed&#39;)
+           when &#39;status_paid&#39;
+             I18n.translate(&#39;deals.filters.status_paid&#39;)
+           when &#39;status_rejected&#39;
+             I18n.translate(&#39;deals.filters.status_rejected&#39;)
+           else
+             I18n.translate(&#39;deals.filters.status&#39;)
+           end
+
+    presenter.dropdown text, :class =&gt; (filter =~ /status/ ? &#39;selected&#39; : &#39;unselected&#39;) do |drop_down|
+      %w(pending closed paid rejected).each do |status|
+        drop_down.filter I18n.translate(&quot;deals.states.#{status}&quot;), deals_path(:filter =&gt; &quot;status_#{status}&quot;) if filter != status
+      end
+    end
+
+    presenter
+  end
+  memoize :filters_presenter
+
+  def deal
+    Deal.new
+  end
+  memoize :deal
+
+  def sortable_options
+    @params.slice(:filter, :user_id)
+  end
+  memoize :sortable_options
+
+  def sort_column
+    %w(user customer company amount due_on status).include?(@params[:sort]) ? @params[:sort] : &#39;user&#39;
+  end
+  memoize :sort_column
+
+  def sort_direction
+    @params[:direction] == &#39;desc&#39; ? &#39;desc&#39; : &#39;asc&#39;
+  end
+  memoize :sort_direction
+
+  def ordered_column
+    case sort_column
+    when &#39;user&#39;
+      &#39;users.name&#39;
+    when &#39;customer&#39;
+      &#39;customers.name&#39;
+    when &#39;company&#39;
+      &#39;companies.name&#39;
+    when &#39;amount&#39;
+      &#39;deals.value&#39;
+    when &#39;status&#39;
+      &#39;deals.state&#39;
+    when &#39;due_on&#39;
+      &#39;deals.due_by&#39;
+    end
+  end
+  memoize :ordered_column
+
+  def title
+    I18n.translate &#39;plurals.deals&#39;
+  end
+  memoize :title
+
+  def statistics_presenter
+
+  end
+  memoize :statistics_presenter
+
+  private
+  def filter
+    %w(user status_pending status_closed status_rejected status_paid
+      due_this_week due_this_month due_overdue all).include?(@params[:filter]) ? @params[:filter] : &#39;all&#39;
+  end
+  memoize :filter
+
+  def account
+    @user.account
+  end
+  memoize :account
+end</code></pre>
+
+<p><strong>Note:</strong> this particular presenter is waiting to be refactored. But it does give you an idea of some of the logic that I removed from the controlller. It also testifies to the logic required to construct a view and why it&#8217;s nice to remove it from the controller.</p>
+
+<h2 id='testing_presenters'>Testing Presenters</h2>
+
+<p>I like moving logic out of the controllers because testing controllers is such a pain in the ass. (I stopped doing it completely actually). Once your controller starts to do some real work, whatever mocks/stubs you had in place become too cumbersome to maintain. Sometimes I simply want to test that a new instance variable is created. Using my presenter, I could write a test like this:</p>
+
+<pre><code>class NotesPresenter &lt; ApplicationPresenter
+  def note
+    Note.new
+  end
+  memoize :note
+end
+
+describe NotesPresenter do
+  it &quot;should provide a new note for a form&quot; do
+    subject.note.should be_new_record
+    subject.note.should be_a(Note)
+  end
+end</code></pre>
+
+<p>Good luck doing that in a controller action with more complex logic. It&#8217;s very easy to test in an isolate class.</p>
+
+<p>Most of my test cases don&#8217;t do heavy assertions, but verify that a specific interface is implemented. Most of the logic inside the method is trivial enough to ignore writing a test case. Instead, I use rspec&#8217;s <code>it_should_behave_like</code> to specify the presenter provides a certain interface. Here is the test for the previously mentioned <code>DashboardPresenter</code>:</p>
+
+<pre><code>require &#39;spec_helper&#39;
+
+describe DashboardPresenter do
+  def mock_user(stubs = {})
+    @mock_user ||= mock_model(User, stubs)
+  end
+
+  subject { DashboardPresenter.new(mock_user) }
+
+  it_should_behave_like &quot;a presenter with activities&quot;
+
+  it_should_behave_like &quot;a presenter with todos&quot;
+
+  it_should_behave_like &quot;a presenter with stats&quot;
+
+  it_should_behave_like &quot;a presenter with companies&quot;
+
+  it_should_behave_like &quot;a presenter with a page title&quot;
+
+  it { should respond_to(:user_widget_presenter) }
+
+  it { should respond_to(:announcement_presenter) }
+end</code></pre>
+
+<p>Now for a component presenter:</p>
+
+<pre><code>require &#39;spec_helper&#39;
+
+describe NotesPresenter do
+  fixtures :customers
+
+  subject { NotesPresenter.new customers(:teemu) }
+
+  it_should_behave_like &quot;a presenter with an explanation&quot;
+
+  it { should respond_to(:notes) }
+end</code></pre>
+
+<h2 id='closing_thoughts'>Closing Thoughts</h2>
+
+<p>I&#8217;m very happy I did this. It makes my view layer much easier to maintain. It also makes my controllers easy to maintain because of how simple they are. It also gives me a common object I can pass off to a view if I need to render it. This happens to me a lot actually. There are ajax forms that hit different controllers on one page. For example, if you are on &#8216;companies/1&#8217; there is a form to add a todo. Naturally this goes to <code>TodosController</code>. Now the UI for the company page has to be updated from the <code>TodosController</code> in a <code>js.erb</code> template. I can simply instantiate the todos component presenter has use that to rerender the partial. I don&#8217;t have to know anything else&#8211;the presenter does all the work for me.</p>
+
+<p>You can learn more about presenters in this <a href='http://www.codeschool.com/courses/rails-best-practices'>course</a>. You can also learn more about presenters by reading Martin Flower&#8217;s <a href='http://www.google.com/search?sourceid=chrome&amp;ie=UTF-8&amp;q=martin+fowler+presenter'>papers</a>.</p>]]></content>
+ </entry>
  
  <entry>
    <title>Advanced Caching in Rails</title>
