@@ -4,7 +4,7 @@
 <title>BroadcastingAdam</title>
  <link href="http://broadcasting.com/atom.xml" rel="self"/>
  <link href="http://broadcasting.com"/>
- <updated>2011-10-20T02:34:52-07:00</updated>
+ <updated>2011-10-30T15:35:19+02:00</updated>
  <id>http://broadcastingadam.com/</id>
  <author>
    <name>Adam Hawkins</name>
@@ -13,9 +13,181 @@
 
  
  <entry>
+   <title>Dear God?! What is this Bug?</title>
+   <link href="http://broadcastingadam.com/2011/10/dear_god_what_is_this_bug"/>
+   <updated>2011-10-28T00:00:00+03:00</updated>
+   <content type="html"><![CDATA[<p>A few days ago I had to do a very trivial task. One of my coworkers has translated our Rails app into finnish. He sent me the <code>fi.yml</code> file for me to add the application. I thought this process would take maybe ~30 mins. Turns out it took me <strong>5 hours</strong>. I&#8217;ll tell you why.</p>
+
+<h2 id='it_all_started_on_windows'>It All Started on Windows</h2>
+
+<p>I sent my coworker the existing yml file. I told him to replace the text with the finnish version. He had a hard time just working with the yml file so he made an excel spreadsheet so he could see the existing english text in context. Then he put the finnish version next to it. When he was done he wrote a script to take the finnish columns and create the yml file. Sounds reasonable. I knew there would be formatting mistakes related to tabs, spaces, :&#8217;s etc. So I figured I&#8217;d just have to clean up the file before adding it to the locales. After a few days he sent me the file. Then after a few weeks I had time to put it in&#8211;so I downloaded <code>fi.yml</code> from gmail and off I went.</p>
+
+<p>Drop the file in <code>config/locales</code> and start the server. BOOM. Syntax error. Line #4. Ok, np, open up the file, figure there would be a missing : or something. Nothing jumps out. Stare at it for about 30 minutes. Hmmm&#8230;there&#8217;s <em>got</em> to be something going on here. Open the file up in textmate so I can see &#8220;invisibles.&#8221; Nothing seems out of place. I convert all tabs to spaces (I know YML parsers are bitchy when it comes to this). Run the server again. Syntax error line #4. Le fu. At this point I have no clue what it could be. I save the file in UTF8 (just to be sure) and convert all line breaks to unix format. Sill no luck. At this point I&#8217;m out of ideas. So I just deleted the first block of text and retyped it. Syntax error line 79! <strong>HUZZAH!</strong> Progress. Head over to line 79. There are odvious issues which I take care off. All in all it took little over an hour to clean up the 1,000+ line yml file.</p>
+
+<h2 id='the_server_starts_finally'>The Server Starts Finally</h2>
+
+<p>Now I&#8217;m ready to see the wondeful finnish version of the application. I open up the settings page and switch the locale to Suomen. Refresh the page and voilla! It&#8217;s in English. Hmmm, this is prolly just a dumb thing I did like forgetting the <code>before_filter</code> to set the locale or forgetting to save the form. Ya know, something <strong>simple</strong>. Do the quick status check. Everything is in proper order. My locale is set to <code>fi</code> in the DB. The <code>before_filter :set_locale</code> is being hit. Everything on my end seems to be as it should be. Now I have to do the fun stuff which happens way to often on this project: debug framework code. It&#8217;s time to take a dive into <code>I18n.translate</code> which of <em>course</em> is modified by Rails for trickery.</p>
+
+<h2 id='into_the_rabbit_hole'>Into the Rabbit Hole</h2>
+
+<p>At this point, I just want to find out if the right locale and key is being passed into I18n. After another bit of reading code (and learning about I18n fallbacks) and I see that <code>:fi</code> is being passed into the various translate functions. So at this point, I know these things.</p>
+
+<ol>
+<li>My code to manage the locale is correct</li>
+
+<li>My locale is set to :fi</li>
+
+<li>The :fi locale is correctly being passed into I18n.</li>
+</ol>
+
+<p>Now that I know this, I&#8217;m able to try to figure out why <strong>every single key</strong> is falling back to english. After some more code reading I look squarely at this method: (source taken from I18n code)</p>
+
+<pre><code>def lookup(locale, key, scope = [], options = {})
+  init_translations unless initialized?
+  keys = I18n.normalize_keys(locale, key, scope, options[:separator])
+
+  keys.inject(translations) do |result, _key|
+    _key = _key.to_sym
+    return nil unless result.is_a?(Hash) &amp;&amp; result.has_key?(_key)
+    result = result[_key]
+    result = resolve(locale, _key, result, options.merge(:scope =&gt; nil)) if result.is_a?(Symbol)
+    result
+  end
+end</code></pre>
+
+<p>The underlying code is pretty simple. It loops over the translation keys like: <code>[en, dashboard, subkey, key, key]</code> to find the actual value in the translations hash. Ok, seems easy enough (recurring theme over the course of this task), throw a debugger in and see what&#8217;s happening.</p>
+
+<p>So I put a debugger here:</p>
+
+<pre><code>def lookup(locale, key, scope = [], options = {})
+  init_translations unless initialized?
+  keys = I18n.normalize_keys(locale, key, scope, options[:separator])
+
+  keys.inject(translations) do |result, _key|
+    _key = _key.to_sym
+    debugger # &lt;---------- Debugger added
+    return nil unless result.is_a?(Hash) &amp;&amp; result.has_key?(_key)
+    result = result[_key]
+    result = resolve(locale, _key, result, options.merge(:scope =&gt; nil)) if result.is_a?(Symbol)
+    result
+  end
+end</code></pre>
+
+<p>So I restart the server and go to page. My perfectly placed debugger hits and I get the nice rdb prompt. This is where my brain <strong>starts to question everything it knows about Ruby</strong>.</p>
+
+<h2 id='1__1__1'>1 + 1 = 1</h2>
+
+<p>Now that I&#8217;m in my debugger I can see that <code>locale == :fi =&gt; true</code>. I want to know why the key <code>fi.navigation.dashboard</code> is returning english. So I <strong>step.</strong> and the method exists. Hmm. Apparently the translations hash does not have the <code>:fi</code> key. What follows is something straight out of the X-Files.</p>
+
+<p>I quit the process and start over again. This time I don&#8217;t step but inspect what&#8217;s going on in memory. Here&#8217;s me in the debugger</p>
+
+<pre><code>(rdb:2) translations.keys
+[:&quot;en-us&quot;, :&quot;de-ch&quot;, :en, :fi :&quot;en-gb&quot;]
+(rdb:2) translations[:fi]
+nil
+(rdb:2) translations[:en]
+{:invitation_mailer=&gt;{:rejection_notification=&gt;{:description=&gt;&quot;%{name} has rejected your invitation! You can reply to this email if\nyou&#39;d like to contact them. They can still confirm later if they want.\nThey will still rece ... you the the point }
+(rdb:2)</code></pre>
+
+<p>Well this is looking <strong>very</strong> suspect. I&#8217;m thinking symbols are globally unique! A <code>:fi</code> anywhere in any ruby source file in the same process is equal to any other <code>:fi</code> in the same process. How can this possibly be! Well, perhaps <code>translations</code> isn&#8217;t a simple <code>Hash</code> but something like <code>HashWithIndifferentAccess</code> or other trickery. A check to <code>translations.class</code> returns <code>Hash</code>. At this point I&#8217;m absolutely fucking confused because <code>translations[:fi]</code> is <code>nil</code> but <code>translations[:en]</code> is correct. <strong>AND</strong> <code>translations.keys</code> has <code>:fi</code> in the damn thing. So I start running around the room bouncing off walls and other thing that don&#8217;t make any sense because for some reason all I know about Ruby symbols is wrong and that&#8217;s causing my brain to meltdown.</p>
+
+<p>I start playing in the debugger more.</p>
+
+<pre><code>(rdb:2) translations[translations.keys.first]
+# a ton of finnish
+(rdb:2) translations.keys[:fi]
+nil # wait wut.</code></pre>
+
+<p>Does. Not. Compute. Brain shutting down. More debugging:</p>
+
+<pre><code>(rdb:2) translations.keys
+[:fi, :&quot;en-gb&quot;, :en, :&quot;en-us&quot;, :&quot;de-ch&quot;]
+(rdb:2) translations.keys.first == :fi # HMMMM. Highly suspect &lt;------------ WTF!
+false
+(rdb:2) translations.keys.first
+:fi
+(rdb:2) translations.keys[2] == :en
+true
+(rdb:2) translations[:en]
+# a ton of english
+(rdb:2) translations[:fi]
+# nil
+(rdb:2) translations[translations.keys.first]</code></pre>
+
+<p>GAH. I cannot handle this. There has got to be some completly sinister going on here. Something I&#8217;ve never heard about. Something that only exists in comp.lang.c. Something that is out side of releam. Something going in the C implementation. Just something fucking crazy.</p>
+
+<p>This sort of bug induced comma has been going on for a few hours now. Nearing the end of my rope I try some more things in the debugger:</p>
+
+<pre><code>/Users/adam/.rvm/gems/ree-1.8.7-2011.03/gems/i18n-0.6.0/lib/i18n/backend/simple.rb:33
+locale = locale.to_sym
+(rdb:1) locale
+&quot;fi&quot;
+(rdb:1) locale == &quot;fi&quot;
+false
+(rdb:1) locale &lt;=&gt; &quot;fi&quot;
+1
+(rdb:1) locale.length
+5
+(rdb:1) &quot;fi&quot;.length
+2</code></pre>
+
+<p><strong>HOLY CHRISTMAS</strong>. There is the sinister bit! The keys are actually different! This is completely masked by any call to <code>puts</code> or <code>to_sym</code>. Now I have to figure out why in god&#8217;s name is the key for finnish in the <code>translations</code> 5 characters. There is only one other place that can cause this problem: Where the YML files are parsed and put into the translations file. I track that down and enter the debugger:</p>
+
+<pre><code>(rdb:1) locale.bytes
+#&lt;Enumerable::Enumerator:0x10ba360b8&gt;
+(rdb:1) locale.bytes.map(&amp;:to_s)
+[&quot;239&quot;, &quot;187&quot;, &quot;191&quot;, &quot;102&quot;, &quot;105&quot;]
+(rdb:1) &quot;fi&quot;.bytes.map(&amp;:to_s)
+[&quot;102&quot;, &quot;105&quot;]</code></pre>
+
+<h2 id='encodings_youve_done_it_to_me_again'>Encodings, You&#8217;ve Done it to me Again!</h2>
+
+<p>Astute readers will notice that is there is a BOM in the key that&#8217;s used in the <code>translations</code> hash! So when I pass the string &#8220;fi&#8221; into <code>I18n.translate</code> of course it doesn&#8217;t have the BOM in it which essentially equates to I18n thining that there is no such thing as that locale. There are more sinister things at play here. I18n will call <code>to_sym</code> for all keys that are entered into the translations hash. <em>However</em>, ruby will not remove the BOM from the string when <code>to_sym</code> is called. When you inspect that symbol in the debugger it will show as <code>:fi</code>. When you call <code>locale.to_s</code> it will show <code>&quot;fi&quot;</code> so everything <em>seems</em> right on the surface. Underneath the covers it is horribly wrong. Now I have to figure out if the problem is with my files or somee other piece of code. Let&#8217;s get a hex dump and figure out for sure.</p>
+
+<p>Here is the hex dump of the <code>en.yml</code> file.</p>
+
+<pre><code>cs181226081:crm adam$ od config/locales/en.yml 
+0000000    067145  005072  020040  067554  060543  062554  035163  020012</code></pre>
+
+<p>Now we have the eternally lovely <code>fi.yml</code></p>
+
+<pre><code>cs181226081:crm adam$ od -ax config/locales/fi.yml 
+0000000    ?   ?   ?   f   i   :  nl  sp  sp   l   o   c   a   l   e   s
+         bbef    66bf    3a69    200a    6c20    636f    6c61    7365</code></pre>
+
+<p><strong>Dear god</strong>. There is a BOM at the start of the file. That was it?! Yes folks, that was the problem. There was a BOM at the start of my locale file. YAML (however it&#8217;s coded) consumes the bytes and turns them to a key for hash. Question: how come BOM are used to create keys to this hash? Answer: Because I&#8217;m using Ruby 1.8.7 and everything&#8217;s wrong!</p>
+
+<p>People bitch about the YML parser on 1.9. I welcome it&#8217;s strictness. I don&#8217;t think this would&#8217;ve happend on 1.9. There was some interesting twist of fate in how Ruby 1.8.7 handles BOM&#8217;s, encodings, and YAML. I don&#8217;t remember exactly what it was but I know this: It was the perfect storm of everything going the exactly wrong direction to create the most annoying bug I&#8217;ve ever seen. I like to describe these sitations with this phrase: &#8220;a long and constant stream of unfortunate mistakes.&#8221;</p>
+
+<h2 id='squashing_the_bug'>Squashing the Bug</h2>
+
+<p>I don&#8217;t hold anything aganist anyone. This is most likely some odd edge case. I attribute this to the file coming from Windows, generated then edited in god knows what way. I attribute it to encoding conversions. There are a lot of possible ways this situation could happen. One thing is for sure: any YML library on any version of Ruby should <strong>not</strong> allow BOM markers in keys! This is crazy! I cannot think of any use case for this behavior.</p>
+
+<p>After I finally got my head around what exactly what had happened I could move forward. I copied the text to the clipboard and deleted the existing file. I made a new file in the ever trustworthy VIM and pasted it in. <code>:w</code>, then <code>./script/server</code>, and a refresh later: I see my application in Finnish. Jesus christ. That took my a little over 5 hours. By this time I was completely mentally spent. A few fixes and commits later I deployed a finnish version of the application&#8211;then I didn&#8217;t work on Rails for the rest of the day.</p>
+
+<h2 id='moral_of_the_story'>Moral of the story</h2>
+
+<ol>
+<li>Use Ruby 1.9</li>
+
+<li>Don&#8217;t trust files from Windows</li>
+
+<li>Turn invisibles on in your editor when editing YML files</li>
+
+<li>Be sure to remove the BOM</li>
+
+<li>Upgrade from Ruby 1.8.7</li>
+</ol>
+
+<p>P.S. Here are the gists if you want to relive the horror.</p>
+
+<p><a href='https://gist.github.com/1319411'>Debugging Session</a> <a href='https://gist.github.com/1319579'>Hex Dumps</a></p>]]></content>
+ </entry>
+ 
+ <entry>
    <title>Handling Legacy APIs</title>
    <link href="http://broadcastingadam.com/2011/10/handling_legacy_apis"/>
-   <updated>2011-10-19T00:00:00-07:00</updated>
+   <updated>2011-10-19T00:00:00+03:00</updated>
    <content type="html"><![CDATA[<p>Well, it&#8217;s been a while since I&#8217;ve written a post to my blog. I&#8217;m on a plane back to Helsinki for some intense work. I&#8217;ve got some trance on so I figure I&#8217;ll scratch and itch and try to get something written.</p>
 
 <p>There are few things poeple never mention when they are teaching rails to rookies, or hell, really even talk about in general. Rails gets a lot of play for how easy it is to write RESTful APIs. It deserves it. However, no one ever mentions what it <em>actually means</em> to write a web API. I haven&#8217;t see anyone talk about freezing input formats or output formats. The common approach is to just throw in <code>respond_to :json</code> then go on your merry way. It works, but it&#8217;s got some problems.</p>
@@ -203,7 +375,7 @@ end</code></pre>
  <entry>
    <title>Present Yourself - Presenters in Rails</title>
    <link href="http://broadcastingadam.com/2011/06/present_yourself"/>
-   <updated>2011-06-10T00:00:00-07:00</updated>
+   <updated>2011-06-10T00:00:00+03:00</updated>
    <content type="html"><![CDATA[<p>Presenters are one of those interesting things that you don&#8217;t hear about very much. They are mentioned, and then flutter in the wind. If you google &#8220;presenters rails&#8221; you&#8217;ll get some links from a few years ago and that&#8217;s about it. There is perhaps some useful information there. Maybe you find something on cells. That&#8217;s most likely not what you want. I&#8217;m taking about presenters (insert Alan Iverson practice voice). Presenters are object designed to encapsulate information required to create a view. They slim down controllers and encourage view reusability. This post describes how I started using presenters and why it worked.</p>
 
 <h2 id='the_backstory__thats_a_god_damn_ton_of_instance_variables'>The Backstory - That&#8217;s a God Damn Ton of Instance Variables</h2>
@@ -613,7 +785,7 @@ end</code></pre>
  <entry>
    <title>Advanced Caching in Rails</title>
    <link href="http://broadcastingadam.com/2011/05/advanced_caching_in_rails"/>
-   <updated>2011-05-06T00:00:00-07:00</updated>
+   <updated>2011-05-06T00:00:00+03:00</updated>
    <content type="html"><![CDATA[<p>Caching in Rails is covered occasionally. It is covered in very basic detail in the caching <a href='http://guides.rubyonrails.org/caching_with_rails.html'>guide</a>. Advanced caching is left to reader. Here&#8217;s where I come in. I recently read part of Ryan Bigg&#8217;s <a href='http://www.manning.com/katz/'>Rails 3 in Action</a> upcoming Rails book (review in the works) where he covers caching. He does a wonderful job of giving the reader the basic sense of how you can use page, action, and fragment caching. The examples only work well in a simple application like he&#8217;s developing in the book. I&#8217;m going to show you how you can level up your caching with some new approaches.</p>
 
 <h2 id='different_caching_layers'>Different Caching Layers</h2>
@@ -1319,7 +1491,7 @@ end</code></pre>
  <entry>
    <title>Learning Rails: A Glossary</title>
    <link href="http://broadcastingadam.com/2011/04/rails_glossary"/>
-   <updated>2011-04-24T00:00:00-07:00</updated>
+   <updated>2011-04-24T00:00:00+03:00</updated>
    <content type="html"><![CDATA[<p>I&#8217;ve been teaching Rails to some people. One thing that&#8217;s hard for them to get straight is the large number of tools involved in Rails development. This post is glossary of terms you may come across. Hopefully it will clarify things for you.</p>
 
 <h2 id='acceptance_testing'>Acceptance Testing</h2>
@@ -1516,7 +1688,7 @@ end</code></pre>
  <entry>
    <title>Sproutcore Login Tutorial</title>
    <link href="http://broadcastingadam.com/2011/04/sproutcore_login_tutorial"/>
-   <updated>2011-04-04T00:00:00-07:00</updated>
+   <updated>2011-04-04T00:00:00+03:00</updated>
    <content type="html"><![CDATA[<p>Sproutcore is probably the coolest thing I&#8217;ve seen since I saw rails way back early in 2006. I think Sproutcore is the future of complex web application because it is an excellent way to create complicated (and elegant) UI&#8217;s using Javascript. It uses KVO (Key-Value-Observing) to keep the UI in sync with the model. Yehdua Katz put it this way: &#8220;the view always represents truth.&#8221; I will not write about Sproutcore (SC from now on) because there is plenty of information to read on what it is and how it works. They have a <a href='http://guides.sproutcore.com'>guides site</a> to learn about it. However, there is still a lot of confusion on how to implement some simple stuff in SC! I&#8217;ve been dabbling with SC for a few months now&#8211;and now I&#8217;m finally ready to pass on some knowledge. I write SaaS applications, so the first thing I ever consider is &#8220;the user has to login.&#8221; That was my first hurdle with SC. I had to solve this problem: &#8220;How can I create a login form with sproutcore and authenticate against a database of users?&#8221; Well in order to solve this problem we need to do a few things:</p>
 
 <ol>
@@ -1855,7 +2027,7 @@ end</code></pre>
  <entry>
    <title>The Ruby Gem Challenge</title>
    <link href="http://broadcastingadam.com/2011/02/the_ruby_gem_challenge"/>
-   <updated>2011-02-20T00:00:00-08:00</updated>
+   <updated>2011-02-20T00:00:00+02:00</updated>
    <content type="html"><![CDATA[<p>I am working on a gem ranking website. One of the metrics is test results. Getting test result for a random project can be a very difficult task. I&#8217;ve cloned 3,081 different gems onto my computer. I&#8217;ve written a simple bash script to execute this loop:</p>
 
 <pre><code>for repo in ~/repos/* ; do
@@ -1887,7 +2059,7 @@ done</code></pre>
  <entry>
    <title>Why I Love Volume 1: Sprockets</title>
    <link href="http://broadcastingadam.com/2011/02/why_i_love_volume_1_sprockets"/>
-   <updated>2011-02-11T00:00:00-08:00</updated>
+   <updated>2011-02-11T00:00:00+02:00</updated>
    <content type="html"><![CDATA[<p><a href='http://getsprockets.org/'>Sprockets</a> is one of the most handy gems I&#8217;ve ever used. It allows you separate javascript into multiple files and use <code>require</code> keywords. This was a god send for me. The application I&#8217;m working has a TON of js. I was able to tame it with sprockets. I also came up with a nice directory structure a long the way.</p>
 
 <h2 id='the_problem'>The Problem</h2>
@@ -2009,7 +2181,7 @@ var DashboardPage = {
  <entry>
    <title>Ubuntu, Jetty, Solr &amp; MultiCore</title>
    <link href="http://broadcastingadam.com/2011/02/ubuntu_jetty_solr_and_multicore"/>
-   <updated>2011-02-02T00:00:00-08:00</updated>
+   <updated>2011-02-02T00:00:00+02:00</updated>
    <content type="html"><![CDATA[<p><a href='http://lucene.apache.org/solr/'>Solr</a> is a wonderful fulltext search program. It can be configured to do a great many things. It can also be a royal pain to setup. Solr is written in Java. In order to use solr in your application you must configure a java application somewhere to serve up Solr. Solr runs as an web service. You index docouments by posting XML to the server for indexing. You can install a java application server like Tomcat or Jetty to host Solr. By default, Solr can only index one set of data. This means, if you need to host multiple applications on the same solr server, then you have a few options. You can create new Solr instances for each application, or you can use Solr&#8217;s MultiCore functionality to index different datasets. MultiCore is like creating another database for Postgres. I&#8217;ll show you how to get this up and running under Ubuntu.</p>
 
 <h2 id='installing_jetty_java_and_solr'>Installing Jetty, Java and Solr.</h2>
@@ -2117,7 +2289,7 @@ sudo /etc/init.d/jetty start</code></pre>
  <entry>
    <title>Cucumber's env.rb &amp; Dry Run Problems</title>
    <link href="http://broadcastingadam.com/2010/12/cucumbers_dry_run_problems"/>
-   <updated>2010-12-02T00:00:00-08:00</updated>
+   <updated>2010-12-02T00:00:00+02:00</updated>
    <content type="html"><![CDATA[<p>Env.rb setsup Cucumber&#8217;s execution environment. The generated file from cucumber-rails essentially loads your rails env and setups up Capybara etc. That&#8217;s all well and good but what do you do if you need to add your own stuff. Once you&#8217;ve built up a sizeable cucumber test suite, it&#8217;s probable that you&#8217;ve got some modifications to env.rb. However, they <strong>should not</strong> be there since when you upgrade to a new version of cucumber (mainly cucumber-rails) it wants to regenerate that file. So what you need to do is split up your modifications into sepearate files. Here are some modifications you may have:</p>
 
 <ol>
@@ -2161,7 +2333,7 @@ end</code></pre>
  <entry>
    <title>Lessons From a Startup</title>
    <link href="http://broadcastingadam.com/2010/10/lessons_from_a_startup"/>
-   <updated>2010-10-31T00:00:00-07:00</updated>
+   <updated>2010-10-31T00:00:00+03:00</updated>
    <content type="html"><![CDATA[<p>I’ve been working as the lead developer at Finnish start up for about 9 months now. We’re making a cool product that we’ve got high hopes for. We’re getting our first customers now, so I’m taking some time to reflect on our progress and what I’ve learned.</p>
 
 <h2 id='1_dont_release_unfinished_code'>1. Don&#8217;t Release Unfinished Code</h2>
@@ -2200,7 +2372,7 @@ end</code></pre>
  <entry>
    <title>app/observers -- Where They Should Be</title>
    <link href="http://broadcastingadam.com/2010/10/app_observers"/>
-   <updated>2010-10-09T00:00:00-07:00</updated>
+   <updated>2010-10-09T00:00:00+03:00</updated>
    <content type="html"><![CDATA[<p>Afer you&#8217;ve been doing Rails for a while you become old and cranky about how you want things. I <em>love</em> my observers in /app/obsevers. I do not understand why they are not their by default. Models, mailers, and controllers all have their own folders, why can&#8217;t observers by default. They don&#8217;t even make any sense in /app/models. #1 They don&#8217;t model anything and #2 They aren&#8217;t subclasses of ActiveRecord (or some other ORM). If all the classes in /app/models are subclasses of AR, then what is an observer breaks the pattern. In Rails 2 if you want to specify another directory to load code from you have to specify add it to the <code>config.load_path</code> variable. This is not the case in Rails 3. If you simply want to shove your observers into /app/observers, jsut make the directory and move the files in there. You will have to move them if you don&#8217;t patch the <code>rails g observer</code> command to generate them in a new directory. That takes care of Rails, but now that we have our observers separated, it&#8217;s safe to assume we want to be able to run <code>rake spec:obsevers</code>. This is not a problem either. All you have to do is create a rake spec task to only run files in spec/observers. So drop this bad boy in /lib/tasks</p>
 
 <pre><code>require &#39;rspec/core&#39;
