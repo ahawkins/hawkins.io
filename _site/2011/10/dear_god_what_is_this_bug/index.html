@@ -95,7 +95,7 @@ end</code></pre>
 (rdb:2) translations[:fi]
 nil
 (rdb:2) translations[:en]
-{:invitation_mailer=&gt;{:rejection_notification=&gt;{:description=&gt;&quot;%{name} has rejected your invitation! You can reply to this email if\nyou&#39;d like to contact them. They can still confirm later if they want.\nThey will still rece ... you the the point }
+{:invitation_mailer=&gt;{:rejection_notification=&gt;{:description=&gt;&quot;%{name} has reje...
 (rdb:2)</code></pre>
 
 <p>Well this is looking <strong>very</strong> suspect. I&#8217;m thinking symbols are globally unique! A <code>:fi</code> anywhere in any ruby source file in the same process is equal to any other <code>:fi</code> in the same process. How can this possibly be! Well, perhaps <code>translations</code> isn&#8217;t a simple <code>Hash</code> but something like <code>HashWithIndifferentAccess</code> or other trickery. A check to <code>translations.class</code> returns <code>Hash</code>. At this point I&#8217;m absolutely fucking confused because <code>translations[:fi]</code> is <code>nil</code> but <code>translations[:en]</code> is correct. <strong>AND</strong> <code>translations.keys</code> has <code>:fi</code> in the damn thing. So I start running around the room bouncing off walls and other thing that don&#8217;t make any sense because for some reason all I know about Ruby symbols is wrong and that&#8217;s causing my brain to meltdown.</p>

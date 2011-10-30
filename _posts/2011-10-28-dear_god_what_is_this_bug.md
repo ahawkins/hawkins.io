@@ -119,7 +119,7 @@ inspect what's going on in memory. Here's me in the debugger
     (rdb:2) translations[:fi]
     nil
     (rdb:2) translations[:en]
-    {:invitation_mailer=>{:rejection_notification=>{:description=>"%{name} has rejected your invitation! You can reply to this email if\nyou'd like to contact them. They can still confirm later if they want.\nThey will still rece ... you the the point }
+    {:invitation_mailer=>{:rejection_notification=>{:description=>"%{name} has reje...
     (rdb:2)
 
 Well this is looking **very** suspect. I'm thinking symbols are globally
