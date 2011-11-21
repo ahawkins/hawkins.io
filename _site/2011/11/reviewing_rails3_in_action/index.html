@@ -21,11 +21,11 @@
         <header >
           <h2>Reviewing Rails 3 in Action</h2>
           <div class='meta'>
-            </p> &nbsp; | &nbsp; rails books</p>
+            </p>November 21, 2011 &nbsp; | &nbsp; rails books</p>
           </div>
         </header>
         <article>
-          <p><a href='http://ryanbigg.com/'>Ryan Bigg</a> is writing a book called <a href='http://manning.com/katz/'>Rails 3 In Action</a>. I&#8217;ve been lucky enough to help read the book and generally review its contents while it&#8217;s been written. I consider myself an advanced Rails developer, so when I read books like this I look for them to cover specific things that new developers need to know and how well the example integrate best practices. In this post, I review Rails 3 in Action.</p>
+          <p><a href='http://ryanbigg.com/'>Ryan Bigg</a> is writing a book called <a href='http://manning.com/katz/'>Rails 3 In Action</a>. I&#8217;ve been lucky enough to help read the book and generally review its contents while it&#8217;s been written. I consider myself an advanced Rails developer, so when I read books like this I look for them to cover specific things that new developers need to know and how well the example integrate best practices. In this post, I review <a href='http://www.manning.com/katz/'>Rails 3 in Action</a>.</p>
 
 <h2 id='about_the_book'>About the Book</h2>
 
@@ -72,21 +72,9 @@
 
 <li>Performance Enhancing Basics</li>
 
-<li>Dealing with Long Running Tasks</li>
-
-<li>Translations</li>
-
 <li>Engines</li>
 
-<li>Rack Application</li>
-</ol>
-
-<h3 id='appendix'>Appendix</h3>
-
-<ol>
-<li>Why Rails?</li>
-
-<li>Other Tidbits</li>
+<li>Rack Applications</li>
 </ol>
 
 <p>I was really looking forward to this book because the authors planned on covering more advanced topics. That way, the new readers can go from zero knowledge to going through an overview on advanced topics. The beginning chapters are well written and cover all the basics. The advanced chapters are very imformative. The engines chapter is most likely the best documentation to how to write an engine except existing code. One reason I really like this book is because current and popular gems are covered throughout the book. Devise, Paperclip, Cucumber, and Rspec are used throughout the book. I think this gives the book a very current feel and reflects what developers are doing at this point.</p>
@@ -179,7 +167,7 @@ end</code></pre>
 
 <h2 id='part_2_putting_on_the_bling'>Part 2: Putting on the Bling</h2>
 
-<p>The first chapter in Part 2 covers uploading files with <a href='https://github.com/thoughtbot/paperclip'>Paperclip</a>. I like this chapter because it covers adding a feature that is important to serious applications. I also like that the author choose to use populate gems because it reflects current practices. The chapter does a nice job of showing how to implement file uploading <em>and</em> retreiving correctly. There is one thing I do not like about this chapter. It uses <a href='http://www.prototypejs.org/'>Prototype</a>. I do not have anything aganist prototype has a javscript framework. It has been bundled with Rails since Rails was created. Prototype is being switched out in favor of <a href='http://jquery.com/'>Jquery</a> in Rails 3.1. <strong>Many</strong> developers have switched Prototype for JQuery in their Rails application. I think the author should have used JQuery in this chapter because it reflects current practices and future proofs the text. However I do understand why he chose to use the Rails defaults instead. He may not have wanted to add extra complexity by adding jquery then switching the Rails javascript driver. This is a valid point in a book that&#8217;s size and scoped constrained. Given all of that, I think it would be better to simply use Jquery. DISCLAIMER: this may change is the book is released after Rails 3.1 OR 3.1 is finalized before the book goes to publication. So take these comments with a grain of salt.</p>
+<p>The first chapter in Part 2 covers uploading files with <a href='https://github.com/thoughtbot/paperclip'>Paperclip</a>. I like this chapter because it covers adding a feature that is important to serious applications. I also like that the author choose to use populate gems because it reflects current practices. The chapter does a nice job of showing how to implement file uploading <em>and</em> retreiving correctly. There is one thing I do not like about this chapter. It uses paperclip. Carrierwave would&#8217;ve been a much better choice, but at the time the book was written, paperclip was the best choice. We all know things change fast in the tech world. It&#8217;s very hard when writing a book. Writing a book takes forever by today&#8217;s standards. Rails 3.1 was in development while this book was being written. Hard to stay current sometimes.</p>
 
 <p>The next two chapters add two features: state tracking and tagging. There is nothing too fancy about these chapters. The book covers writing a state tracking feature from scratch. I was suprised to see this, but I think it&#8217;s good for the new developers to learn how to do this sort of thing. Tagging is very common too. It&#8217;s not hard to implement, but it&#8217;s generally a solved problem so there are plenty of gems. The book covers how to write your own tagging system. It does use the author&#8217;s <a href='http://rubydoc.info/gems/searcher/0.0.6/frames'>searcher</a> gem to implement simple searching. My guess is the gem was written specifically for the book. I think it was a good choice to write the tagging system by hand and use a gem to create simple search functionality. This doesn&#8217;t distract from the main point: creating functionality to manage tags.</p>
 
@@ -225,7 +213,7 @@ end</code></pre>
 
 <p>The next chapter is on &#8220;Basic Performance Enhancements&#8221;. I think this is the weakest chapter in the entire book. I have a lot of experience working with caching and there are technique that I hoped the author would present, but did not. The title is &#8220;Basic Performance Enhancements&#8221;. The techniques in this chapter <em>are basisc</em> and do not represent performance minded approach. The chapter focuses around the three out of the four Rails caching strategies: Page, Action, and Fragment Caching. The fourth involves Rails.cache which is essentially manual cache operation, but very powerful since you can store anything you like. Ticketee is a very basic application. It needs to be for the purposes of the book. Since it&#8217;s simple, you can use very simple caching techniques. Expiring with sweepers is very easy to do in a simple application. However, it does not account for associated events. For example, say you have a comments controller and tickets controller. If a comment is for a ticket, you&#8217;d have to sweep the ticket from the comments controller. This is not the case in the book, but is the case with using action caching and cache sweepers. I would&#8217;ve liked to see more discussion on these matters.</p>
 
-<p>Fragment caching is discussed breifely, but not in major detail. It does not into detail on creating different keys for different fragment, but relies on Rails to do the dirty work. This hides some power from the reader. Page caching is mentioned, but rarely application to any legitmate web application.</p>
+<p>Fragment caching is discussed breifely, but not in major detail. It does not into detail on creating different keys for different fragment, but relies on Rails to do the dirty work. This hides some power from the reader. Page caching is mentioned, but rarely application to any legitmate web application. You can read my take on <a href='http://broadcastingadam.com/2011/05/advanced_caching_in_rails'>Advanced Caching in Rails</a> if you want to see what I think is important. This information is outside the scope of the book. I&#8217;ve included the link as example of how complicated it can become and to show why things were left out of the book.</p>
 
 <p>The author descides not to use memcached. I think this is a very bad decision. He uses default which provides functionality not available to memcached. The vast majority of people use memcached in production. If they follow the code provided in this chapter it will not work in production systems with memcached. The author uses cache expiration based on a regular expression. This makes it easy to address problems that arise from using cache sweepers. However, it is only applicable to cache stores that can iterate over all keys. Memcached cannot do this. I think this is the chapters biggest flaw because it uses techniques that are not suitable to production applications.</p>
 
@@ -234,12 +222,6 @@ end</code></pre>
 <p>He discusses two other enhancments. He address the N+1 problem and uses database indexes. The N+1 problem is a very basic performance enhancment. I think it should&#8217;ve been covered earlier in the text because it is not a true performance technique in the sense of implementing caching throughout an application. It does help with performance, but I don&#8217;t think it needs it&#8217;s own section.</p>
 
 <p>The book also considers pagination a performance enhancment. I don&#8217;t think this is a performance enhancment. Granted, it will increase performance by cutting down the number of objects returned, but it seems more of a usability thing than anything else. Pagination is very simple and should be covered earlier on in the text.</p>
-
-<p>I think the book should spend more time on legimate performance techniques. Spending more time on caching is a very good idea. Introducting Metal controller is a much better use of time than talking about pagination as a performance enhancer. There different things the book can cover to make this chapter better. Hopefully they are addressed by the time the book is published.</p>
-
-<p>&#8211; PLACE HOLDER: Dealing with Long Running Tasks &#8211;</p>
-
-<p>&#8211; PLACE HOLDER: Translations &#8211;</p>
 
 <p>I can easily forget about the &#8220;Basic Performance Enhancements&#8221; chapter because the &#8220;Engines&#8221; chapter is straigh GODLIKE. I think this chapter is the best one in the book by good measure for a few resons:</p>
 
@@ -258,6 +240,18 @@ end</code></pre>
 <p>The only downside is: it&#8217;s god damn long. There is a ton of information in this chapter. It doesn&#8217;t feel long like the Authentication &amp; Authorization chapter. It just owns. If you want to learn about engines. <strong>Read this chapter</strong>. It&#8217;s that good.</p>
 
 <p>The &#8220;Rack-Based Applications&#8221; chapter is nicely written. It opens the hood to some of the undercover magic going on between Rails and the webserver. It&#8217;s a relativly short chapter, but does a nice job introduction conepts and showing you how you can write the most basic rack application. It shows you can you mount Rack applications in Rails and most importantly introduces middleware. It would be nice to see a real application of middleware, but it&#8217;s hard to find one for a simple application. The book shows how you can inject a peice of middleware to jumble the links. Nothing serious really&#8211;just a proof concept. I&#8217;m not sure what else the book could add to this chapter.</p>
+
+<h2 id='part_4_wrapping_up'>Part 4: Wrapping Up</h2>
+
+<p>There are some interesting tidbits in the end, but nothing really worth mentioning. The meat the book is the first 10 chapters. Things after that become more complicated and therefore take more time to cover and increase the scope of text. For instance: Deployment and designing an API can be separate books. It&#8217;s very hard to do them justice in a small time frame. That being said, the first chapters are absolutely fantastic! I think the first chapters do a wonderful job of teaching people how to build basic rails application. This is by no means a guide to building advanced applications but it will teach noobies how to get going.</p>
+
+<h2 id='who_should_buy_this_book'>Who Should Buy This Book?</h2>
+
+<p>You should buy this book if you are a newbie with little to no knowledge on Rails. This book will teach you everything you need to know to help you start your journey. You will also become familar with some intermediate concepts along the way. You will also learn it all test first which will help you in the long run.</p>
+
+<p>Finally Shoutout: To Ryan Bigg for letting my get in on the writing process and helping him make his book better.</p>
+
+<p><strong>You can buy the book <a href='http://www.manning.com/katz/'>here</a>.</strong></p>
 
           <h3>Contact Me</h3>
           <p>
