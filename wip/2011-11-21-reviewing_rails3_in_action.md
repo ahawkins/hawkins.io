@@ -43,15 +43,8 @@ of contents:
 
 1. Alternative Authentication
 2. Performance Enhancing Basics
-3. Dealing with Long Running Tasks
-4. Translations
 5. Engines
-6. Rack Application
-
-### Appendix
-
-1. Why Rails?
-2. Other Tidbits
+6. Rack Applications
 
 I was really looking forward to this book because the authors planned on
 covering more advanced topics. That way, the new readers can go from
@@ -252,20 +245,12 @@ to serious applications. I also like that the author choose to use
 populate gems because it reflects current practices. The chapter does a
 nice job of showing how to implement file uploading _and_ retreiving
 correctly. There is one thing I do not like about this chapter. It uses
-[Prototype](http://www.prototypejs.org/). I do not have anything aganist
-prototype has a javscript framework. It has been bundled with Rails
-since Rails was created. Prototype is being switched out in favor of 
-[Jquery](http://jquery.com/) in Rails 3.1. **Many** developers have
-switched Prototype for JQuery in their Rails application. I think the
-author should have used JQuery in this chapter because it reflects
-current practices and future proofs the text. However I do understand
-why he chose to use the Rails defaults instead. He may not have wanted
-to add extra complexity by adding jquery then switching the Rails
-javascript driver. This is a valid point in a book that's size
-and scoped constrained. Given all of that, I think it would be better to
-simply use Jquery. DISCLAIMER: this may change is the book is released
-after Rails 3.1 OR 3.1 is finalized before the book goes to publication.
-So take these comments with a grain of salt.
+paperclip. Carrierwave would've been a much better choice, but at the
+time the book was written, paperclip was the best choice. We all know
+things change fast in the tech world. It's very hard when writing a
+book. Writing a book takes forever by today's standards. Rails 3.1 was
+in development while this book was being written. Hard to stay current
+sometimes.
 
 The next two chapters add two features: state tracking and tagging.
 There is nothing too fancy about these chapters. The book covers writing
@@ -393,7 +378,12 @@ Fragment caching is discussed breifely, but not in major detail. It does
 not into detail on creating different keys for different fragment, but
 relies on Rails to do the dirty work. This hides some power from the
 reader. Page caching is mentioned, but rarely application to any
-legitmate web application.
+legitmate web application. You can read my take on [Advanced Caching in
+Rails](http://broadcastingadam.com/2011/05/advanced_caching_in_rails) if
+you want to see what I think is important. This information is outside
+the scope of the book. I've included the link as example of how
+complicated it can become and to show why things were left out of the
+book.
 
 The author descides not to use memcached. I think this is a very bad
 decision. He uses default which provides functionality not available to
@@ -427,17 +417,6 @@ performance by cutting down the number of objects returned, but it seems
 more of a usability thing than anything else. Pagination is very simple
 and should be covered earlier on in the text. 
 
-I think the book should spend more time on legimate performance
-techniques. Spending more time on caching is a very good idea.
-Introducting Metal controller is a much better use of time than talking
-about pagination as a performance enhancer. There different things the
-book can cover to make this chapter better. Hopefully they are addressed
-by the time the book is published.
-
--- PLACE HOLDER: Dealing with Long Running Tasks --
-
--- PLACE HOLDER: Translations --
-
 I can easily forget about the "Basic Performance Enhancements" chapter
 because the "Engines" chapter is straigh GODLIKE. I think this chapter
 is the best one in the book by good measure for a few resons:
@@ -466,4 +445,26 @@ application. The book shows how you can inject a peice of middleware to
 jumble the links. Nothing serious really--just a proof concept. I'm not
 sure what else the book could add to this chapter.
 
+## Part 4: Wrapping Up
 
+There are some interesting tidbits in the end, but nothing really worth
+mentioning. The meat the book is the first 10 chapters. Things after
+that become more complicated and therefore take more time to cover and
+increase the scope of text. For instance: Deployment and designing an
+API can be separate books. It's very hard to do them justice in a small
+time frame. That being said, the first chapters are absolutely
+fantastic! I think the first chapters do a wonderful job of teaching
+people how to build basic rails application. This is by no means a guide
+to building advanced applications but it will teach noobies how to get
+going. 
+
+## Who Should Buy This Book?
+
+You should buy this book if you are a newbie with little to no knowledge
+on Rails. This book will teach you everything you need to know to help
+you start your journey. You will also become familar with some
+intermediate concepts along the way. You will also learn it all test
+first which will help you in the long run.
+
+Finally Shoutout: To Ryan Bigg for letting my get in on the writing
+process and helping him make his book better.
