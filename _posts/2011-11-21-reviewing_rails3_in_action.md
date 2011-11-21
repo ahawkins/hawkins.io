@@ -54,7 +54,7 @@ advanced chapters are very imformative. The engines chapter is most
 likely the best documentation to how to write an engine except existing
 code. One reason I really like this book is because current and popular
 gems are covered throughout the book. Devise, Paperclip, Cucumber, and
-Rspec are used throughout the book. I think this gives the book a very
+RSpec are used throughout the book. I think this gives the book a very
 current feel and reflects what developers are doing at this point.
 
 ## Part 1: Getting Rolling
@@ -96,7 +96,7 @@ favorite Rails book I've ever read.** The book uses pure TDD to
 develop the demo applications. 
 
 The next chapter is "Testing Saves Your Bacon." The author goes through
-a small example of using Rspec for unit testing. He describes BDD. BDD
+a small example of using RSpec for unit testing. He describes BDD. BDD
 stands for "Behavior Driven Development." It is essentially the same
 thing as TDD, except tests respresent documentation and are readable by
 stake holders. You can express this in code:
@@ -116,7 +116,7 @@ stake holders. You can express this in code:
     end
 
 The testing saves your bacon chapter is very short and suite. It's only
-real purpose it to introduce Cucumber and Rspec. (More information on
+real purpose it to introduce Cucumber and RSpec. (More information on
 BDD [here](http://pragprog.com/titles/achbd/the-rspec-book)) Now that
 the reader knows the basics of using these test frameworks, they can
 move through an excerise in creating the scaffold for a real
@@ -142,7 +142,7 @@ new users.
 There is one downside to these early sections. A large number of new
 tools are introduced. This may be confusing for brand new Rails
 developers. I've run into this problem before when I teach Rails. I use
-the same technique: Teach Rails using TDD with Cucumber and Rspec. I've
+the same technique: Teach Rails using TDD with Cucumber and RSpec. I've
 noticed that new developers think all these tools **are Rails.** This is
 not the case. The case is also complicated by the fact that Cucumber
 uses Capybara to drive a browser. The line between all the different
@@ -242,7 +242,7 @@ The first chapter in Part 2 covers uploading files with
 [Paperclip](https://github.com/thoughtbot/paperclip). 
 I like this chapter because it covers adding a feature that is important
 to serious applications. I also like that the author choose to use
-populate gems because it reflects current practices. The chapter does a
+popular gems because it reflects current practices. The chapter does a
 nice job of showing how to implement file uploading _and_ retreiving
 correctly. There is one thing I do not like about this chapter. It uses
 paperclip. Carrierwave would've been a much better choice, but at the
@@ -298,7 +298,7 @@ I think it demonstrates how **easy it is to write RESTful API's.** This
 is where Rails really shines through. It's so easy to return objects in
 XML or JSON. The author users JSON of course, then easily shows you can
 serve back XML if you are crazy enough. He also covers how to rate limit
-it. The Rspec tests read very nicely. The chapter also shows how to
+it. The RSpec tests read very nicely. The chapter also shows how to
 create versioned API's by using namespace. This chapter is very well
 put together overall and shows Rail's real strenghts. The author left
 one thing out: The params parser. It would've been nice to create an
@@ -359,7 +359,7 @@ The next chapter is on "Basic Performance Enhancements". I think this is
 the weakest chapter in the entire book. I have a lot of experience
 working with caching and there are technique that I hoped the author
 would present, but did not. The title is "Basic Performance
-Enhancements". The techniques in this chapter _are basisc_ and do not
+Enhancements". The techniques in this chapter _are basic_ and do not
 represent performance minded approach. The chapter focuses around the
 three out of the four Rails caching strategies: Page, Action, and
 Fragment Caching. The fourth involves Rails.cache which is essentially
@@ -402,7 +402,7 @@ Rails.cache. I was suprised to see that he did not cover using the cache
 manually. All the examples are focused around caching HTML or preventing
 web request from hitting the server. He does not cover using Rails.cache
 in the model layer for complicated queries for example. I think this bad
-omission and hopefully will be added before the book is published. 
+omission and hopefully will be added before the second printing.
 
 He discusses two other enhancments. He address the N+1 problem and uses
 database indexes. The N+1 problem is a very basic performance
