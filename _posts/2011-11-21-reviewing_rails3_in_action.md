@@ -10,7 +10,7 @@ the book and generally review its contents while it's been written. I
 consider myself an advanced Rails developer, so when I read books like
 this I look for them to cover specific things that new developers need
 to know and how well the example integrate best practices. In this post,
-I review Rails 3 in Action.
+I review [Rails 3 in Action](http://www.manning.com/katz/).
 
 
 ## About the Book
@@ -468,3 +468,5 @@ first which will help you in the long run.
 
 Finally Shoutout: To Ryan Bigg for letting my get in on the writing
 process and helping him make his book better.
+
+**You can buy the book [here](http://www.manning.com/katz/).**
