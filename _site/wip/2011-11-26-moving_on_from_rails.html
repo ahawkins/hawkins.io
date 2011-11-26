@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en-US">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Moving on from Rails</title>
+    <link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.8.2r1/build/reset/reset-min.css">
+    <link rel="stylesheet" type="text/css" href="/stylesheets/style.css" />
+    <script type="text/javascript" src="http://yandex.st/highlightjs/5.16/highlight.min.js"></script>
+    <link rel="stylesheet" href="http://yandex.st/highlightjs/5.16/styles/github.min.css">
+    <script>hljs.initHighlightingOnLoad();</script>
+  </head>
+  <body>
+    <div id="container" class='no-header'
+      <header>
+        <nav>
+          <a href="/">Home</a>
+          <a href="/nettuts.html">Nettuts</a>
+        </nav>
+      </header>
+      <div id="content" class="post">
+        <header >
+          <h2>Moving on from Rails</h2>
+          <div class='meta'>
+            </p> &nbsp; | &nbsp; rails</p>
+          </div>
+        </header>
+        <article>
+          <p>I&#8217;ve been doing Rails since 2006. It&#8217;s come along way since then. I was really looking forward to Rails 3.1. I thought it was going to be the shit! But now I have different opinions.</p>
+
+<h2 id='how_i_came_to_love_rails'>How I Came to Love Rails.</h2>
+
+<p>Rails sloved <em>all</em> my problems when I started doing Rails coming from PHP. It was a full stack framework. It handled templates, mapping URLS to code, and persiting records to the databases. It even did all that complicated AJAX and JS stuff that has been demoed about as many times as the gem itself has been downloaded. And scaffolding. Dear god scaffolding. How many times have you needed to write all that CRUD for all your web apps? Every. Fucking. Time. Rails just made everything so simple. It made writing web applications for that era so nice. It was nice because I didn&#8217;t actually create anything complicated. All I created where little bullshit applications. The kind you could string together in a week or two without having to worry about. It was a more simple time back then. The web hadn&#8217;t progressed into what it is now. There was no Android. There was no such thing as mobile browsers. Hell, the god damn <em>iphone</em> hadn&#8217;t even come out yet&#8211;people still bought Nokia phones. There wasn&#8217;t this &#8220;experience everwhere&#8221; concept. Even that took a while to catch on. But here we are now. The architecture of developing web based applications has changed. My problems have changed. Now I need different tools.</p>
+
+<h2 id='changing_the_guard'>Changing the Guard</h2>
+
+<p>If you want to develop anything serious these days you need to consider these factors:</p>
+
+<p>1. A web application 2. An Android application 3. An iPhone application 4. Tablets</p>
+
+<p>Now that you have to develop your &#8220;web&#8221; application for many different platforms, you&#8217;re not really developing a web application. You&#8217;re developing a web <strong>backed</strong> application. These are inherently different things. Back in the day, you had your website. And that was it. It used some AJAX and it got the job done. Now the entire market as moved to place where it is not longer enough to develop a web application. You need to develop your own <strong>platform.</strong> This platform should be able good enough to build any client application on top of, be it a web application, android, or any other client application. All these clients can communicate over HTTP. Your platform essentially becomes an HTTP based API. This is a suprisingly nice thing in retrospect. It removes complexity from your platform because all it does is <strong>return JSON.</strong> This is only reponsiblity of modern platforms. And you can hack together really quickly with <code>respond_to :json ; respond_with @resources</code>. (Although I don&#8217;t recommend that at all). They no longer generate views, matter a fact ActionView is completely removed from modern platforms (unless you need ActionMailer which uses it for mail rendering). For me personally, the templating system really interested me in the beginning. Now I don&#8217;t even use it. There is no point. A modern web based SaaS is going to have a HTTP backend for it&#8217;s single page JS frontend and all the other clients. All those clients actually render views with the data the backend delivers. There goes the (traditional) V in MV. The way we do M these days is completely different.</p>
+
+<h2 id='standing_on_your_own_two_feet_i_dont_need_activerecord'>Standing on Your Own Two Feet: I don&#8217;t need ActiveRecord</h2>
+
+<p>ActiveRecord was completely stunning in 2006. I don&#8217;t rely on as much I used to. Now I only think of it has &#8220;data persistance.&#8221; You can persist data in a variety of different ways. You can use Mongo or if you&#8217;re crazy enough, you can even use Redis. I&#8217;ve reached a point where I only use the mosic basic ActiveRecord operations, it no longer impresses like it once did. I find that Mongoid is much more flexible for nonrelational data and is much less intrusive. Now I think in ActiveModel. ActiveModel is fantastic. I love ActiveModel. It lets you treat persistance as an implementation detail. Yay OOP. This is Rails 3 at it&#8217;s finest. Rails 3 makes coding modern OOP HTTP based platforms so nice because you can actually swap out stuff you don&#8217;t need. Which makes me think about what I actually need Rails to do.</p>
+
+<h2 id='rails_reponsiblity'>Rail&#8217;s Reponsiblity</h2>
+
+<p>The responsiblity is single and focused. <strong>Respond to HTTP requests.</strong> This means:</p>
+
+<p>1. Map URL&#8217;s to Code 2. Provide me a nice interface for working with requests 3. Middleware is a plus 4. Make it easy for me to return structured data.</p>
+
+<p>All I want is for it to be easy to return JSON. That&#8217;s all the HTTP has to do. ActionPack is <strong>fantastic</strong> for this. <code>params</code> is the best thing ever. Using all the filtering method makes respond to specific requests a dream. <code>respond_with</code> is nice because it gives me a hacky way to just jsonify all things. That is all I want. I don&#8217;t want views. I don&#8217;t want model. I don&#8217;t want mailers. I really don&#8217;t want much. I think that my use case is Rail&#8217;s best functionality. Handling HTTP feels like the most developed part of the framework. Now people get lost in ActiveRecord and ActionView. They are more concerned with generating view and their schema. Then there is the asset pipeline. Oh the asset pipeline. I don&#8217;t think anything has ever divided Rails developers like the asset pipeline. You either love it or hate it. Initially I loved it. I thought it was a fantastic idea. I agreed that making assets first class citizens in rails was a smart move. However, now I find the asset pipeline to be a completely worthless functionality. Serving assets (or compiling assets) has nothing to do with HTTP API&#8217;s. This makes absolutely no sense! There is no reason to concern yourself with this. This is a different program&#8217;s responsbility. Creating a platform allows individual programs to concern themsleves with only themselves. A single page JS application is just that: a single js file. Do you need a fullstack web framework to serve that (or even be involved with that)? I think not. The asset pipeline is creeping into a sphere of responbility it should not go into. API&#8217;s don&#8217;t serve assets and really, they don&#8217;t give a fuck about them anywhere. There is the flip side of this coin. Not everyone is using this type of architecture. I used the asset pipeline to whip up my personal travel site: <a href='http://isos.broadcastingadam.com'>ISOS</a>. It was a truly nice experience. It made building that little bullshit site pretty easy&#8211;matter of fact it was enjoyable! But there is no way I mess with the asset pipeline for my enterprise work. It is completely outside the sphere of concern, hell, a lot of things bundled with the framework are outside my sphere of concern.</p>
+
+<h2 id='everything_i_dont_need_i_can_remove'>Everything I don&#8217;t need, I can Remove</h2>
+
+<p>This is why I still use Rails. I don&#8217;t need ActiveRecord. Uncomment the Railtie. I don&#8217;t need ActionView. Remove the Railtie. I don&#8217;t need ActionMailer. Remove the Railtie. I don&#8217;t need the asset pipline. You turn it off in the config. (I think this should be a railtie. Since it&#8217;s not, it shows you tightly coupled it is). All that I&#8217;m left with is ActionPack. It is so nice and slim. So concise. So focused. So purposeful. I love it. For once, I can use Rails as a wrapper around <em>my</em> actual code. It&#8217;s just an interface to the outside world.</p>
+
+<p>Rails no longer solves all my problems like it did when I started using it. Now it just helps and I think that is good. I think many people look to Rails as his god like thing that will just solve everything for you. It is not that and it will never be. This is the way it should be. Everything I no longer like or use can be removed from the framework. You simply <em>could not</em> do this before Rails 3. I think that&#8217;s why I keep coming back to Rails. Granted I know Rails like the back of my hand. I can pretty much do whatever I want or could dream of inside the framework. I don&#8217;t mind jumping into the source to see what&#8217;s up. In general, it&#8217;s a nice and comfortable place. On one hand I feel it&#8217;s bloated and doesn&#8217;t focus on problems building modern internet based applications, but I can bend it to my will and make it so. I can remove all that I don&#8217;t need, or have it all if I want a fullstack experience. But as time goes by, I become increasinly disinterested because I no longer need it like I once did. I don&#8217;t need to solve all my problems. I don&#8217;t need scaffolding. I don&#8217;t need all the things that initially turned me on to it. I on longer think of it as <em>the tool</em> but just another one in my toolbox. And as more applications completely HTTP API driven they will no longer need most of the stuff either enabling them to revaluate their options. But until then, give me ActionPack or give me death!</p>
+
+          <h3>Contact Me</h3>
+          <p>
+            Find a problem or have a question about this post? <a href="http://twitter.com/Adman65/">@Adman65</a> on
+            Twitter or Adman65 on #freenode. Find me in (#rubyonrails or
+            #sproutcore). You can find my code on <a href="http://github.com/Adman65/">GitHub</a>
+          </p>
+        </article>
+      </div>
+    </div>
+    <script type="text/javascript">
+      var _gauges = _gauges || [];
+      (function() {
+        var t   = document.createElement('script');
+        t.type  = 'text/javascript';
+        t.async = true;
+        t.id    = 'gauges-tracker';
+        t.setAttribute('data-site-id', '4eb0f672613f5d482f000001');
+        t.src = '//secure.gaug.es/track.js';
+        var s = document.getElementsByTagName('script')[0];
+        s.parentNode.insertBefore(t, s);
+      })();
+    </script>
+  </body>
+</html>
