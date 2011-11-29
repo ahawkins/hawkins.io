@@ -13,7 +13,7 @@ was exactly what I needed at the time. Now times are different.
 
 Web developers know there is an _incredibly_ high turn over rate in
 technologies. Think about to 6 months ago. Did you know about
-Coffeescript? What about backbone.js? What about websockts/push? Not all
+Coffeescript? What about backbone.js? What about websockets/push? Not all
 of those things are technologies. Coffeescript is not a technology, it's
 just a nice layer on top of Javascript. It is not a new technology like
 HTML5 Websocket. Socket based communications are not new by any means,
@@ -65,14 +65,14 @@ modern applications.
 
 ## SoA Platforms then Applications
 
-Service oreinted architecture has always been very fascinating concept.
+Service oriented architecture has always been very fascinating concept.
 Jeff Bezos was way ahead of his time when he basically pulled a Hitler
-and dictacted that everything would switch over to SoA. We are at point
+and dictated that everything would switch over to SoA. We are at point
 in the web where platforms represent core business value. You need to
-have a platform that's accessible on any device either nateively or with
+have a platform that's accessible on any device either natively or with
 a browser. So now you're faced with a question. How can you develop your
 platform and expose to different devices: HTTP. I like HTTP and I make
-my plaforms speak HTTP. We can use HTTP to create JS applications for
+my platforms speak HTTP. We can use HTTP to create JS applications for
 browsers. We can also use HTTP to communicate with an external system
 through OS level code. You can build a native application on Android
 backed by HTTP service. You can build your JS application backed by
@@ -81,7 +81,7 @@ application can exist in the browser. What if you need to write files?
 What if you need to access hardware? The browser is not the be-all & end
 all of internet applications. People will always be creating native
 applications. So don't look at everything purely through the: HTML5 and
-JS lense. Somtimes applications need more.
+JS lense. Sometimes applications need more.
 
 I think many developers are starting to realize this. You can see it
 with things like Sproutcore (much love to SC) and Backbone. Less so than
@@ -95,13 +95,13 @@ application, and not simply a hodepodge of event bindings and AJAX
 related trickery. Applications are now being built in Javascript. This
 trend will only continue. Why? Because the interfaces are fucking fast.
 Things happen on the user's computer and can be persisted back to the
-server later. Hell, Sproutcore even abstracted HTTP persistance competely
-out of the framework. There is a clear separation of concerns. The
-platform processes data and serves up JSON. Then end progrems actually
+server later. Hell, Sproutcore even abstracted HTTP persistence
+completely out of the framework. There is a clear separation of concerns. The
+platform processes data and serves up JSON. Then end programs actually
 do all the "work" by presenting UI's and all that good stuff. And now
-you've built the first consumer for your platform. With Sputcore you
-even build the entire application without even contecting it to a
-server. At that point, you're able to treat persistance as an
+you've built the first consumer for your platform. With Sproutcore you
+even build the entire application without even conntecting it to a
+server. At that point, you're able to treat persistence as an
 implementation detail which drastically changes the way you think.
 
 ## HTTP Backed Services
@@ -113,7 +113,7 @@ good UI (V) takes orders of magnitude than implementing M and C. HTTP is
 perfect because you only have to worry about garbage in and garbage out.
 In Rails, this means you really only care about `params` and
 `respond_with`. Data in and data out. Now, when I look at these API'S I
-look at the repsonsiblity to the end developer: return JSON. That is it.
+look at the responsibility to the end developer: return JSON. That is it.
 A single focus: return JSON. Of course there is processing involved but
 the main point is return JSON that end application can use for it's own
 purposes. That makes developing this very easy because it removes many
@@ -130,11 +130,11 @@ application.**.
 
 Avdi Grimm verbalized some of my current feelings in this regard. His
 object on Rails book goes through the entire process of creating a blog
-using OOP techniques. The code is developed competely outside of Rails.
+using OOP techniques. The code is developed completely outside of Rails.
 Rails isn't even introduced. Models are derived completely on their own.
-Collabators and responsiblities are defined as well. Slowly the system
+Collaborators and responsibilities are defined as well. Slowly the system
 takes shape. First you need ActiveModel for some validations. Everything
-is going well. Eventually you're going to need persistance. He treats
+is going well. Eventually you're going to need persistence. He treats
 **persistance** as an implication details. Mdoels are more than
 ActiveRecord! Your code is more than Rails. Rails is not your code. You
 can and **should** develop the business logic completely on your own
@@ -148,12 +148,12 @@ and simply move your code out of _whatever_ framework you're eventually
 going to use. I highly recommend Avdi's paper on 
 [Objects on Rails](http://avdi.org/devblog/2011/11/15/early-access-beta-of-objects-on-rails-now-available-2/)
 to see a very refreshing approach. The continuing theme here is
-separting parts of your eventual platform. Most important is separting
+dividing parts of your eventual platform. Most important is splitting
 access from application.
 
 ## Moving Away From Rails
 
-Rails has always been fantastic at one thing: accepting, handlings, and
+Rails has always been fantastic at one thing: accepting, handling, and
 returning body for a HTTP response. What you choose to put that body has
 always been up to you. Just recently, it's been assume you're going to
 generate HTML. Now I just want to generate JSON. Designing my HTTP based
@@ -180,11 +180,11 @@ It was simply how you build web applications. That time has come and
 gone. Now we are faced with applications with more diverse requirements.
 You may have a Rails based application for handling the majority of web
 requests working in conjunction with a Node process for evented stuff.
-Hell, you may at some ponit even have processes in different langauges
-which have been optomised for different things. Look at Twitter with
+Hell, you may at some point even have processes in different languages
+which have been optimized for different things. Look at Twitter with
 Scala. There are many permutations of different technologies for different
-requiremnts. There will be more permuations as the way we architect the
+requirements. There will be more permutation as the way we architect the
 modern web. For me, and I think many others, Rails will become and
-increasinly smaller peice of the puzzle. Why? Simply because their
+increasingly smaller piece of the puzzle. Why? Simply because their
 platform is more than Rails. Now I focus on other questions. Rails
 answers some of them, however I'm finding it's the answer less and less.
