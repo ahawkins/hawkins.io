@@ -4,152 +4,187 @@ title: Moving on from Rails
 tags: [rails]
 ---
 
-I've been doing Rails since 2006. It's come along way since then. I was
-really looking forward to Rails 3.1. I thought it was going to be the
-shit! But now I have different opinions.
+I've been doing Rails since 2006. The my skill level and the framework
+as changed very much since. I came from PHP web sites and Java through
+academics. Ruby was breath of fresh air. Rails was a thing a beauty. It
+was exactly what I needed at the time. Now times are different.
 
-## How I Came to Love Rails.
+## A Changing Web Yields Changing Requirements
 
-Rails sloved _all_ my problems when I started doing Rails coming from
-PHP. It was a full stack framework. It handled templates, mapping URLS
-to code, and persiting records to the databases. It even did all that
-complicated AJAX and JS stuff that has been demoed about as many times
-as the gem itself has been downloaded. And scaffolding. Dear god
-scaffolding. How many times have you needed to write all that CRUD for
-all your web apps? Every. Fucking. Time. Rails just made everything so
-simple. It made writing web applications for that era so nice. It was
-nice because I didn't actually create anything complicated. All I
-created where little bullshit applications. The kind you could string
-together in a week or two without having to worry about. It was a more
-simple time back then. The web hadn't progressed into what it is now.
-There was no Android. There was no such thing as mobile browsers. Hell,
-the god damn _iphone_ hadn't even come out yet--people still bought
-Nokia phones. There wasn't this "experience everwhere" concept. Even
-that took a while to catch on. But here we are now. The architecture of
-developing web based applications has changed. My problems have changed.
-Now I need different tools.
+Web developers know there is an _incredibly_ high turn over rate in
+technologies. Think about to 6 months ago. Did you know about
+Coffeescript? What about backbone.js? What about websockts/push? Not all
+of those things are technologies. Coffeescript is not a technology, it's
+just a nice layer on top of Javascript. It is not a new technology like
+HTML5 Websocket. Socket based communications are not new by any means,
+but they are new for us since we can use them in the browser. 
 
-## Changing the Guard
+Did you also notice how all the things I rattled off were purely related
+to JavaScript? This isn't a purely server side driven game anymore. The
+paradigm is shifting in how we architect modern internet applications.
+Before we got to where we are now we have to know where we came from. I
+think this is a common story for many Rails guys.
 
-If you want to develop anything serious these days you need to consider
-these factors:
+I was coming from PHP. PHP was shit then and is still shit now. I just
+didn't realize how shitty PHP as _language_ was until I started learning
+Ruby through Rails. At the time, Rails was exactly what many devs
+wanted. It made common tasks like generating basic CRUD interfaces. You
+could simply scaffold and start building (but I never recommend that),
+but you _could_ do it. It made managing a DB easy. There was
+`schema.rb`. There were ActiveRecord associations. ActionController and
+AJAX handling. It did everything and it made a huge splash in the
+industry. Rails made such a big impact it was able to drive the growth
+of 37signals into a major powerhouse. There are hundreds of committers
+and the framework is still very popular and useful. It made building Web
+2.0 quick and easy. Hell, you're riding on Rails. 
 
-  1. A web application
-  2. An Android application
-  3. An iPhone application
-  4. Tablets
+I look back on those days fondly. It was a much more simple time. The
+barrier to enter the market was low. You could churn out SaaS services
+so quickly. Generate a rails app, throw up some scaffolds, and boom.
+There ya go. Zero to sixty faster than an R8. Now things are different. 
 
-Now that you have to develop your "web" application for many different
-platforms, you're not really developing a web application. You're
-developing a web **backed** application. These are inherently different
-things. Back in the day, you had your website. And that was it. It used
-some AJAX and it got the job done. Now the entire market as moved to
-place where it is not longer enough to develop a web application. You
-need to develop your own **platform.** This platform should be able good
-enough to build any client application on top of, be it a web
-application, android, or any other client application. All these clients
-can communicate over HTTP. Your platform essentially becomes an HTTP
-based API. This is a suprisingly nice thing in retrospect. It removes
-complexity from your platform because all it does is **return JSON.**
-This is only reponsiblity of modern platforms. And you can hack together
-really quickly with `respond_to :json ; respond_with @resources`.
-(Although I don't recommend that at all). They no longer generate views,
-matter a fact ActionView is completely removed from modern platforms
-(unless you need ActionMailer which uses it for mail rendering). For me
-personally, the templating system really interested me in the beginning.
-Now I don't even use it. There is no point. A modern web based SaaS is
-going to have a HTTP backend for it's single page JS frontend and all
-the other clients. All those clients actually render views with the data
-the backend delivers. There goes the (traditional) V in MV. The way we
-do M these days is completely different. 
+Think back to when Rails first came out. There was no iPhone. There was
+no Android. People still owned Nokias and actually bought stock in the
+damn company. Windows XP was still massively popular and were
+**fighting** to get a decent version of IE (but that will never end).
+There was no such thing as a mobile web. No one was thinking about
+tablet. How old is the iPad? Not every old. The web has drastically
+changed due to the smartphone explosion. This is only the first step in
+a true multiplatform internet. A few years ago you could get by with
+having a mobile version of your web app. Now that's not enough. That
+concept is most laughable today. The bar is set pretty high. People
+expect applications for different devices. This is unfortunately our
+fault since we've trained them. I was just on
+[lemon.com](http://www.lemon.com) while showing it to my boss. There is
+a huge picture of numerous devices. People are off their computers now.
+Now it's simply not enough to build a web application. You need to build
+a service. You need to build your own platform to build your own
+applications off of. You simply cannot survive if you do no. The
+changing web has yield new requirements in how we design and structure
+modern applications.
 
-## Standing on Your Own Two Feet: I don't need ActiveRecord
+## SoA Platforms then Applications
 
-ActiveRecord was completely stunning in 2006. I don't rely on as much I
-used to. Now I only think of it has "data persistance." You can persist
-data in a variety of different ways. You can use Mongo or if you're
-crazy enough, you can even use Redis. I've reached a point where I only
-use the mosic basic ActiveRecord operations, it no longer impresses like
-it once did. I find that Mongoid is much more flexible for nonrelational
-data and is much less intrusive. Now I think in ActiveModel. ActiveModel
-is fantastic. I love ActiveModel. It lets you treat persistance as an
-implementation detail. Yay OOP. This is Rails 3 at it's finest. Rails 3
-makes coding modern OOP HTTP based platforms so nice because you can
-actually swap out stuff you don't need. Which makes me think about what
-I actually need Rails to do. 
+Service oreinted architecture has always been very fascinating concept.
+Jeff Bezos was way ahead of his time when he basically pulled a Hitler
+and dictacted that everything would switch over to SoA. We are at point
+in the web where platforms represent core business value. You need to
+have a platform that's accessible on any device either nateively or with
+a browser. So now you're faced with a question. How can you develop your
+platform and expose to different devices: HTTP. I like HTTP and I make
+my plaforms speak HTTP. We can use HTTP to create JS applications for
+browsers. We can also use HTTP to communicate with an external system
+through OS level code. You can build a native application on Android
+backed by HTTP service. You can build your JS application backed by
+HTTP. Don't think that the browser is the only answer. Not every single
+application can exist in the browser. What if you need to write files?
+What if you need to access hardware? The browser is not the be-all & end
+all of internet applications. People will always be creating native
+applications. So don't look at everything purely through the: HTML5 and
+JS lense. Somtimes applications need more.
 
-## Rail's Reponsiblity
+I think many developers are starting to realize this. You can see it
+with things like Sproutcore (much love to SC) and Backbone. Less so than
+backbone and more so with SC < 2. There is this revolution in MVC on the
+client. Ya, you could call it that, but really it's the beginning of a
+wall being built between clients and servers. Backbone is becoming
+increasingly popular for good reasons. It allows developers to make
+javascript applications with nice MVC trimmings. But it's more than
+that. It makes poeple structure and organize their javascript as an
+application, and not simply a hodepodge of event bindings and AJAX
+related trickery. Applications are now being built in Javascript. This
+trend will only continue. Why? Because the interfaces are fucking fast.
+Things happen on the user's computer and can be persisted back to the
+server later. Hell, Sproutcore even abstracted HTTP persistance competely
+out of the framework. There is a clear separation of concerns. The
+platform processes data and serves up JSON. Then end progrems actually
+do all the "work" by presenting UI's and all that good stuff. And now
+you've built the first consumer for your platform. With Sputcore you
+even build the entire application without even contecting it to a
+server. At that point, you're able to treat persistance as an
+implementation detail which drastically changes the way you think.
 
-The responsiblity is single and focused. **Respond to HTTP requests.**
-This means:
+## HTTP Backed Services
 
-  1. Map URL's to Code
-  2. Provide me a nice interface for working with requests
-  3. Middleware is a plus
-  4. Make it easy for me to return structured data.
+HTTP backed services are inherently easy to write and manage. They are
+much easier to write than traditional web applications because you do
+not have to worry about V--just MC. From my experience, generating a
+good UI (V) takes orders of magnitude than implementing M and C. HTTP is
+perfect because you only have to worry about garbage in and garbage out.
+In Rails, this means you really only care about `params` and
+`respond_with`. Data in and data out. Now, when I look at these API'S I
+look at the repsonsiblity to the end developer: return JSON. That is it.
+A single focus: return JSON. Of course there is processing involved but
+the main point is return JSON that end application can use for it's own
+purposes. That makes developing this very easy because it removes many
+other requirement and makes you think about a fundamental thing: HTTP is
+only how the outside talks to my code. My application is not HTTP and
+it's certainly not just HTML and JSON. This is only how I talk to the
+outside world. The code can be something totally different. You could
+have nginx talking to a haskell application. No one cares as long as the
+parameters and data coming out are according to spec. This has been
+extremely freeing for me because I no longer thing **rails is my
+application.**.
 
-All I want is for it to be easy to return JSON. That's all the HTTP has
-to do. ActionPack is **fantastic** for this. `params` is the best thing
-ever. Using all the filtering method makes respond to specific requests
-a dream. `respond_with` is nice because it gives me a hacky way to just
-jsonify all things. That is all I want. I don't want views. I don't want
-model. I don't want mailers. I really don't want much. I think that my
-use case is Rail's best functionality. Handling HTTP feels like the most
-developed part of the framework. Now people get lost in ActiveRecord and
-ActionView. They are more concerned with generating view and their
-schema. Then there is the asset pipeline. Oh the asset pipeline. I don't
-think anything has ever divided Rails developers like the asset
-pipeline. You either love it or hate it. Initially I loved it. I thought
-it was a fantastic idea. I agreed that making assets first class
-citizens in rails was a smart move. However, now I find the asset
-pipeline to be a completely worthless functionality. Serving assets (or
-compiling assets) has nothing to do with HTTP API's. This makes
-absolutely no sense! There is no reason to concern yourself with this.
-This is a different program's responsbility. Creating a platform allows
-individual programs to concern themsleves with only themselves. A single
-page JS application is just that: a single js file. Do you need a
-fullstack web framework to serve that (or even be involved with that)? I
-think not. The asset pipeline is creeping into a sphere of responbility
-it should not go into. API's don't serve assets and really, they don't
-give a fuck about them anywhere. There is the flip side of this coin.
-Not everyone is using this type of architecture. I used the asset
-pipeline to whip up my personal travel site:
-[ISOS](http://isos.broadcastingadam.com). It was a truly nice
-experience. It made building that little bullshit site pretty
-easy--matter of fact it was enjoyable! But there is no way I mess with
-the asset pipeline for my enterprise work. It is completely outside the
-sphere of concern, hell, a lot of things bundled with the framework are
-outside my sphere of concern.
+## Changing How We Code
 
-## Everything I don't need, I can Remove
+Avdi Grimm verbalized some of my current feelings in this regard. His
+object on Rails book goes through the entire process of creating a blog
+using OOP techniques. The code is developed competely outside of Rails.
+Rails isn't even introduced. Models are derived completely on their own.
+Collabators and responsiblities are defined as well. Slowly the system
+takes shape. First you need ActiveModel for some validations. Everything
+is going well. Eventually you're going to need persistance. He treats
+**persistance** as an implication details. Mdoels are more than
+ActiveRecord! Your code is more than Rails. Rails is not your code. You
+can and **should** develop the business logic completely on your own
+ISOLATED from whatever code you'll eventually use to allow the outside
+world to consume your service. Corey Haines started something called
+fast tests. Fast tests are great. Everyone loves them. They make tdd
+faster blah blah. His essential point was to move code out of Rails into
+Ruby modules that can be tested in isolation. This is a step in the
+right direction but I think it's a very small one. You should go all out
+and simply move your code out of _whatever_ framework you're eventually
+going to use. I highly recommend Avdi's paper on 
+[Objects on Rails](http://avdi.org/devblog/2011/11/15/early-access-beta-of-objects-on-rails-now-available-2/)
+to see a very refreshing approach. The continuing theme here is
+separting parts of your eventual platform. Most important is separting
+access from application.
 
-This is why I still use Rails. I don't need ActiveRecord. Uncomment the
-Railtie. I don't need ActionView. Remove the Railtie. I don't need
-ActionMailer. Remove the Railtie. I don't need the asset pipline. You
-turn it off in the config. (I think this should be a railtie. Since it's
-not, it shows you tightly coupled it is). All that I'm left with is
-ActionPack. It is so nice and slim. So concise. So focused. So
-purposeful. I love it. For once, I can use Rails as a wrapper around
-_my_ actual code. It's just an interface to the outside world. 
+## Moving Away From Rails
 
-Rails no longer solves all my problems like it did when I started using
-it. Now it just helps and I think that is good. I think many people look
-to Rails as his god like thing that will just solve everything for you.
-It is not that and it will never be. This is the way it should be.
-Everything I no longer like or use can be removed from the framework.
-You simply _could not_ do this before Rails 3. I think that's why I keep
-coming back to Rails. Granted I know Rails like the back of my hand. I
-can pretty much do whatever I want or could dream of inside the
-framework. I don't mind jumping into the source to see what's up. In
-general, it's a nice and comfortable place. On one hand I feel it's
-bloated and doesn't focus on problems building modern internet based
-applications, but I can bend it to my will and make it so. I can remove
-all that I don't need, or have it all if I want a fullstack experience.
-But as time goes by, I become increasinly disinterested because I no
-longer need it like I once did. I don't need to solve all my problems. I
-don't need scaffolding. I don't need all the things that initially
-turned me on to it. I on longer think of it as _the tool_ but just
-another one in my toolbox. And as more applications completely HTTP API
-driven they will no longer need most of the stuff either enabling them
-to revaluate their options. But until then, give me ActionPack or give
-me death!
+Rails has always been fantastic at one thing: accepting, handlings, and
+returning body for a HTTP response. What you choose to put that body has
+always been up to you. Just recently, it's been assume you're going to
+generate HTML. Now I just want to generate JSON. Designing my HTTP based
+services only require two things:
+
+1. Accept http requests
+2. Give me a nice API for determine response code and response body.
+
+Rails has always been fantastic at those two things. But now, I do the
+rest. I'm not really worried about ActiveRecord. Let me handle the
+models. I don't need ActionView. There are a lot of things I don't need
+from Rails anymore. I think that's good. What makes Rails 3 great is you
+can modularize by removing (or including) thing. Now I can get the most
+out of Rails by making it fit my requirements. But that's it. I no
+longer think Rails is my application. It's just a nice thing for
+handling how it's accessed.
+
+## Moving on in Life
+
+I've become increasingly disinterested with Rails over the past while.
+This is nothing to do with the framework itself. It's just no longer
+related to my core interests. A few years ago, it was my only interest.
+It was simply how you build web applications. That time has come and
+gone. Now we are faced with applications with more diverse requirements.
+You may have a Rails based application for handling the majority of web
+requests working in conjunction with a Node process for evented stuff.
+Hell, you may at some ponit even have processes in different langauges
+which have been optomised for different things. Look at Twitter with
+Scala. There are many permutations of different technologies for different
+requiremnts. There will be more permuations as the way we architect the
+modern web. For me, and I think many others, Rails will become and
+increasinly smaller peice of the puzzle. Why? Simply because their
+platform is more than Rails. Now I focus on other questions. Rails
+answers some of them, however I'm finding it's the answer less and less.
