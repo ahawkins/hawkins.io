@@ -6,8 +6,8 @@
     <atom:link href="http://broadcastingadam.com/rss.xml" rel="self" type="application/rss+xml" />
     <description>Thoughts on Modern Web Development</description>
     <language>en-us</language>
-    <pubDate>Fri, 02 Dec 2011 17:54:59 +0200</pubDate>
-    <lastBuildDate>Fri, 02 Dec 2011 17:54:59 +0200</lastBuildDate>
+    <pubDate>Fri, 02 Dec 2011 18:01:27 +0200</pubDate>
+    <lastBuildDate>Fri, 02 Dec 2011 18:01:27 +0200</lastBuildDate>
 
     
     <item>
@@ -2479,7 +2479,7 @@ var DashboardPage = {
     </item>
     
     <item>
-      <title>Ubuntu, Jetty, Solr & MultiCore</title>
+      <title>Ubuntu, Jetty, Solr &amp; MultiCore</title>
       <link>http://broadcastingadam.com/2011/02/ubuntu_jetty_solr_and_multicore</link>
       <pubDate>Wed, 02 Feb 2011 00:00:00 +0200</pubDate>
       <author>me@broadcastingadam.com (Adam Hawkins)</author>
@@ -2589,7 +2589,7 @@ sudo /etc/init.d/jetty start&lt;/code&gt;&lt;/pre&gt;
     </item>
     
     <item>
-      <title>Cucumber's env.rb & Dry Run Problems</title>
+      <title>Cucumber's env.rb &amp; Dry Run Problems</title>
       <link>http://broadcastingadam.com/2010/12/cucumbers_dry_run_problems</link>
       <pubDate>Thu, 02 Dec 2010 00:00:00 +0200</pubDate>
       <author>me@broadcastingadam.com (Adam Hawkins)</author>
