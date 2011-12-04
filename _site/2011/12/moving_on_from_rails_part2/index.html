@@ -27,19 +27,19 @@
           </div>
         </header>
         <article>
-          <p>I was quite suprised by how much feedback I received on the original <a href='http://broadcastingadam.com/2011/11/moving_on_from_rails'>post</a>. You should read the first one before reading this. I&#8217;m writing this post to respond to some common questions, points, and concerns.</p>
+          <p>I was quite surprised by how much feedback I received on the original <a href='http://broadcastingadam.com/2011/11/moving_on_from_rails'>post</a>. You should read the first one before reading this. I&#8217;m writing this post to respond to some common questions, points, and concerns.</p>
 
 <h2 id='setting_the_record_straight'>Setting The Record Straight</h2>
 
-<p>It seems the point of the previous post has been lost in the title. I guess this my fault. I am not quitting or bashing Rails. I am &#8220;moving on from Rails&#8221; because it is becoming increasingly less integral to how I consturct my applications. My applications are JSON based communicating over HTTP. I still use Rails for all my web based projects with different components added/removed based on the application&#8217;s requirements.</p>
+<p>It seems the point of the previous post has been lost in the title. I guess this my fault. I am not quitting or bashing Rails. I am &#8220;moving on from Rails&#8221; because it is becoming increasingly less integral to how I construct my applications. My applications are JSON based communicating over HTTP. I still use Rails for all my web based projects with different components added/removed based on the application&#8217;s requirements.</p>
 
 <p>Rails is becoming less important because I no longer rely on it to be my <strong>application.</strong> I try to use <code>ActionPack</code> as an interface to my code which is <strong>not</strong> bound to Rails in anyway. In this setup, I do not the traditional full stack setup. I don&#8217;t use <code>ActiveRecord</code> and I don&#8217;t use <code>ActionView</code>. I continue to use Rails mainly because of <code>ActionPack</code> since it&#8217;s (from my experience) the easiest way to handle and respond to HTTP requests.</p>
 
-<p>Oh, I use <code>ActiveModel</code> a ton because it&#8217;s awesome as. I also use tons of pits and peices from <code>ActiveSupport</code> because <code>#present?</code>, <code>#blank?</code> and <code>#underscore</code> etc are just too handy when you&#8217;re doing programming with strings.</p>
+<p>Oh, I use <code>ActiveModel</code> a ton because it&#8217;s awesome as. I also use tons of pits and pieces from <code>ActiveSupport</code> because <code>#present?</code>, <code>#blank?</code> and <code>#underscore</code> etc are just too handy when you&#8217;re doing programming with strings.</p>
 
 <h2 id='alternatives'>Alternatives</h2>
 
-<p>I was suprised (again) by how many blasted me about <strong>not suggesting</strong> alternatives. I did&#8217;t know I supposed to. Still, I don&#8217;t suggest any alternatives because I don&#8217;t think there are any for the way I structure my applications. I could use Sinatra (and I do) in less complicated scenarios. I like controller classes. I like <code>routes.rb</code>. With 30+ controllers and easily over 100 routes I think that would become an unweidly. Sinatra is probly closer to what I want, but I&#8217;d end up building stuff from <code>ActionPack</code> into the application just to make it work. Someone also suggested: <a href='http://reneerb.com/'>Renee</a> but I have yet to play with it.</p>
+<p>I was surprised (again) by how many blasted me about <strong>not suggesting</strong> alternatives. I didn&#8217;t know I supposed to. Still, I don&#8217;t suggest any alternatives because I don&#8217;t think there are any for the way I structure my applications. I could use Sinatra (and I do) in less complicated scenarios. I like controller classes. I like <code>routes.rb</code>. With 30+ controllers and easily over 100 routes I think that would become an unweildly application. Sinatra is probably closer to what I want, but I&#8217;d end up building stuff from <code>ActionPack</code> into the application just to make it work. Someone also suggested: <a href='http://reneerb.com/'>Renee</a> but I have yet to play with it.</p>
 
 <h2 id='tunnel_vision'>Tunnel Vision</h2>
 
@@ -47,9 +47,9 @@
 <p>This seems to be a recurring pattern with developers who have &#8220;discovered&#8221; design and architecture through frameworks and can not seem to separate that from the tools used.</p>
 </blockquote>
 
-<p>I completely agree with that statement. I think this especially true of <em>any</em> full stack framework. If you are introduced to web development through that stack and work with only that stack for a very long time, it will be very hard to separate yourself from that train of thinking. This has happened to me and only has signifcantly changed after building much larger and more complicated web applications.</p>
+<p>I completely agree with that statement. I think this especially true of <em>any</em> full stack framework. If you are introduced to web development through that stack and work with only that stack for a very long time, it will be very hard to separate yourself from that train of thinking. This has happened to me and only has significantly changed after building much larger and more complicated web applications.</p>
 
-<p>The other day I was speaking to someone who could not separate models from database tables. There is no actual MVC going on there. Many people thing that models are just a wrapper around persistance. There is no concept what does this model actually <strong>do.</strong> What does it represent in your application? How does it interact with other models? Does it even need to be persisted? Tunnel vision is not unique to Rails, but I think it effects many new programmers who fall in love with the framework and use it for years.</p>
+<p>The other day I was speaking to someone who could not separate models from database tables. There is no actual MVC going on there. Many people thing that models are just a wrapper around persistence. There is no concept what does this model actually <strong>do.</strong> What does it represent in your application? How does it interact with other models? Does it even need to be persisted? Tunnel vision is not unique to Rails, but I think it effects many new programmers who fall in love with the framework and use it for years.</p>
 
 <h2 id='php'>PHP</h2>
 
@@ -83,13 +83,13 @@
 <p>For example, the natural way in which CoffeeScript was made a default on Rails 3.1 stack. In many languages you can pull the first element of an array with the method <span />#first. Did you know that in Rails you can also do <span />.second, <span />.third and so on until 40-something? DHH, before he&#8217;s a technology guy, he&#8217;s a great product and he thinks about the developers, that&#8217;s what I like most about Rails. Man, he&#8217;s the g&#8211; d&#8212; Steve Jobs of development.</p>
 </blockquote>
 
-<p>Coffescript is ok. It&#8217;s cool that decided to make assets first class citizens in Rails 3.1. However, I think the asset pipeline is not going to be used when developer API based applications. Why do I need the asset pipline to serve assets if all care about is JSON? Hell, why would I even worry about keeping assets in source control? It doesn&#8217;t make sense. These are two completely independent concepts. I use Rails to serve JSON. Something else does whatever else. You can have a single nginx box serving up static JS all day. I don&#8217;t mess with that at all. That&#8217;s what makes Rails <strong>great.</strong> You can just that off. I turn it off and pay no attention to it. I think the asset pipeline is generally a useless feature for developing modern applications.</p>
+<p>Coffescript is ok. It&#8217;s cool that decided to make assets first class citizens in Rails 3.1. However, I think the asset pipeline is not going to be used when developer API based applications. Why do I need the asset pipeline to serve assets if all care about is JSON? Hell, why would I even worry about keeping assets in source control? It doesn&#8217;t make sense. These are two completely independent concepts. I use Rails to serve JSON. Something else does whatever else. You can have a single nginx box serving up static JS all day. I don&#8217;t mess with that at all. That&#8217;s what makes Rails <strong>great.</strong> You can just that off. I turn it off and pay no attention to it. I think the asset pipeline is generally a useless feature for developing modern applications.</p>
 
 <blockquote>
 <p>I agree today the web is much more about client-side but that&#8217;s what backbone.js and spine.js are doing, extending Rails.</p>
 </blockquote>
 
-<p>These things have nothing to do with Rails at all. There is a complete separation of responsibilites. They do not extend Rails at all. They extend ANY HTTP based application. I could have an assembly program serving up JSON it makes no difference. Backone/Spine/Knockout/what have you simply make it easier to create modern interactive UI&#8217;s in the browser.</p>
+<p>These things have nothing to do with Rails at all. There is a complete separation of concerns. They do not extend Rails at all. They extend ANY HTTP based application. I could have an assembly program serving up JSON it makes no difference. Backbone/Spine/Knockout/what have you simply make it easier to create modern interactive UI&#8217;s in the browser.</p>
 
 <blockquote>
 <p>As for Ruby, the 1.9x version is fast and slick</p>

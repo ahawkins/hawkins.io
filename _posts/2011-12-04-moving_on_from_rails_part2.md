@@ -4,7 +4,7 @@ title: "Moving on from Rails: Part 2"
 tags: [rails]
 ---
 
-I was quite suprised by how much feedback I received on the original
+I was quite surprised by how much feedback I received on the original
 [post](http://broadcastingadam.com/2011/11/moving_on_from_rails). You
 should read the first one before reading this. I'm writing this post to
 respond to some common questions, points, and concerns. 
@@ -14,7 +14,7 @@ respond to some common questions, points, and concerns.
 It seems the point of the previous post has been lost in the title. I
 guess this my fault. I am not quitting or bashing Rails. I am "moving on
 from Rails" because it is becoming increasingly less integral to how I
-consturct my applications. My applications are JSON based communicating
+construct my applications. My applications are JSON based communicating
 over HTTP. I still use Rails for all my web based projects with
 different components added/removed based on the application's
 requirements.
@@ -28,19 +28,19 @@ since it's (from my experience) the easiest way to handle and respond to
 HTTP requests. 
 
 Oh, I use `ActiveModel` a ton because it's awesome as. I also use tons
-of pits and peices from `ActiveSupport` because `#present?`, `#blank?`
+of pits and pieces from `ActiveSupport` because `#present?`, `#blank?`
 and `#underscore` etc are just too handy when you're doing programming
 with strings.
 
 ## Alternatives
 
-I was suprised (again) by how many blasted me about **not suggesting**
-alternatives. I did't know I supposed to. Still, I don't suggest any
+I was surprised (again) by how many blasted me about **not suggesting**
+alternatives. I didn't know I supposed to. Still, I don't suggest any
 alternatives because I don't think there are any for the way I structure
 my applications. I could use Sinatra (and I do) in less complicated
 scenarios. I like controller classes. I like `routes.rb`. With 30+
 controllers and easily over 100 routes I think that would become an
-unweidly. Sinatra is probly closer to what I want, but I'd end up
+unweildly application. Sinatra is probably closer to what I want, but I'd end up
 building stuff from `ActionPack` into the application just to make it
 work. Someone also suggested: [Renee](http://reneerb.com/) but I have
 yet to play with it.
@@ -55,12 +55,12 @@ I completely agree with that statement. I think this especially true of
 _any_ full stack framework. If you are introduced to web development
 through that stack and work with only that stack for a very long time,
 it will be very hard to separate yourself from that train of thinking.
-This has happened to me and only has signifcantly changed after building
+This has happened to me and only has significantly changed after building
 much larger and more complicated web applications.
 
 The other day I was speaking to someone who could not separate models
 from database tables. There is no actual MVC going on there. Many people
-thing that models are just a wrapper around persistance. There is no
+thing that models are just a wrapper around persistence. There is no
 concept what does this model actually **do.** What does it represent in
 your application? How does it interact with other models? Does it even
 need to be persisted? Tunnel vision is not unique to Rails, but I think
@@ -123,7 +123,7 @@ post which talks about the changing structure of web applications.
 Coffescript is ok. It's cool that decided to make assets first class
 citizens in Rails 3.1. However, I think the asset pipeline is not going
 to be used when developer API based applications. Why do I need the
-asset pipline to serve assets if all care about is JSON? Hell, why would
+asset pipeline to serve assets if all care about is JSON? Hell, why would
 I even worry about keeping assets in source control? It doesn't make
 sense. These are two completely independent concepts. I use Rails to
 serve JSON. Something else does whatever else. You can have a single
@@ -136,9 +136,9 @@ useless feature for developing modern applications.
 > what backbone.js and spine.js are doing, extending Rails.
 
 These things have nothing to do with Rails at all. There is a complete
-separation of responsibilites. They do not extend Rails at all. They
+separation of concerns. They do not extend Rails at all. They
 extend ANY HTTP based application. I could have an assembly program
-serving up JSON it makes no difference. Backone/Spine/Knockout/what have
+serving up JSON it makes no difference. Backbone/Spine/Knockout/what have
 you simply make it easier to create modern interactive UI's in the
 browser.
 
