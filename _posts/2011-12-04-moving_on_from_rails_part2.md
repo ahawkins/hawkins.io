@@ -60,7 +60,7 @@ much larger and more complicated web applications.
 
 The other day I was speaking to someone who could not separate models
 from database tables. There is no actual MVC going on there. Many people
-thing that models are just a wrapper around persistence. There is no
+think that models are just a wrapper around persistence. There is no
 concept what does this model actually **do.** What does it represent in
 your application? How does it interact with other models? Does it even
 need to be persisted? Tunnel vision is not unique to Rails, but I think

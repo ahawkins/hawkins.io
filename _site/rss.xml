@@ -6,8 +6,8 @@
     <atom:link href="http://broadcastingadam.com/rss.xml" rel="self" type="application/rss+xml" />
     <description>Thoughts on Modern Web Development</description>
     <language>en-us</language>
-    <pubDate>Sun, 04 Dec 2011 17:06:18 +0200</pubDate>
-    <lastBuildDate>Sun, 04 Dec 2011 17:06:18 +0200</lastBuildDate>
+    <pubDate>Sun, 04 Dec 2011 17:11:16 +0200</pubDate>
+    <lastBuildDate>Sun, 04 Dec 2011 17:11:16 +0200</lastBuildDate>
 
     
     <item>
@@ -38,7 +38,7 @@
 
 &lt;p&gt;I completely agree with that statement. I think this especially true of &lt;em&gt;any&lt;/em&gt; full stack framework. If you are introduced to web development through that stack and work with only that stack for a very long time, it will be very hard to separate yourself from that train of thinking. This has happened to me and only has significantly changed after building much larger and more complicated web applications.&lt;/p&gt;
 
-&lt;p&gt;The other day I was speaking to someone who could not separate models from database tables. There is no actual MVC going on there. Many people thing that models are just a wrapper around persistence. There is no concept what does this model actually &lt;strong&gt;do.&lt;/strong&gt; What does it represent in your application? How does it interact with other models? Does it even need to be persisted? Tunnel vision is not unique to Rails, but I think it effects many new programmers who fall in love with the framework and use it for years.&lt;/p&gt;
+&lt;p&gt;The other day I was speaking to someone who could not separate models from database tables. There is no actual MVC going on there. Many people think that models are just a wrapper around persistence. There is no concept what does this model actually &lt;strong&gt;do.&lt;/strong&gt; What does it represent in your application? How does it interact with other models? Does it even need to be persisted? Tunnel vision is not unique to Rails, but I think it effects many new programmers who fall in love with the framework and use it for years.&lt;/p&gt;
 
 &lt;h2 id='php'&gt;PHP&lt;/h2&gt;
 
