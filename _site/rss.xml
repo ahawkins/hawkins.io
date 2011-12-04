@@ -6,9 +6,126 @@
     <atom:link href="http://broadcastingadam.com/rss.xml" rel="self" type="application/rss+xml" />
     <description>Thoughts on Modern Web Development</description>
     <language>en-us</language>
-    <pubDate>Fri, 02 Dec 2011 18:12:22 +0200</pubDate>
-    <lastBuildDate>Fri, 02 Dec 2011 18:12:22 +0200</lastBuildDate>
+    <pubDate>Sun, 04 Dec 2011 16:55:05 +0200</pubDate>
+    <lastBuildDate>Sun, 04 Dec 2011 16:55:05 +0200</lastBuildDate>
 
+    
+    <item>
+      <title>Moving on from Rails: Part 2</title>
+      <link>http://broadcastingadam.com/2011/12/moving_on_from_rails_part2</link>
+      <pubDate>Sun, 04 Dec 2011 00:00:00 +0200</pubDate>
+      <author>me@broadcastingadam.com (Adam Hawkins)</author>
+      <guid>http://broadcasting.com/2011/12/moving_on_from_rails_part2</guid>
+      <description>&lt;p&gt;I was quite suprised by how much feedback I received on the original &lt;a href='http://broadcastingadam.com/2011/11/moving_on_from_rails'&gt;post&lt;/a&gt;. You should read the first one before reading this. I&amp;#8217;m writing this post to respond to some common questions, points, and concerns.&lt;/p&gt;
+
+&lt;h2 id='setting_the_record_straight'&gt;Setting The Record Straight&lt;/h2&gt;
+
+&lt;p&gt;It seems the point of the previous post has been lost in the title. I guess this my fault. I am not quitting or bashing Rails. I am &amp;#8220;moving on from Rails&amp;#8221; because it is becoming increasingly less integral to how I consturct my applications. My applications are JSON based communicating over HTTP. I still use Rails for all my web based projects with different components added/removed based on the application&amp;#8217;s requirements.&lt;/p&gt;
+
+&lt;p&gt;Rails is becoming less important because I no longer rely on it to be my &lt;strong&gt;application.&lt;/strong&gt; I try to use &lt;code&gt;ActionPack&lt;/code&gt; as an interface to my code which is &lt;strong&gt;not&lt;/strong&gt; bound to Rails in anyway. In this setup, I do not the traditional full stack setup. I don&amp;#8217;t use &lt;code&gt;ActiveRecord&lt;/code&gt; and I don&amp;#8217;t use &lt;code&gt;ActionView&lt;/code&gt;. I continue to use Rails mainly because of &lt;code&gt;ActionPack&lt;/code&gt; since it&amp;#8217;s (from my experience) the easiest way to handle and respond to HTTP requests.&lt;/p&gt;
+
+&lt;p&gt;Oh, I use &lt;code&gt;ActiveModel&lt;/code&gt; a ton because it&amp;#8217;s awesome as. I also use tons of pits and peices from &lt;code&gt;ActiveSupport&lt;/code&gt; because &lt;code&gt;#present?&lt;/code&gt;, &lt;code&gt;#blank?&lt;/code&gt; and &lt;code&gt;#underscore&lt;/code&gt; etc are just too handy when you&amp;#8217;re doing programming with strings.&lt;/p&gt;
+
+&lt;h2 id='alternatives'&gt;Alternatives&lt;/h2&gt;
+
+&lt;p&gt;I was suprised (again) by how many blasted me about &lt;strong&gt;not suggesting&lt;/strong&gt; alternatives. I did&amp;#8217;t know I supposed to. Still, I don&amp;#8217;t suggest any alternatives because I don&amp;#8217;t think there are any for the way I structure my applications. I could use Sinatra (and I do) in less complicated scenarios. I like controller classes. I like &lt;code&gt;routes.rb&lt;/code&gt;. With 30+ controllers and easily over 100 routes I think that would become an unweidly. Sinatra is probly closer to what I want, but I&amp;#8217;d end up building stuff from &lt;code&gt;ActionPack&lt;/code&gt; into the application just to make it work. Someone also suggested: &lt;a href='http://reneerb.com/'&gt;Renee&lt;/a&gt; but I have yet to play with it.&lt;/p&gt;
+
+&lt;h2 id='tunnel_vision'&gt;Tunnel Vision&lt;/h2&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;This seems to be a recurring pattern with developers who have &amp;#8220;discovered&amp;#8221; design and architecture through frameworks and can not seem to separate that from the tools used.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;I completely agree with that statement. I think this especially true of &lt;em&gt;any&lt;/em&gt; full stack framework. If you are introduced to web development through that stack and work with only that stack for a very long time, it will be very hard to separate yourself from that train of thinking. This has happened to me and only has signifcantly changed after building much larger and more complicated web applications.&lt;/p&gt;
+
+&lt;p&gt;The other day I was speaking to someone who could not separate models from database tables. There is no actual MVC going on there. Many people thing that models are just a wrapper around persistance. There is no concept what does this model actually &lt;strong&gt;do.&lt;/strong&gt; What does it represent in your application? How does it interact with other models? Does it even need to be persisted? Tunnel vision is not unique to Rails, but I think it effects many new programmers who fall in love with the framework and use it for years.&lt;/p&gt;
+
+&lt;h2 id='php'&gt;PHP&lt;/h2&gt;
+
+&lt;p&gt;I don&amp;#8217;t like PHP. I used to love PHP because it let me do all sorts of cool stuff. I could create variable variables (I have no idea why that exists.) plus all the other trickery you can do in the language. After having programmed in a few more languages over the years, now I think that PHP is fundamentally flawed as a language. Therefore, I have no interest in using it or following it.&lt;/p&gt;
+
+&lt;p&gt;There are plenty of people who get paid good money write PHP. I&amp;#8217;m sure there are plenty of them who love PHP. I&amp;#8217;m sure there are plenty of them who love CakePHP or whatever framework they use (if they use it). Great for them. As long as &lt;strong&gt;you&lt;/strong&gt; are happy with whatever you do and whatever tools you use then good for you.&lt;/p&gt;
+
+&lt;h2 id='replying_to_dor'&gt;Replying to Dor&lt;/h2&gt;
+
+&lt;p&gt;Dor wrote his own &lt;a href='http://www.tikalk.com/incubator/blog/defense-rails-replying-moving-rails'&gt;post&lt;/a&gt; in response to mine. Since he was nice enough to write a post which is much longer than a tweet, I&amp;#8217;ll reply in long-form.&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;So I think Adam is exaggerating and I think I can understand him but it seems to me he is looking for an answer at the wrong place. I am also not sure what is the alternative that he&amp;#8217;s suggesting&amp;#8230;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;I&amp;#8217;ve found the answer to what I need. &lt;code&gt;ActionPack&lt;/code&gt; is the answer.&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;During the last 6 years there were so many posts of that kind&amp;#8230; but the music is still on.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;The music is still on, but the tune has drastically changed. You don&amp;#8217;t scaffold anymore. There was no MongoDB. There was no such things as &amp;#8220;JavaScript clients.&amp;#8221; New user expectations and technologies have changed the a web framework&amp;#8217;s role. You can see this with 3.1 with inclusion of the (much maligned) asset pipeline and seperation of ActiveModel into an abstract concept reusable in other applications.&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;I am nt sure why someone want to write such a negative post, to me it seems like a waste of time. Why don&amp;#8217;t you write how much you enjoy the new JackRobinson(tm) technology and its remarkable advantages over Rails&amp;#8230;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;I don&amp;#8217;t consider it a negative post at all. I think it is an interesting post which talks about the changing structure of web applications.&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;For example, the natural way in which CoffeeScript was made a default on Rails 3.1 stack. In many languages you can pull the first element of an array with the method &lt;span /&gt;#first. Did you know that in Rails you can also do &lt;span /&gt;.second, &lt;span /&gt;.third and so on until 40-something? DHH, before he&amp;#8217;s a technology guy, he&amp;#8217;s a great product and he thinks about the developers, that&amp;#8217;s what I like most about Rails. Man, he&amp;#8217;s the g&amp;#8211; d&amp;#8212; Steve Jobs of development.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Coffescript is ok. It&amp;#8217;s cool that decided to make assets first class citizens in Rails 3.1. However, I think the asset pipeline is not going to be used when developer API based applications. Why do I need the asset pipline to serve assets if all care about is JSON? Hell, why would I even worry about keeping assets in source control? It doesn&amp;#8217;t make sense. These are two completely independent concepts. I use Rails to serve JSON. Something else does whatever else. You can have a single nginx box serving up static JS all day. I don&amp;#8217;t mess with that at all. That&amp;#8217;s what makes Rails &lt;strong&gt;great.&lt;/strong&gt; You can just that off. I turn it off and pay no attention to it. I think the asset pipeline is generally a useless feature for developing modern applications.&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;I agree today the web is much more about client-side but that&amp;#8217;s what backbone.js and spine.js are doing, extending Rails.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;These things have nothing to do with Rails at all. There is a complete separation of responsibilites. They do not extend Rails at all. They extend ANY HTTP based application. I could have an assembly program serving up JSON it makes no difference. Backone/Spine/Knockout/what have you simply make it easier to create modern interactive UI&amp;#8217;s in the browser.&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;As for Ruby, the 1.9x version is fast and slick&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Totally. 1.9.3 is a huge improvement over 1.8.7. I wish they would&amp;#8217;ve just skipped what 1.9.0,1,2 and went to right to 1.9.3 :D&lt;/p&gt;
+
+&lt;p&gt;One final note about writing Rails applications: most of the fun and handy things you can do in code are done by ActiveSupport.&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;All in all, I believe there is place for many flavours. Just like in real life, mongrels are better than pure-breeds. The environments learn from each other and so improve each other and everyone are happier :)&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Agree. Rails developers will learn to adapt framework to fit there needs or they will simply move on.&lt;/p&gt;
+
+&lt;h2 id='summing_it_up'&gt;Summing It Up&lt;/h2&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;tl;dr - web development is changing, the frontend side of things is gaining significance, while the backend is moving to, well, the background. No reason to be surprised there, right?&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;bphogan does a nice job cutting to the point as well:&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;This is less about moving on from Rails and more about moving on from building static pages from a database. Lots of web folks have been predicting this. I&amp;#8217;ve been saying for about two years now that the days of serving entire HTML pages from the serverside are numbered. With things like Backbone, I can bring up a Rails app without views and do something pretty awesome. &lt;strong&gt;And then it becomes a question as to what Rails offers.&lt;/strong&gt; (I bolded that for emphasis)&lt;/p&gt;
+
+&lt;p&gt;I love Rails. It got me back into web app development in 2005 after nearly burning out. But Rails isn&amp;#8217;t exactly keeping up and people who need to move on are going to do that.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Div does a better job of summing up my thoughts than I can do. Props man:&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;It seems like the title is a bit poorly chosen.&lt;/p&gt;
+
+&lt;p&gt;The author talks about the importance of having a platform to cater to the multitude of devices and other apps out there, and that this means rails isn&amp;#8217;t the center of the universe anymore.&lt;/p&gt;
+
+&lt;p&gt;To me, this does not necessarily mean moving on from rails.&lt;/p&gt;
+
+&lt;p&gt;It does mean moving on from writing all code in rails.&lt;/p&gt;
+
+&lt;p&gt;There could be a fullfledged backbone.js app powering a responsive ui, and a distributed clojure jobqueue making sure messages are fanned out to their destined networks in the backend. However, there is still room in this picture for Rails as a router of sorts.&lt;/p&gt;
+
+&lt;p&gt;Rails still makes it easy to quickly build a solid REST api, and easy to delegate long-running jobs to a separate system, in this type of architecture, Rails would have roughly a third of the responsibility / code that it has in a Rails only architecture, but it&amp;#8217;s still a vital component.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;I hope that his post clarified the original. Now we can all move on with our lives :D&lt;/p&gt;</description>
+    </item>
     
     <item>
       <title>Moving on from Rails</title>
@@ -19,6 +136,8 @@
       <description>&lt;p&gt;I&amp;#8217;ve been doing Rails since 2006. My skill level and the framework as changed greatly since. I came from PHP web sites and Java through academics. Ruby was breath of fresh air. Rails was a thing a of beauty. It was exactly what I needed at the time. Now times are different.&lt;/p&gt;
 
 &lt;h2 id='a_changing_web_yields_changing_requirements'&gt;A Changing Web Yields Changing Requirements&lt;/h2&gt;
+
+&lt;p&gt;&lt;strong&gt;EDIT&lt;/strong&gt;: I&amp;#8217;ve written a follow up to this post that can be found &lt;a href='http://broadcastingadam.com/2011/12/moving_on_from_rails_part_2.html'&gt;here&lt;/a&gt;.&lt;/p&gt;
 
 &lt;p&gt;Web developers know there is an &lt;em&gt;incredibly&lt;/em&gt; high turnover rate in technologies. Think about to 6 months ago. Did you know about Coffeescript? What about backbone.js? What about websockets/push? Not all of those things are technologies. Coffeescript is not a technology, it&amp;#8217;s just a nice layer on top of Javascript. It is not a new technology like HTML5 Websockets. Socket based communications are not new by any means, but they are new for us since we can use them in the browser.&lt;/p&gt;
 

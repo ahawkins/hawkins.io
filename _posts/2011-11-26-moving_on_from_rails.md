@@ -11,6 +11,9 @@ It was exactly what I needed at the time. Now times are different.
 
 ## A Changing Web Yields Changing Requirements
 
+**EDIT**: I've written a follow up to this post that can be found
+[here](http://broadcastingadam.com/2011/12/moving_on_from_rails_part_2.html).
+
 Web developers know there is an _incredibly_ high turnover rate in
 technologies. Think about to 6 months ago. Did you know about
 Coffeescript? What about backbone.js? What about websockets/push? Not all
