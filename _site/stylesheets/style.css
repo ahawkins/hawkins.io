@@ -171,5 +171,6 @@ li {
 
 blockquote {
   background-color: #F8F8FF;
-  padding: .5em;
+  padding: .75em;
+  border: solid 1px #EDEEEF;
 }
