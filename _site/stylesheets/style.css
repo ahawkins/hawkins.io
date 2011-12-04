@@ -168,3 +168,8 @@ li {
   display: list-item;
   margin-left: 30px
 }
+
+blockquote {
+  background-color: #F8F8FF;
+  padding: .5em;
+}
