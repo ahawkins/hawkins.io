@@ -6,8 +6,8 @@
     <atom:link href="http://broadcastingadam.com/rss.xml" rel="self" type="application/rss+xml" />
     <description>Thoughts on Modern Web Development</description>
     <language>en-us</language>
-    <pubDate>Sun, 04 Dec 2011 17:11:16 +0200</pubDate>
-    <lastBuildDate>Sun, 04 Dec 2011 17:11:16 +0200</lastBuildDate>
+    <pubDate>Mon, 05 Dec 2011 10:14:27 +0200</pubDate>
+    <lastBuildDate>Mon, 05 Dec 2011 10:14:27 +0200</lastBuildDate>
 
     
     <item>
@@ -137,7 +137,7 @@
 
 &lt;h2 id='a_changing_web_yields_changing_requirements'&gt;A Changing Web Yields Changing Requirements&lt;/h2&gt;
 
-&lt;p&gt;&lt;strong&gt;EDIT&lt;/strong&gt;: I&amp;#8217;ve written a follow up to this post that can be found &lt;a href='http://broadcastingadam.com/2011/12/moving_on_from_rails_part_2'&gt;here&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;EDIT&lt;/strong&gt;: I&amp;#8217;ve written a follow up to this post that can be found &lt;a href='http://broadcastingadam.com/2011/12/moving_on_from_rails_part2'&gt;here&lt;/a&gt;.&lt;/p&gt;
 
 &lt;p&gt;Web developers know there is an &lt;em&gt;incredibly&lt;/em&gt; high turnover rate in technologies. Think about to 6 months ago. Did you know about Coffeescript? What about backbone.js? What about websockets/push? Not all of those things are technologies. Coffeescript is not a technology, it&amp;#8217;s just a nice layer on top of Javascript. It is not a new technology like HTML5 Websockets. Socket based communications are not new by any means, but they are new for us since we can use them in the browser.&lt;/p&gt;
 
