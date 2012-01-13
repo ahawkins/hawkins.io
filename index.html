@@ -3,10 +3,9 @@ layout: default
 title: BroadcastingAdam
 ---
 
-{% for post in site.posts %}
-<div class="post">
-  <div class="meta">
-    </p><a href="{{ post.url }}" title="{{ post.title}}">{{ post.title }}</a> {{ post.date | date: '%B %d, %Y' }}</p>
-  </div>
-</div>
-{% endfor %}
+<section>
+  <h2>Posts</h2>
+  {% for post in site.posts %}
+  <p><a href="{{ post.url }}" title="{{ post.title}}">{{ post.title }}</a> - {{ post.date | date: '%B %d, %Y' }}</p>
+  {% endfor %}
+</section>
