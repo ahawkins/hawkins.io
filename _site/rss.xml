@@ -6,9 +6,51 @@
     <atom:link href="http://broadcastingadam.com/rss.xml" rel="self" type="application/rss+xml" />
     <description>Thoughts on Modern Web Development</description>
     <language>en-us</language>
-    <pubDate>Sat, 14 Jan 2012 00:55:56 +0200</pubDate>
-    <lastBuildDate>Sat, 14 Jan 2012 00:55:56 +0200</lastBuildDate>
+    <pubDate>Mon, 16 Jan 2012 15:45:40 +0200</pubDate>
+    <lastBuildDate>Mon, 16 Jan 2012 15:45:40 +0200</lastBuildDate>
 
+    
+    <item>
+      <title>Rails 3.2, Heroku, &amp; rails_log_stdout</title>
+      <link>http://broadcastingadam.com/2012/01/rails320_heroku_and_rails_log_stdout</link>
+      <pubDate>Mon, 16 Jan 2012 00:00:00 +0200</pubDate>
+      <author>me@broadcastingadam.com (Adam Hawkins)</author>
+      <guid>http://broadcasting.com/2012/01/rails320_heroku_and_rails_log_stdout</guid>
+      <description>&lt;p&gt;I try to keep my applications on the bleeding edge of Rails. After being stuck Rails 2 for almost 1.5 years after Rails 3 was released, it&amp;#8217;s been very nice. Of course the bleeding edge has it&amp;#8217;s drawbacks. Enter Rails 3.2.0rc2 and Heroku. &lt;code&gt;vendor/plugins&lt;/code&gt; is deprecated in Rails 3.2. Heroku dumps it&amp;#8217;s configuration plugins into &lt;code&gt;vendor/&lt;/code&gt;. This gives you a nice deprecration warning everytime a rails environment process starts.&lt;/p&gt;
+
+&lt;p&gt;I had to do some debugging with developers using the API. This means I need to be able to see what their applications are sending in realtime. I&amp;#8217;ve been using Heroku for a long time, so I just fire up &lt;code&gt;heroku logs
+--tail&lt;/code&gt; and watch away. Except, now with rails 3.2.0rc2 I don&amp;#8217;t see anything coming from rails. Only the start up messages and the request accepted message. Well, there is no parameter information.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;2012-01-16T13:26:50+00:00 app[web.1]: Started POST &amp;quot;/todos&amp;quot; for 82.181.188.119 at 2012-01-16 13:26:50 +0000
+2012-01-16T13:26:51+00:00 heroku[router]: POST api.radiumcrm.com/todos dyno=web.1 queue=0 wait=0ms service=212ms status=422 bytes=92&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Well shit. That doesn&amp;#8217;t really tell me anything at all. I want to see this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;2012-01-16T13:26:50+00:00 app[web.1]: Started POST &amp;quot;/todos&amp;quot; for 82.181.188.119 at 2012-01-16 13:26:50 +0000
+2012-01-16T13:26:50+00:00 app[web.1]: Processing by TodosController#create as JSON
+2012-01-16T13:26:50+00:00 app[web.1]:   Parameters: {&amp;quot;todo&amp;quot;=&amp;gt;{&amp;quot;kind&amp;quot;=&amp;gt;&amp;quot;call&amp;quot;, &amp;quot;finish_by&amp;quot;=&amp;gt;&amp;quot;2012-05-01T18:52Z&amp;quot;}}
+2012-01-16T13:26:51+00:00 app[web.1]: Completed 422 Unprocessable Entity in 208ms (Views: 0.3ms | ActiveRecord: 110.7ms)
+2012-01-16T13:26:51+00:00 app[web.1]: cache: [POST /todos] invalidate, pass
+2012-01-16T13:26:51+00:00 heroku[router]: POST api.radiumcrm.com/todos dyno=web.1 queue=0 wait=0ms service=212ms status=422 bytes=92&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Turns out there is problem with the &lt;code&gt;[rails_log_stdout](https://github.com/ddollar/rails_log_stdout)&lt;/code&gt; plugin heroku uses do it&amp;#8217;s business. The rails initialization process has changed slightly. &lt;code&gt;ActionController::Base.logger&lt;/code&gt; was being assisigned to the standard &lt;code&gt;log/production.log&lt;/code&gt; file somewhere before the std out logger was being set. Then through the magic of &lt;code&gt;||=&lt;/code&gt; it is already defined and not reassigned to the stdout logger. The plugin is one &lt;code&gt;init.rb&lt;/code&gt; file which is now deprecated. Time to fix this!&lt;/p&gt;
+
+&lt;p&gt;I wrote a simple rails engine (rails 3+ only!) to fix this and stop the deprecation warnings. Hopefully heroku will use this code to make their platform rails 3.2 compatible. You can grab the code &lt;a href='https://github.com/adman65/rails_log_stdout'&gt;here&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Then stick this bad boy in your Gemfile:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;group :production do
+  gem &amp;#39;rails_log_stdout&amp;#39;, :git =&amp;gt; &amp;#39;git://github.com/Adman65/rails_log_stdout.git&amp;#39;
+end&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now you have &lt;strong&gt;also&lt;/strong&gt; have to tell Rails to explicitly load a whitelist of plugins. You can do this in &lt;code&gt;production.rb&lt;/code&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;config.plugins = [ :rails_serve_static_assets ] # ONLY load static assets plugin&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;You&amp;#8217;ll still see depreaction warnings because heroku is injecting code into your source, but logging will work as you expect. If you are using any other plugins make sure you add them to the list.&lt;/p&gt;
+
+&lt;p&gt;Happy log tailing!&lt;/p&gt;</description>
+    </item>
     
     <item>
       <title>Generating Routes for API Documentation</title>
