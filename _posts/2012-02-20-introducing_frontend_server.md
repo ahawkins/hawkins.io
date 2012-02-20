@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Introducing FronendServer"
+title: "Introducing FrontendServer"
 tags: [rails]
 ---
 
