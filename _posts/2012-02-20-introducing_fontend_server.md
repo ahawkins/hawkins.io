@@ -18,18 +18,18 @@ have a few other requirements.
 5. API proxy to avoid CORS issues in development
 6. Easily deployable by non server guys.
 
-So me being the server side guy had to sort this out. Josh turned me on
+So me being the server side guy, I had to sort this out. Josh turned me on
 to: @wycats's [rake-pipeline-web-filters](https://github.com/wycats/rake-pipeline-web-filters).
 It's an extension to rake-pipeline. Rake-pipeline is essentially the
 Rails asset pipeline done in a less bitchy way. It's a rake extension
-that does what rails pipeline does, except it's **much** more powerful.
+that does what the rails asset pipeline does, except it's **much** more powerful.
 You can easily define custom filters for things like minification.
 
 Rake::Pipeline::WebFilters provides the heavy lifting. I wrote a simple
-Rack app to server the stuff based on sensible defaults (convention over
+Rack app to serve the stuff based on sensible defaults (convention over
 configuration) and voilla! We have asset compilation and a development
-server. Then combining some more glue code to connect a proxy and other
-bits we have a more complete solution.
+server. Combine some more glue code to connect a proxy and other
+bits and we have a more complete solution.
 
 Introducting
 [FrontendServer](https://github.com/adman65/frontend_server). Here's

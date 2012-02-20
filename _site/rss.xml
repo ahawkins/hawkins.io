@@ -6,8 +6,8 @@
     <atom:link href="http://broadcastingadam.com/rss.xml" rel="self" type="application/rss+xml" />
     <description>Thoughts on Modern Web Development</description>
     <language>en-us</language>
-    <pubDate>Mon, 20 Feb 2012 11:09:12 +0200</pubDate>
-    <lastBuildDate>Mon, 20 Feb 2012 11:09:12 +0200</lastBuildDate>
+    <pubDate>Mon, 20 Feb 2012 11:10:50 +0200</pubDate>
+    <lastBuildDate>Mon, 20 Feb 2012 11:10:50 +0200</lastBuildDate>
 
     
     <item>
@@ -32,9 +32,9 @@
 &lt;li&gt;Easily deployable by non server guys.&lt;/li&gt;
 &lt;/ol&gt;
 
-&lt;p&gt;So me being the server side guy had to sort this out. Josh turned me on to: @wycats&amp;#8217;s &lt;a href='https://github.com/wycats/rake-pipeline-web-filters'&gt;rake-pipeline-web-filters&lt;/a&gt;. It&amp;#8217;s an extension to rake-pipeline. Rake-pipeline is essentially the Rails asset pipeline done in a less bitchy way. It&amp;#8217;s a rake extension that does what rails pipeline does, except it&amp;#8217;s &lt;strong&gt;much&lt;/strong&gt; more powerful. You can easily define custom filters for things like minification.&lt;/p&gt;
+&lt;p&gt;So me being the server side guy, I had to sort this out. Josh turned me on to: @wycats&amp;#8217;s &lt;a href='https://github.com/wycats/rake-pipeline-web-filters'&gt;rake-pipeline-web-filters&lt;/a&gt;. It&amp;#8217;s an extension to rake-pipeline. Rake-pipeline is essentially the Rails asset pipeline done in a less bitchy way. It&amp;#8217;s a rake extension that does what the rails asset pipeline does, except it&amp;#8217;s &lt;strong&gt;much&lt;/strong&gt; more powerful. You can easily define custom filters for things like minification.&lt;/p&gt;
 
-&lt;p&gt;Rake::Pipeline::WebFilters provides the heavy lifting. I wrote a simple Rack app to server the stuff based on sensible defaults (convention over configuration) and voilla! We have asset compilation and a development server. Then combining some more glue code to connect a proxy and other bits we have a more complete solution.&lt;/p&gt;
+&lt;p&gt;Rake::Pipeline::WebFilters provides the heavy lifting. I wrote a simple Rack app to serve the stuff based on sensible defaults (convention over configuration) and voilla! We have asset compilation and a development server. Combine some more glue code to connect a proxy and other bits and we have a more complete solution.&lt;/p&gt;
 
 &lt;p&gt;Introducting &lt;a href='https://github.com/adman65/frontend_server'&gt;FrontendServer&lt;/a&gt;. Here&amp;#8217;s what it does:&lt;/p&gt;
 
