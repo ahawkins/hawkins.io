@@ -6,9 +6,54 @@
     <atom:link href="http://broadcastingadam.com/rss.xml" rel="self" type="application/rss+xml" />
     <description>Thoughts on Modern Web Development</description>
     <language>en-us</language>
-    <pubDate>Mon, 16 Jan 2012 15:45:40 +0200</pubDate>
-    <lastBuildDate>Mon, 16 Jan 2012 15:45:40 +0200</lastBuildDate>
+    <pubDate>Mon, 20 Feb 2012 11:09:12 +0200</pubDate>
+    <lastBuildDate>Mon, 20 Feb 2012 11:09:12 +0200</lastBuildDate>
 
+    
+    <item>
+      <title>Introducing FronendServer</title>
+      <link>http://broadcastingadam.com/2012/02/introducing_fontend_server</link>
+      <pubDate>Mon, 20 Feb 2012 00:00:00 +0200</pubDate>
+      <author>me@broadcastingadam.com (Adam Hawkins)</author>
+      <guid>http://broadcasting.com/2012/02/introducing_fontend_server</guid>
+      <description>&lt;p&gt;Radium has turned out to be a real beast. After much delibration, we decided to move to a pure JS frontend written in &lt;a href='http://emberjs.com'&gt;Ember&lt;/a&gt;. He&amp;#8217;s written in JS and basic CSS. No coffeescript or SASS. We needed an easy way to compile all the JS and CSS files into two different files and host them on the web. We also have a few other requirements.&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;Frontend code is completly separate of backend API.&lt;/li&gt;
+
+&lt;li&gt;Frontend code can be deployed and maintained independently.&lt;/li&gt;
+
+&lt;li&gt;Enable SASS/Coffeescript. I freaking love SASS.&lt;/li&gt;
+
+&lt;li&gt;Recompile assets in development&lt;/li&gt;
+
+&lt;li&gt;API proxy to avoid CORS issues in development&lt;/li&gt;
+
+&lt;li&gt;Easily deployable by non server guys.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;So me being the server side guy had to sort this out. Josh turned me on to: @wycats&amp;#8217;s &lt;a href='https://github.com/wycats/rake-pipeline-web-filters'&gt;rake-pipeline-web-filters&lt;/a&gt;. It&amp;#8217;s an extension to rake-pipeline. Rake-pipeline is essentially the Rails asset pipeline done in a less bitchy way. It&amp;#8217;s a rake extension that does what rails pipeline does, except it&amp;#8217;s &lt;strong&gt;much&lt;/strong&gt; more powerful. You can easily define custom filters for things like minification.&lt;/p&gt;
+
+&lt;p&gt;Rake::Pipeline::WebFilters provides the heavy lifting. I wrote a simple Rack app to server the stuff based on sensible defaults (convention over configuration) and voilla! We have asset compilation and a development server. Then combining some more glue code to connect a proxy and other bits we have a more complete solution.&lt;/p&gt;
+
+&lt;p&gt;Introducting &lt;a href='https://github.com/adman65/frontend_server'&gt;FrontendServer&lt;/a&gt;. Here&amp;#8217;s what it does:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;Compile JS/CS into Minispade modules&lt;/li&gt;
+
+&lt;li&gt;Compile LESS/SASS/CSS into css files&lt;/li&gt;
+
+&lt;li&gt;Reload assets in development&lt;/li&gt;
+
+&lt;li&gt;Proxy the backend API&lt;/li&gt;
+
+&lt;li&gt;Compile into one public directory&lt;/li&gt;
+
+&lt;li&gt;Deployable to heroku by any git user&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;I&amp;#8217;ve used the classic Backbone todos app for an example. The example is running &lt;a href='http://warm-ocean-3185.herokuapp.com/'&gt;here&lt;/a&gt;. Source &lt;a href='https://github.com/adman65/frontend_server_example'&gt;here&lt;/a&gt;.&lt;/p&gt;</description>
+    </item>
     
     <item>
       <title>Rails 3.2, Heroku, &amp; rails_log_stdout</title>
