@@ -1,11 +1,24 @@
 ---
 layout: default
-title: BroadcastingAdam
+title: BroadcastingAdam - Blog
 ---
+<section id="about">
+  <h2>About</h2>
+  <p>
+    My name is Adam Hawkins. I am web application developer who uses 
+    Ruby on Rails and Javascript. I currently live in Helsinki.
+    I'm the lead developer on a CRM right now and post rails tips and tricks here. 
+    You can follow me on twitter <a href="http://twitter.com/adman65">@adman65</a>. 
+    You can see my code on <a href="http://github.com/adman65">Github</a> 
+    or contact me on <a href="http://www.linkedin.com/pub/adam-hawkins/b/8/925">LinkedIn</a>.
+    You can also catch me on freenode as Adman65 in #rubyonrails or #railsbridge.
+    Please get connect with me on <a href="https://plus.google.com/u/0/116377228668850173159">Google+</a>.
+  </p>
+</section>
 
 <section>
-  <h2>Posts</h2>
-  {% for post in site.posts %}
+ <h2>Posts</h2>
+  {% for post in site.categories.blog %}
   <p><a href="{{ post.url }}" title="{{ post.title}}">{{ post.title }}</a> - {{ post.date | date: '%B %d, %Y' }}</p>
   {% endfor %}
 </section>

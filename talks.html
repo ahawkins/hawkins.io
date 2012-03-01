@@ -1,0 +1,25 @@
+---
+layout: default
+title: BroadcastingAdam - Talks
+---
+<section id="about">
+  <h2>Talks</h2>
+  <p>
+  Here is my current roster of talks I give. I've given some before,
+  some I haven't. All the content comes from (mostly) work and personal
+  experiences. I'm always looking for chances to talk so check them out!
+  </p>
+
+  <p>
+    If you think these talks are good fit for your event then please DM me 
+    <a href="http://twitter.com/Adman65">@Adman65</a> or 
+    <a href="mailto:me@broadcastingadam.com?subject=Talks">email</a>
+    me.
+  </p>
+</section>
+
+<section>
+  {% for post in site.categories.talks %}
+  <p><a href="{{ post.url }}" title="{{ post.title}}">{{ post.title }}</a></p>
+  {% endfor %}
+</section>

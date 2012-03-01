@@ -6,16 +6,16 @@
     <atom:link href="http://broadcastingadam.com/rss.xml" rel="self" type="application/rss+xml" />
     <description>Thoughts on Modern Web Development</description>
     <language>en-us</language>
-    <pubDate>Mon, 20 Feb 2012 11:10:50 +0200</pubDate>
-    <lastBuildDate>Mon, 20 Feb 2012 11:10:50 +0200</lastBuildDate>
+    <pubDate>Thu, 01 Mar 2012 23:32:51 +0200</pubDate>
+    <lastBuildDate>Thu, 01 Mar 2012 23:32:51 +0200</lastBuildDate>
 
     
     <item>
-      <title>Introducing FronendServer</title>
-      <link>http://broadcastingadam.com/2012/02/introducing_fontend_server</link>
+      <title>Introducing FrontendServer</title>
+      <link>http://broadcastingadam.com/2012/02/introducing_frontend_server</link>
       <pubDate>Mon, 20 Feb 2012 00:00:00 +0200</pubDate>
       <author>me@broadcastingadam.com (Adam Hawkins)</author>
-      <guid>http://broadcasting.com/2012/02/introducing_fontend_server</guid>
+      <guid>http://broadcasting.com/2012/02/introducing_frontend_server</guid>
       <description>&lt;p&gt;Radium has turned out to be a real beast. After much delibration, we decided to move to a pure JS frontend written in &lt;a href='http://emberjs.com'&gt;Ember&lt;/a&gt;. He&amp;#8217;s written in JS and basic CSS. No coffeescript or SASS. We needed an easy way to compile all the JS and CSS files into two different files and host them on the web. We also have a few other requirements.&lt;/p&gt;
 
 &lt;ol&gt;

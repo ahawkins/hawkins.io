@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en-US">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>BroadcastingAdam - Modular Service Layers for Rails Applications</title>
+
+    
+<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.8.2r1/build/reset/reset-min.css">
+<link rel="stylesheet" type="text/css" href="/stylesheets/style.css" />
+
+  </head>
+  <body>
+    <div id="container">
+      <header>
+  <h1>BroadcastingAdam</h1>
+  <a href="http://feeds.feedburner.com/BroadcastingAdam" id="rss"><img src="images/rss_icon.png" alt="rss" /></a>
+  <nav>
+    <a href="/">Home</a>
+    <a href="/nettuts.html">Nettuts</a>
+    <a href="/talks.html">Talks</a>
+  </nav>
+</header>
+
+
+      <div id="content">
+        <header >
+          <h2>Modular Service Layers for Rails Applications</h2>
+        </header>
+
+        <h3 id='abstract'>Abstract</h3>
+
+<p>This talks covers implementing a module service layer for Rails applications. Each service is separated into it&#8217;s own engine. Example services: Email &amp; SMS delivery, Email import, VOIP, among others. The services designed to be accessed over HTTP, but since they are engines they can be mounted inside your own application or as a separate running application. The talk also covers TDD development and creating a generator for more components.</p>
+
+<h3 id='notes'>Notes</h3>
+
+<p>We faced a problem in a previous version of our product. We had many tightly coupled dependencies to external services. This made it a pain to switch services and hampered our development. We ended up splitting all these components up into different engines and running them in a completely separate app. The architecture of our service layer allows us to mount the engines in our own application or separately like we decided. The talk generally covers why we made this decision and how it turned out. It is an overview of the entire process.</p>
+      </div>
+
+      <section id="about">
+        <h3>Want me to Give this Talk?</h3>
+        <p>
+          I can give this talk at a meetup or conference you're hosting.
+          I am always looking for speaking opportunities. I also submit
+          these same talks to many other conferences. If you think this
+          talk is a good fit for your event then please DM me 
+          <a href="http://twitter.com/adman65">@adman65</a> or 
+          <a href="mailto:me@broadcastingadam.com?subject=Talks">email</a>
+          me.
+        </p>
+      </section>
+    </div>
+
+    <script type="text/javascript">
+  var _gauges = _gauges || [];
+  (function() {
+    var t   = document.createElement('script');
+    t.type  = 'text/javascript';
+    t.async = true;
+    t.id    = 'gauges-tracker';
+    t.setAttribute('data-site-id', '4eb0f672613f5d482f000001');
+    t.src = '//secure.gaug.es/track.js';
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(t, s);
+  })();
+</script>
+
+  </body>
+</html>
+

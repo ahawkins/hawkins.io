@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en-US">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>BroadcastingAdam - {{ page.title }}</title>
+
+    {% include stylesheets.html %}
+  </head>
+  <body>
+    <div id="container">
+      {% include header.html %}
+
+      <div id="content">
+        <header >
+          <h2>{{ page.title }}</h2>
+        </header>
+
+        {{ content }}
+      </div>
+
+      <section id="about">
+        <h3>Want me to Give this Talk?</h3>
+        <p>
+          I can give this talk at a meetup or conference you're hosting.
+          I am always looking for speaking opportunities. I also submit
+          these same talks to many other conferences. If you think this
+          talk is a good fit for your event then please DM me 
+          <a href="http://twitter.com/adman65">@adman65</a> or 
+          <a href="mailto:me@broadcastingadam.com?subject=Talks">email</a>
+          me.
+        </p>
+      </section>
+    </div>
+
+    {% include tracking.html %}
+  </body>
+</html>
+
