@@ -53,7 +53,7 @@ easily combine this into a module
       end
     end
 
-    class UrlGenrator
+    class UrlGenerator
       include Routing
     end
 
