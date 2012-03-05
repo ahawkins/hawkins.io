@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Generating URLs Whenever & Whenever You Want"
+title: "Generating URLs Whenever & Wherever You Want"
 tags: [rails]
 ---
 
