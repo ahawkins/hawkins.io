@@ -6,14 +6,363 @@
     <atom:link href="http://broadcastingadam.com/rss.xml" rel="self" type="application/rss+xml" />
     <description>Thoughts on Modern Web Development</description>
     <language>en-us</language>
-    <pubDate>Tue, 06 Mar 2012 01:51:20 +0200</pubDate>
-    <lastBuildDate>Tue, 06 Mar 2012 01:51:20 +0200</lastBuildDate>
+    <pubDate>Mon, 26 Mar 2012 13:53:14 +0200</pubDate>
+    <lastBuildDate>Mon, 26 Mar 2012 13:53:14 +0200</lastBuildDate>
 
+    
+    <item>
+      <title>Deploy Scripts for Git &amp; Heroku Applications</title>
+      <link>http://broadcastingadam.com/2012/03/deploy_scripts</link>
+      <pubDate>Mon, 26 Mar 2012 00:00:00 +0200</pubDate>
+      <author>me@broadcastingadam.com (Adam Hawkins)</author>
+      <guid>http://broadcasting.com/2012/03/deploy_scripts</guid>
+      <description>&lt;p&gt;Our company is growing. It&amp;#8217;s not longer just me. I&amp;#8217;m not the only one who deploys code anymore. All of our code is deployed to Heroku. You&amp;#8217;d think this is a very simple thing to do: &lt;code&gt;git push heroku master&lt;/code&gt;. It is on the surface. But think about everything you do &lt;strong&gt;before&lt;/strong&gt; you deploy? Do you tag commits? Do you merge into a production branch? Do you record the deployed commit? Do you test that things are green on your CI machine? There are lot of things you may do before. I used to do all these sort of these manually. But now that someone else needs to deploy code, it&amp;#8217;s time to automate it.&lt;/p&gt;
+
+&lt;p&gt;I started out writing a Rake task. This became unweidly. I needed something more general for CLI applications. I thought about writing the scripts in bash, but I don&amp;#8217;t have enough experience to write good bash scripts or structure them to allow them to go. I do have plenty of experience with Ruby. I decided to write my deploy script using &lt;a href='https://github.com/wycats/thor'&gt;Thor&lt;/a&gt;. Thor includes many different utilities for interacting with the shell. For me, it feels like bash on steroids and in Ruby which is a win. I wanted to create a simple script so that I (or anyone else) could run:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ ./script/deploy&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;That way there is no fancy invocations. It could easily be extended to: &lt;code&gt;./script/deploy (production|staging)&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;The basic structure is to:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;Check all preconditions&lt;/li&gt;
+
+&lt;li&gt;If all prereqs are green, then continue&lt;/li&gt;
+
+&lt;li&gt;Compile assets&lt;/li&gt;
+
+&lt;li&gt;Record a deploy commit&lt;/li&gt;
+
+&lt;li&gt;Push to github&lt;/li&gt;
+
+&lt;li&gt;Push to heroku&lt;/li&gt;
+
+&lt;li&gt;Log all this stuff&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;Here are the prereqs:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;There are no uncommited files&lt;/li&gt;
+
+&lt;li&gt;User can ssh to github&lt;/li&gt;
+
+&lt;li&gt;User can ssh to heroku&lt;/li&gt;
+
+&lt;li&gt;HEAD is fast forward commit to master&lt;/li&gt;
+
+&lt;li&gt;HEAD hasn&amp;#8217;t been deployed to heroku&lt;/li&gt;
+
+&lt;li&gt;All required ENV variables are present on Heroku&lt;/li&gt;
+
+&lt;li&gt;Assets compile correctly&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;And the deploy process&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;Compile assets&lt;/li&gt;
+
+&lt;li&gt;Record this commit and time in the deploy file&lt;/li&gt;
+
+&lt;li&gt;Push commit to github&lt;/li&gt;
+
+&lt;li&gt;Push commit to heroku&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;Now that the structure and understanding is there, here is the base class for our deploy task.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;require &amp;quot;rubygems&amp;quot; # ruby1.9 doesn&amp;#39;t &amp;quot;require&amp;quot; it though
+require &amp;quot;thor&amp;quot;
+
+RAILS_ROOT = File.expand_path &amp;quot;../../&amp;quot;, __FILE__
+
+LOG_FILE = &amp;quot;#{RAILS_ROOT}/deploy.log&amp;quot;
+
+class Deploy &amp;lt; Thor
+  include Thor::Actions
+
+  class CommandFailed &amp;lt; StandardError ; end
+
+  no_tasks do
+    def run(command, options = {})
+      `echo &amp;quot;#{command}&amp;quot; &amp;gt; #{LOG_FILE}`
+
+      command = &amp;quot;#{command} &amp;gt; #{LOG_FILE} 2&amp;gt;&amp;amp;1&amp;quot; unless options[:capture]
+
+      options[:verbose] ||= false
+
+      super command, options
+    end
+
+    def run_with_status(command, options = {})
+      run command, options
+      $?
+    end
+
+    def success?(command, options = {})
+      run_with_status(command, options).success?
+    end
+
+    def run!(command, options = {})
+      raise CommandFailed, &amp;quot;Expected #{command} to return successfully, but didn&amp;#39;t&amp;quot; unless success?(command, options)
+    end
+
+    def pass(message)
+      say_status &amp;quot;OK&amp;quot;, message, :green
+      true
+    end
+
+    def abort_deploy(message)
+      say_status &amp;quot;ABORT&amp;quot;, message, :red
+      say &amp;quot;Deploy Failed! Check log file #{LOG_FILE}&amp;quot;
+    end
+
+    def failure(message)
+      say_status &amp;quot;FAIL&amp;quot;, message, :red
+      false
+    end
+  end
+end&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I&amp;#8217;ve added some helper methods to make it easier to write my scripts. Mainly, to redefine &lt;code&gt;run&lt;/code&gt; to return &lt;code&gt;$?&lt;/code&gt; instead of whatever the script output. I did this because I needed the exit code to check preconditions and successful commands. &lt;code&gt;run!&lt;/code&gt; is important because it will raise an error if a command fails. This is for the deploy stage when all commands need to execute successfully for the deploy to succeed. The helpers it easier to log the deploy process.&lt;/p&gt;
+
+&lt;p&gt;And now for the complete script:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;#!/usr/bin/env ruby
+require &amp;quot;rubygems&amp;quot; # ruby1.9 doesn&amp;#39;t &amp;quot;require&amp;quot; it though
+require &amp;quot;thor&amp;quot;
+
+RAILS_ROOT = File.expand_path &amp;quot;../../&amp;quot;, __FILE__
+
+LOG_FILE = &amp;quot;#{RAILS_ROOT}/deploy.log&amp;quot;
+
+class Deploy &amp;lt; Thor
+  include Thor::Actions
+
+  class CommandFailed &amp;lt; StandardError ; end
+
+  no_tasks do
+    def run(command, options = {})
+      `echo &amp;quot;#{command}&amp;quot; &amp;gt; #{LOG_FILE}`
+
+      command = &amp;quot;#{command} &amp;gt; #{LOG_FILE} 2&amp;gt;&amp;amp;1&amp;quot; unless options[:capture]
+
+      options[:verbose] ||= false
+
+      super command, options
+    end
+
+    def run_with_status(command, options = {})
+      run command, options
+      $?
+    end
+
+    def success?(command, options = {})
+      run_with_status(command, options).success?
+    end
+
+    def run!(command, options = {})
+      raise CommandFailed, &amp;quot;Expected #{command} to return successfully, but didn&amp;#39;t&amp;quot; unless success?(command, options)
+    end
+
+    def pass(message)
+      say_status &amp;quot;OK&amp;quot;, message, :green
+      true
+    end
+
+    def abort_deploy(message)
+      say_status &amp;quot;ABORT&amp;quot;, message, :red
+      say &amp;quot;Deploy Failed! Check log file #{LOG_FILE}&amp;quot;
+    end
+
+    def failure(message)
+      say_status &amp;quot;FAIL&amp;quot;, message, :red
+      false
+    end
+  end
+
+  desc &amp;quot;ensure_environment&amp;quot;, &amp;quot;Test Rails can boot&amp;quot;
+  def ensure_environment
+    inside RAILS_ROOT do
+      if success? &amp;quot;RAILS_ENV=production bundle exec rake environment&amp;quot;
+        return pass &amp;quot;Rails boots&amp;quot;
+      else
+        return failure &amp;quot;Make sure Rails can boot in Production locally&amp;quot;
+      end
+    end
+  end
+
+  desc &amp;quot;ensure_github_connection&amp;quot;, &amp;quot;Tests this user can ssh to github&amp;quot;
+  def ensure_github_connection
+    if run_with_status(&amp;quot;ssh -T git@github.com &amp;quot;).exitstatus == 1
+      pass &amp;quot;Github conencted&amp;quot;
+    else
+      failure &amp;quot;SSH keys missing for Github&amp;quot;
+    end
+  end
+
+  desc &amp;quot;ensure_heroku_connection&amp;quot;, &amp;quot;Tests this user can access heroku&amp;quot;
+  def ensure_heroku_connection
+    if success? &amp;quot;heroku config&amp;quot;
+      pass &amp;quot;Heroku connected&amp;quot;
+    else
+      failure &amp;quot;SSH key missing or user is not a collabator&amp;quot;
+    end
+  end
+
+  desc &amp;quot;ensure_clean&amp;quot;, &amp;quot;Test to see if the repo is clean&amp;quot;
+  def ensure_clean
+    if success? &amp;quot;git diff --exit-code&amp;quot;
+      pass &amp;quot;No uncommited files&amp;quot;
+    else
+      failure &amp;quot;There are uncommited files&amp;quot;
+    end
+  end
+
+  desc &amp;quot;ensure_heroku_outdated&amp;quot;, &amp;quot;Test to see if this code has been deployed or not&amp;quot;
+  def ensure_heroku_outdated
+    if !success? &amp;quot;git diff head heroku/master --exit-code&amp;quot;
+      pass &amp;quot;Code not deployed&amp;quot;
+    else
+      failure &amp;quot;Code already deployed&amp;quot;
+    end
+  end
+
+  desc &amp;quot;ensure_fast_forward&amp;quot;, &amp;quot;Tests if this is a fast forward commit&amp;quot;
+  def ensure_head
+    inside RAILS_ROOT do
+      if success? &amp;quot;git pull origin master&amp;quot;
+        return pass &amp;quot;Fast forwarded&amp;quot;
+      else
+        failure &amp;quot;Could not fast forward. Human required&amp;quot;
+        run &amp;quot;git reset --hard HEAD&amp;quot;
+        return false
+      end
+    end
+  end
+
+  desc &amp;quot;ensure_assets_compile&amp;quot;, &amp;quot;Tests assets compile correctly&amp;quot;
+  def ensure_assets_compile
+    inside RAILS_ROOT do
+      if success? &amp;quot;bundle exec rake assets:precompile&amp;quot;
+        pass &amp;quot;Assts compiled&amp;quot;
+        run &amp;quot;git reset --hard HEAD&amp;quot;
+        return true
+      else
+        return failure &amp;quot;Assets failed to compiled&amp;quot;
+      end
+    end
+  end
+
+  desc &amp;quot;compile_assets&amp;quot;, &amp;quot;Precompiles assets&amp;quot;
+  def compile_assets
+    inside RAILS_ROOT do
+      run! &amp;quot;bundle exec rake assets:precompile&amp;quot;
+
+      say_status &amp;quot;Assets&amp;quot;, &amp;quot;Compiled&amp;quot;
+    end
+  end
+
+  desc &amp;quot;record&amp;quot;, &amp;quot;Records this deploy in deploys.md&amp;quot;
+  def record
+    inside RAILS_ROOT do
+      commit_info = run(&amp;#39;git show --format=&amp;quot;format:%h - %an: %s&amp;quot;&amp;#39;, :capture =&amp;gt; true, :verbose =&amp;gt; false).split(&amp;quot;\n&amp;quot;)[0]
+
+      run &amp;quot;touch #{LOG_FILE}&amp;quot;
+
+      format = &amp;quot;* [%s] %s\n&amp;quot;
+
+      existing_contents = File.read &amp;quot;#{RAILS_ROOT}/deploys.md&amp;quot;
+
+      File.open &amp;quot;#{RAILS_ROOT}/deploys.md&amp;quot;, &amp;#39;w&amp;#39; do |f|
+        f.puts format % [Time.now.strftime(&amp;quot;%Y-%m-%d %H:%M %z&amp;quot;), commit_info]
+        f.puts existing_contents.chomp
+      end
+
+      say_status &amp;quot;Deploy Log&amp;quot;, commit_info
+    end
+
+    true
+  end
+
+  desc &amp;quot;commit&amp;quot;, &amp;quot;Commits assets and pushes to Github&amp;quot; 
+  def commit
+    inside RAILS_ROOT do
+      run! &amp;quot;git add deploys.md&amp;quot;
+      run! &amp;quot;git add public/assets&amp;quot;
+      run! &amp;quot;git commit -m &amp;#39;[Deploy]&amp;#39;&amp;quot;
+      @new_commit = true # so we can catch the failure and blow away the last commit
+    end
+
+    say_status &amp;quot;Deploy Files&amp;quot;, &amp;quot;Commited&amp;quot;
+  end
+
+  desc &amp;quot;run_deploy&amp;quot;, &amp;quot;Tests prereqs and runs a deploy&amp;quot;
+  method_option :environment, :default =&amp;gt; &amp;quot;production&amp;quot;
+  def run_deploy
+    say &amp;quot;Checking prereqs...&amp;quot;
+
+    prereqs = invoke(:ensure_clean) &amp;amp;&amp;amp;
+      invoke(:ensure_github_connection) &amp;amp;&amp;amp;
+      invoke(:ensure_heroku_connection) &amp;amp;&amp;amp;
+      invoke(:ensure_heroku_outdated) &amp;amp;&amp;amp;
+      invoke(:ensure_head) &amp;amp;&amp;amp;
+      invoke(:ensure_environment) &amp;amp;&amp;amp;
+      invoke(:ensure_assets_compile)
+
+    if !prereqs
+      abort_deploy &amp;quot;Failed prereqs&amp;quot;
+      return false
+    end
+
+    say &amp;quot;Running predeploy tasks...&amp;quot;
+
+    begin
+      invoke :compile_assets
+      invoke :record
+      invoke :commit
+    rescue CommandFailed =&amp;gt; ex
+      abort_deploy &amp;quot;A deploy step failed to run: #{ex}&amp;quot;
+
+      if @new_commit
+        run &amp;quot;git reset HEAD~1&amp;quot;
+      else
+        run &amp;quot;git reset --hard HEAD&amp;quot;
+      end
+
+      return false
+    end
+
+    say &amp;quot;Deploying...&amp;quot;
+
+    begin
+      inside RAILS_ROOT do
+        run! &amp;quot;git push origin master&amp;quot;
+        say_status &amp;quot;Github&amp;quot;, &amp;quot;Pushed&amp;quot;
+
+        run! &amp;quot;git push heroku master&amp;quot;
+        say_status &amp;quot;Heorku&amp;quot;, &amp;quot;Deployed&amp;quot;
+      end
+    rescue CommandFailed =&amp;gt; ex
+      abort_deploy &amp;quot;Push failed. Please check logs.&amp;quot;
+    end
+  end
+
+  default_task :run_deploy
+end
+
+Deploy.start&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Each step is wrapped in its own method. Thor makes each method available. This way you can easily test the individual sections. The deploy task checks all the prereqs, then does all the hard work. It also looks pretty while doing it thanks to built in colorization support from thor. Happy deploying!&lt;/p&gt;</description>
+    </item>
     
     <item>
       <title>Generating URLs Whenever &amp; Wherever You Want</title>
       <link>http://broadcastingadam.com/2012/03/generating_urls_whenever_and_wherever_you_want</link>
-      <pubDate>Mon, 05 Mar 2012 00:00:00 +0200</pubDate>
+      <pubDate>Mon, 05 Mar 2012 00:00:00 +0100</pubDate>
       <author>me@broadcastingadam.com (Adam Hawkins)</author>
       <guid>http://broadcasting.com/2012/03/generating_urls_whenever_and_wherever_you_want</guid>
       <description>&lt;p&gt;One of my big gripes with Rails is that it makes it very hard to do things outside the request/response cycle. It is a web framework, but now we have an increasing amount of things happening outside of that workflow. You may have noticed that it&amp;#8217;s annoying to generate URLs when you&amp;#8217;re not in a view or a controller. There is one simple reason for this. They don&amp;#8217;t want to you to do that. There is also a reason why you cannot do that. The structure of the route helpers require the request because they know everything about where it came from, aka they know the host. You need to know the host to generate urls and do all that other stuff. If there is no request, there is no host.&lt;/p&gt;
@@ -63,7 +412,7 @@ generator.posts_path&lt;/code&gt;&lt;/pre&gt;
     <item>
       <title>Introducing FrontendServer</title>
       <link>http://broadcastingadam.com/2012/02/introducing_frontend_server</link>
-      <pubDate>Mon, 20 Feb 2012 00:00:00 +0200</pubDate>
+      <pubDate>Mon, 20 Feb 2012 00:00:00 +0100</pubDate>
       <author>me@broadcastingadam.com (Adam Hawkins)</author>
       <guid>http://broadcasting.com/2012/02/introducing_frontend_server</guid>
       <description>&lt;p&gt;Radium has turned out to be a real beast. After much delibration, we decided to move to a pure JS frontend written in &lt;a href='http://emberjs.com'&gt;Ember&lt;/a&gt;. He&amp;#8217;s written in JS and basic CSS. No coffeescript or SASS. We needed an easy way to compile all the JS and CSS files into two different files and host them on the web. We also have a few other requirements.&lt;/p&gt;
@@ -108,7 +457,7 @@ generator.posts_path&lt;/code&gt;&lt;/pre&gt;
     <item>
       <title>Rails 3.2, Heroku, &amp; rails_log_stdout</title>
       <link>http://broadcastingadam.com/2012/01/rails320_heroku_and_rails_log_stdout</link>
-      <pubDate>Mon, 16 Jan 2012 00:00:00 +0200</pubDate>
+      <pubDate>Mon, 16 Jan 2012 00:00:00 +0100</pubDate>
       <author>me@broadcastingadam.com (Adam Hawkins)</author>
       <guid>http://broadcasting.com/2012/01/rails320_heroku_and_rails_log_stdout</guid>
       <description>&lt;p&gt;I try to keep my applications on the bleeding edge of Rails. After being stuck Rails 2 for almost 1.5 years after Rails 3 was released, it&amp;#8217;s been very nice. Of course the bleeding edge has it&amp;#8217;s drawbacks. Enter Rails 3.2.0rc2 and Heroku. &lt;code&gt;vendor/plugins&lt;/code&gt; is deprecated in Rails 3.2. Heroku dumps it&amp;#8217;s configuration plugins into &lt;code&gt;vendor/&lt;/code&gt;. This gives you a nice deprecration warning everytime a rails environment process starts.&lt;/p&gt;
@@ -150,7 +499,7 @@ end&lt;/code&gt;&lt;/pre&gt;
     <item>
       <title>Generating Routes for API Documentation</title>
       <link>http://broadcastingadam.com/2012/01/generating_routes_for_api_documentation</link>
-      <pubDate>Sat, 14 Jan 2012 00:00:00 +0200</pubDate>
+      <pubDate>Sat, 14 Jan 2012 00:00:00 +0100</pubDate>
       <author>me@broadcastingadam.com (Adam Hawkins)</author>
       <guid>http://broadcasting.com/2012/01/generating_routes_for_api_documentation</guid>
       <description>&lt;p&gt;I recentely came across this situation. I was updating the documenation for our main API. I have a section which includes all the routes grouped by resource with HTTP verb. I ran &lt;code&gt;rake routes&lt;/code&gt; and edited the output to get it how I wanted. Fast forward a few API revisions with new routes and routes removed. Doing this process over and over again would be very tedious. Here&amp;#8217;s what I wanted to generate:&lt;/p&gt;
@@ -351,7 +700,7 @@ end&lt;/code&gt;&lt;/pre&gt;
     <item>
       <title>Moving on from Rails: Part 2</title>
       <link>http://broadcastingadam.com/2011/12/moving_on_from_rails_part2</link>
-      <pubDate>Sun, 04 Dec 2011 00:00:00 +0200</pubDate>
+      <pubDate>Sun, 04 Dec 2011 00:00:00 +0100</pubDate>
       <author>me@broadcastingadam.com (Adam Hawkins)</author>
       <guid>http://broadcasting.com/2011/12/moving_on_from_rails_part2</guid>
       <description>&lt;p&gt;I was quite surprised by how much feedback I received on the original &lt;a href='http://broadcastingadam.com/2011/11/moving_on_from_rails'&gt;post&lt;/a&gt;. You should read the first one before reading this. I&amp;#8217;m writing this post to respond to some common questions, points, and concerns.&lt;/p&gt;
@@ -468,7 +817,7 @@ end&lt;/code&gt;&lt;/pre&gt;
     <item>
       <title>Moving on from Rails</title>
       <link>http://broadcastingadam.com/2011/11/moving_on_from_rails</link>
-      <pubDate>Sat, 26 Nov 2011 00:00:00 +0200</pubDate>
+      <pubDate>Sat, 26 Nov 2011 00:00:00 +0100</pubDate>
       <author>me@broadcastingadam.com (Adam Hawkins)</author>
       <guid>http://broadcasting.com/2011/11/moving_on_from_rails</guid>
       <description>&lt;p&gt;I&amp;#8217;ve been doing Rails since 2006. My skill level and the framework as changed greatly since. I came from PHP web sites and Java through academics. Ruby was breath of fresh air. Rails was a thing a of beauty. It was exactly what I needed at the time. Now times are different.&lt;/p&gt;
@@ -521,7 +870,7 @@ end&lt;/code&gt;&lt;/pre&gt;
     <item>
       <title>Reviewing Rails 3 in Action</title>
       <link>http://broadcastingadam.com/2011/11/reviewing_rails3_in_action</link>
-      <pubDate>Mon, 21 Nov 2011 00:00:00 +0200</pubDate>
+      <pubDate>Mon, 21 Nov 2011 00:00:00 +0100</pubDate>
       <author>me@broadcastingadam.com (Adam Hawkins)</author>
       <guid>http://broadcasting.com/2011/11/reviewing_rails3_in_action</guid>
       <description>&lt;p&gt;&lt;a href='http://ryanbigg.com/'&gt;Ryan Bigg&lt;/a&gt; is writing a book called &lt;a href='http://manning.com/katz/'&gt;Rails 3 In Action&lt;/a&gt;. I&amp;#8217;ve been lucky enough to help read the book and generally review its contents while it&amp;#8217;s been written. I consider myself an advanced Rails developer, so when I read books like this I look for them to cover specific things that new developers need to know and how well the example integrate best practices. In this post, I review &lt;a href='http://www.manning.com/katz/'&gt;Rails 3 in Action&lt;/a&gt;.&lt;/p&gt;
@@ -756,7 +1105,7 @@ end&lt;/code&gt;&lt;/pre&gt;
     <item>
       <title>Dear God?! What is this Bug?</title>
       <link>http://broadcastingadam.com/2011/10/dear_god_what_is_this_bug</link>
-      <pubDate>Fri, 28 Oct 2011 00:00:00 +0300</pubDate>
+      <pubDate>Fri, 28 Oct 2011 00:00:00 +0200</pubDate>
       <author>me@broadcastingadam.com (Adam Hawkins)</author>
       <guid>http://broadcasting.com/2011/10/dear_god_what_is_this_bug</guid>
       <description>&lt;p&gt;A few days ago I had to do a very trivial task. One of my coworkers has translated our Rails app into finnish. He sent me the &lt;code&gt;fi.yml&lt;/code&gt; file for me to add the application. I thought this process would take maybe ~30 mins. Turns out it took me &lt;strong&gt;5 hours&lt;/strong&gt;. I&amp;#8217;ll tell you why.&lt;/p&gt;
@@ -930,7 +1279,7 @@ false
     <item>
       <title>Handling Legacy APIs</title>
       <link>http://broadcastingadam.com/2011/10/handling_legacy_apis</link>
-      <pubDate>Wed, 19 Oct 2011 00:00:00 +0300</pubDate>
+      <pubDate>Wed, 19 Oct 2011 00:00:00 +0200</pubDate>
       <author>me@broadcastingadam.com (Adam Hawkins)</author>
       <guid>http://broadcasting.com/2011/10/handling_legacy_apis</guid>
       <description>&lt;p&gt;Well, it&amp;#8217;s been a while since I&amp;#8217;ve written a post to my blog. I&amp;#8217;m on a plane back to Helsinki for some intense work. I&amp;#8217;ve got some trance on so I figure I&amp;#8217;ll scratch and itch and try to get something written.&lt;/p&gt;
@@ -1120,7 +1469,7 @@ end&lt;/code&gt;&lt;/pre&gt;
     <item>
       <title>Present Yourself - Presenters in Rails</title>
       <link>http://broadcastingadam.com/2011/06/present_yourself</link>
-      <pubDate>Fri, 10 Jun 2011 00:00:00 +0300</pubDate>
+      <pubDate>Fri, 10 Jun 2011 00:00:00 +0200</pubDate>
       <author>me@broadcastingadam.com (Adam Hawkins)</author>
       <guid>http://broadcasting.com/2011/06/present_yourself</guid>
       <description>&lt;p&gt;Presenters are one of those interesting things that you don&amp;#8217;t hear about very much. They are mentioned, and then flutter in the wind. If you google &amp;#8220;presenters rails&amp;#8221; you&amp;#8217;ll get some links from a few years ago and that&amp;#8217;s about it. There is perhaps some useful information there. Maybe you find something on cells. That&amp;#8217;s most likely not what you want. I&amp;#8217;m taking about presenters (insert Alan Iverson practice voice). Presenters are object designed to encapsulate information required to create a view. They slim down controllers and encourage view reusability. This post describes how I started using presenters and why it worked.&lt;/p&gt;
@@ -1532,7 +1881,7 @@ end&lt;/code&gt;&lt;/pre&gt;
     <item>
       <title>Advanced Caching in Rails</title>
       <link>http://broadcastingadam.com/2011/05/advanced_caching_in_rails</link>
-      <pubDate>Fri, 06 May 2011 00:00:00 +0300</pubDate>
+      <pubDate>Fri, 06 May 2011 00:00:00 +0200</pubDate>
       <author>me@broadcastingadam.com (Adam Hawkins)</author>
       <guid>http://broadcasting.com/2011/05/advanced_caching_in_rails</guid>
       <description>&lt;p&gt;Caching in Rails is covered occasionally. It is covered in very basic detail in the caching &lt;a href='http://guides.rubyonrails.org/caching_with_rails.html'&gt;guide&lt;/a&gt;. Advanced caching is left to reader. Here&amp;#8217;s where I come in. I recently read part of Ryan Bigg&amp;#8217;s &lt;a href='http://www.manning.com/katz/'&gt;Rails 3 in Action&lt;/a&gt; upcoming Rails book (review in the works) where he covers caching. He does a wonderful job of giving the reader the basic sense of how you can use page, action, and fragment caching. The examples only work well in a simple application like he&amp;#8217;s developing in the book. I&amp;#8217;m going to show you how you can level up your caching with some new approaches.&lt;/p&gt;
@@ -2240,7 +2589,7 @@ end&lt;/code&gt;&lt;/pre&gt;
     <item>
       <title>Learning Rails: A Glossary</title>
       <link>http://broadcastingadam.com/2011/04/rails_glossary</link>
-      <pubDate>Sun, 24 Apr 2011 00:00:00 +0300</pubDate>
+      <pubDate>Sun, 24 Apr 2011 00:00:00 +0200</pubDate>
       <author>me@broadcastingadam.com (Adam Hawkins)</author>
       <guid>http://broadcasting.com/2011/04/rails_glossary</guid>
       <description>&lt;p&gt;I&amp;#8217;ve been teaching Rails to some people. One thing that&amp;#8217;s hard for them to get straight is the large number of tools involved in Rails development. This post is glossary of terms you may come across. Hopefully it will clarify things for you.&lt;/p&gt;
@@ -2439,7 +2788,7 @@ end&lt;/code&gt;&lt;/pre&gt;
     <item>
       <title>Sproutcore Login Tutorial</title>
       <link>http://broadcastingadam.com/2011/04/sproutcore_login_tutorial</link>
-      <pubDate>Mon, 04 Apr 2011 00:00:00 +0300</pubDate>
+      <pubDate>Mon, 04 Apr 2011 00:00:00 +0200</pubDate>
       <author>me@broadcastingadam.com (Adam Hawkins)</author>
       <guid>http://broadcasting.com/2011/04/sproutcore_login_tutorial</guid>
       <description>&lt;p&gt;Sproutcore is probably the coolest thing I&amp;#8217;ve seen since I saw rails way back early in 2006. I think Sproutcore is the future of complex web application because it is an excellent way to create complicated (and elegant) UI&amp;#8217;s using Javascript. It uses KVO (Key-Value-Observing) to keep the UI in sync with the model. Yehdua Katz put it this way: &amp;#8220;the view always represents truth.&amp;#8221; I will not write about Sproutcore (SC from now on) because there is plenty of information to read on what it is and how it works. They have a &lt;a href='http://guides.sproutcore.com'&gt;guides site&lt;/a&gt; to learn about it. However, there is still a lot of confusion on how to implement some simple stuff in SC! I&amp;#8217;ve been dabbling with SC for a few months now&amp;#8211;and now I&amp;#8217;m finally ready to pass on some knowledge. I write SaaS applications, so the first thing I ever consider is &amp;#8220;the user has to login.&amp;#8221; That was my first hurdle with SC. I had to solve this problem: &amp;#8220;How can I create a login form with sproutcore and authenticate against a database of users?&amp;#8221; Well in order to solve this problem we need to do a few things:&lt;/p&gt;
@@ -2780,7 +3129,7 @@ end&lt;/code&gt;&lt;/pre&gt;
     <item>
       <title>The Ruby Gem Challenge</title>
       <link>http://broadcastingadam.com/2011/02/the_ruby_gem_challenge</link>
-      <pubDate>Sun, 20 Feb 2011 00:00:00 +0200</pubDate>
+      <pubDate>Sun, 20 Feb 2011 00:00:00 +0100</pubDate>
       <author>me@broadcastingadam.com (Adam Hawkins)</author>
       <guid>http://broadcasting.com/2011/02/the_ruby_gem_challenge</guid>
       <description>&lt;p&gt;I am working on a gem ranking website. One of the metrics is test results. Getting test result for a random project can be a very difficult task. I&amp;#8217;ve cloned 3,081 different gems onto my computer. I&amp;#8217;ve written a simple bash script to execute this loop:&lt;/p&gt;
@@ -2814,7 +3163,7 @@ done&lt;/code&gt;&lt;/pre&gt;
     <item>
       <title>Why I Love Volume 1: Sprockets</title>
       <link>http://broadcastingadam.com/2011/02/why_i_love_volume_1_sprockets</link>
-      <pubDate>Fri, 11 Feb 2011 00:00:00 +0200</pubDate>
+      <pubDate>Fri, 11 Feb 2011 00:00:00 +0100</pubDate>
       <author>me@broadcastingadam.com (Adam Hawkins)</author>
       <guid>http://broadcasting.com/2011/02/why_i_love_volume_1_sprockets</guid>
       <description>&lt;p&gt;&lt;a href='http://getsprockets.org/'&gt;Sprockets&lt;/a&gt; is one of the most handy gems I&amp;#8217;ve ever used. It allows you separate javascript into multiple files and use &lt;code&gt;require&lt;/code&gt; keywords. This was a god send for me. The application I&amp;#8217;m working has a TON of js. I was able to tame it with sprockets. I also came up with a nice directory structure a long the way.&lt;/p&gt;
@@ -2938,7 +3287,7 @@ var DashboardPage = {
     <item>
       <title>Ubuntu, Jetty, Solr &amp; MultiCore</title>
       <link>http://broadcastingadam.com/2011/02/ubuntu_jetty_solr_and_multicore</link>
-      <pubDate>Wed, 02 Feb 2011 00:00:00 +0200</pubDate>
+      <pubDate>Wed, 02 Feb 2011 00:00:00 +0100</pubDate>
       <author>me@broadcastingadam.com (Adam Hawkins)</author>
       <guid>http://broadcasting.com/2011/02/ubuntu_jetty_solr_and_multicore</guid>
       <description>&lt;p&gt;&lt;a href='http://lucene.apache.org/solr/'&gt;Solr&lt;/a&gt; is a wonderful fulltext search program. It can be configured to do a great many things. It can also be a royal pain to setup. Solr is written in Java. In order to use solr in your application you must configure a java application somewhere to serve up Solr. Solr runs as an web service. You index docouments by posting XML to the server for indexing. You can install a java application server like Tomcat or Jetty to host Solr. By default, Solr can only index one set of data. This means, if you need to host multiple applications on the same solr server, then you have a few options. You can create new Solr instances for each application, or you can use Solr&amp;#8217;s MultiCore functionality to index different datasets. MultiCore is like creating another database for Postgres. I&amp;#8217;ll show you how to get this up and running under Ubuntu.&lt;/p&gt;
@@ -3048,7 +3397,7 @@ sudo /etc/init.d/jetty start&lt;/code&gt;&lt;/pre&gt;
     <item>
       <title>Cucumber's env.rb &amp; Dry Run Problems</title>
       <link>http://broadcastingadam.com/2010/12/cucumbers_dry_run_problems</link>
-      <pubDate>Thu, 02 Dec 2010 00:00:00 +0200</pubDate>
+      <pubDate>Thu, 02 Dec 2010 00:00:00 +0100</pubDate>
       <author>me@broadcastingadam.com (Adam Hawkins)</author>
       <guid>http://broadcasting.com/2010/12/cucumbers_dry_run_problems</guid>
       <description>&lt;p&gt;Env.rb setsup Cucumber&amp;#8217;s execution environment. The generated file from cucumber-rails essentially loads your rails env and setups up Capybara etc. That&amp;#8217;s all well and good but what do you do if you need to add your own stuff. Once you&amp;#8217;ve built up a sizeable cucumber test suite, it&amp;#8217;s probable that you&amp;#8217;ve got some modifications to env.rb. However, they &lt;strong&gt;should not&lt;/strong&gt; be there since when you upgrade to a new version of cucumber (mainly cucumber-rails) it wants to regenerate that file. So what you need to do is split up your modifications into sepearate files. Here are some modifications you may have:&lt;/p&gt;
@@ -3094,7 +3443,7 @@ end&lt;/code&gt;&lt;/pre&gt;
     <item>
       <title>Lessons From a Startup</title>
       <link>http://broadcastingadam.com/2010/10/lessons_from_a_startup</link>
-      <pubDate>Sun, 31 Oct 2010 00:00:00 +0300</pubDate>
+      <pubDate>Sun, 31 Oct 2010 00:00:00 +0200</pubDate>
       <author>me@broadcastingadam.com (Adam Hawkins)</author>
       <guid>http://broadcasting.com/2010/10/lessons_from_a_startup</guid>
       <description>&lt;p&gt;I’ve been working as the lead developer at Finnish start up for about 9 months now. We’re making a cool product that we’ve got high hopes for. We’re getting our first customers now, so I’m taking some time to reflect on our progress and what I’ve learned.&lt;/p&gt;
@@ -3135,7 +3484,7 @@ end&lt;/code&gt;&lt;/pre&gt;
     <item>
       <title>app/observers -- Where They Should Be</title>
       <link>http://broadcastingadam.com/2010/10/app_observers</link>
-      <pubDate>Sat, 09 Oct 2010 00:00:00 +0300</pubDate>
+      <pubDate>Sat, 09 Oct 2010 00:00:00 +0200</pubDate>
       <author>me@broadcastingadam.com (Adam Hawkins)</author>
       <guid>http://broadcasting.com/2010/10/app_observers</guid>
       <description>&lt;p&gt;Afer you&amp;#8217;ve been doing Rails for a while you become old and cranky about how you want things. I &lt;em&gt;love&lt;/em&gt; my observers in /app/obsevers. I do not understand why they are not their by default. Models, mailers, and controllers all have their own folders, why can&amp;#8217;t observers by default. They don&amp;#8217;t even make any sense in /app/models. #1 They don&amp;#8217;t model anything and #2 They aren&amp;#8217;t subclasses of ActiveRecord (or some other ORM). If all the classes in /app/models are subclasses of AR, then what is an observer breaks the pattern. In Rails 2 if you want to specify another directory to load code from you have to specify add it to the &lt;code&gt;config.load_path&lt;/code&gt; variable. This is not the case in Rails 3. If you simply want to shove your observers into /app/observers, jsut make the directory and move the files in there. You will have to move them if you don&amp;#8217;t patch the &lt;code&gt;rails g observer&lt;/code&gt; command to generate them in a new directory. That takes care of Rails, but now that we have our observers separated, it&amp;#8217;s safe to assume we want to be able to run &lt;code&gt;rake spec:obsevers&lt;/code&gt;. This is not a problem either. All you have to do is create a rake spec task to only run files in spec/observers. So drop this bad boy in /lib/tasks&lt;/p&gt;
