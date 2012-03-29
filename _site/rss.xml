@@ -6,8 +6,8 @@
     <atom:link href="http://broadcastingadam.com/rss.xml" rel="self" type="application/rss+xml" />
     <description>Thoughts on Modern Web Development</description>
     <language>en-us</language>
-    <pubDate>Thu, 29 Mar 2012 16:01:54 +0200</pubDate>
-    <lastBuildDate>Thu, 29 Mar 2012 16:01:54 +0200</lastBuildDate>
+    <pubDate>Thu, 29 Mar 2012 16:14:23 +0200</pubDate>
+    <lastBuildDate>Thu, 29 Mar 2012 16:14:23 +0200</lastBuildDate>
 
     
     <item>
@@ -168,75 +168,7 @@ end&lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;When building an API, just remember: Rails is not your code. Your application is separate. The controllers just talk to your code. Don&amp;#8217;t get the two confused!&lt;/p&gt;
 
 &lt;p&gt;Now in the vein of &amp;#8220;Sharing is Caring&amp;#8221;, here is my base API controller that I use:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;class ApiController &amp;lt; ApplicationController
-  class InvalidAppToken &amp;lt; RuntimeError ; end
-  class InvalidUserToken &amp;lt; RuntimeError ; end
-
-  USER_ID_HEADER = &amp;#39;HTTP_X_USER_ID&amp;#39;
-  APP_ID_HEADER = &amp;#39;HTTP_X_APP_ID&amp;#39;
-
-  respond_to :json
-
-  rescue_from InvalidUserToken, InvalidAppToken do
-    render :text =&amp;gt; &amp;quot;Could not authenticate user or app&amp;quot;, :status =&amp;gt; :unauthorized
-  end
-
-  rescue_from ::CanCan::AccessDenied do
-    render :text =&amp;gt; &amp;quot;You do not have access to this service&amp;quot;, :status =&amp;gt; :forbidden
-  end
-
-  before_filter :set_default_format
-
-  def current_user
-    begin
-      @current_user ||= User.find(user_id)
-    rescue Mongoid::Errors::DocumentNotFound
-      raise InvalidAppToken
-    end
-  end
-
-  def current_app
-    begin
-      @current_app ||= current_user.apps.find(app_id)
-    rescue Mongoid::Errors::DocumentNotFound
-      raise InvalidUserToken
-    end
-  end
-
-  def current_ability
-    @current_ability ||= Ability.new current_app
-  end
-
-  private
-  def user_id
-    if params[:user_id]
-      params[:user_id]
-    elsif request.headers[USER_ID_HEADER]
-      request.headers[USER_ID_HEADER]
-    else
-      authenticate_with_http_basic do |user, pass|
-        user
-      end
-    end
-  end
-
-  def app_id
-    if params[:app_id]
-      params[:app_id]
-    elsif request.headers[APP_ID_HEADER]
-      request.headers[APP_ID_HEADER]
-    else
-      authenticate_with_http_basic do |user, pass|
-        pass
-      end
-    end
-  end
-
-  def set_default_format
-    request.format = &amp;#39;json&amp;#39;
-  end
-end&lt;/code&gt;&lt;/pre&gt;</description>
+&lt;script src='https://gist.github.com/2237832.js?file=api_controller.rb' /&gt;</description>
     </item>
     
     <item>
