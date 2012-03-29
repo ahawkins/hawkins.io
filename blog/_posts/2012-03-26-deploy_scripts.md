@@ -353,3 +353,5 @@ available. This way you can easily test the individual sections. The
 deploy task checks all the prereqs, then does all the hard work. It also
 looks pretty while doing it thanks to built in colorization support from
 thor. Happy deploying!
+
+**UPDATE**: Here is the link to simple expandable version in a [gist](https://gist.github.com/2237714)
