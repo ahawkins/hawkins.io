@@ -6,9 +6,238 @@
     <atom:link href="http://broadcastingadam.com/rss.xml" rel="self" type="application/rss+xml" />
     <description>Thoughts on Modern Web Development</description>
     <language>en-us</language>
-    <pubDate>Mon, 26 Mar 2012 14:27:13 +0200</pubDate>
-    <lastBuildDate>Mon, 26 Mar 2012 14:27:13 +0200</lastBuildDate>
+    <pubDate>Thu, 29 Mar 2012 12:38:20 +0200</pubDate>
+    <lastBuildDate>Thu, 29 Mar 2012 12:38:20 +0200</lastBuildDate>
 
+    
+    <item>
+      <title>State of Writing API Servers with Rails</title>
+      <link>http://broadcastingadam.com/2012/03/state_of_rails_apis</link>
+      <pubDate>Wed, 28 Mar 2012 00:00:00 +0200</pubDate>
+      <author>me@broadcastingadam.com (Adam Hawkins)</author>
+      <guid>http://broadcasting.com/2012/03/state_of_rails_apis</guid>
+      <description>&lt;p&gt;We&amp;#8217;ve been writing API&amp;#8217;s using Rails for a long time. It&amp;#8217;s nothing new. However, making the API the sole and only reason to exist shifts your application&amp;#8217;s purpose and architecture. This posts covers my experience writing pure JSON APIs with Rails.&lt;/p&gt;
+
+&lt;h2 id='defining_an_api_server'&gt;Defining an &amp;#8220;API Server&amp;#8221;&lt;/h2&gt;
+
+&lt;p&gt;This is what I consider a pure API server.&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;All responses are JSON&lt;/li&gt;
+
+&lt;li&gt;Authentication using some sort of tokens&lt;/li&gt;
+
+&lt;li&gt;&lt;code&gt;ActionView&lt;/code&gt; is not present in the code base.&lt;/li&gt;
+
+&lt;li&gt;&lt;code&gt;Sprockets&lt;/code&gt; is not present in the code base.&lt;/li&gt;
+
+&lt;li&gt;Some concept of versioning (inputs and outputs)&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;I think this covers a pretty basic Rails app.&lt;/p&gt;
+
+&lt;h2 id='existing_tries'&gt;Existing Tries&lt;/h2&gt;
+
+&lt;p&gt;There are already a few things that try to make writing a API with rails easier. Basically they all just create less complicated version of &lt;code&gt;ApplicationController::Base&lt;/code&gt; and do some other basic stuff. &lt;a href='https://github.com/strobecorp/strobe-rails-ext'&gt;Strobe&amp;#8217;s Rails Extension&lt;/a&gt; does this. It&amp;#8217;s a basic solution, but not complete enough. There are a host of similar solutions out there. Take a peak around if you like.&lt;/p&gt;
+
+&lt;h2 id='getting_in_the_door_authentication'&gt;Getting in the Door: Authentication&lt;/h2&gt;
+
+&lt;p&gt;The primary method is using a token. The token is passed to the API through headers (preferred) or standard parameter passing. Here is the code I use to generate API keys in all my applications.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;module HasApiToken
+  extend ActiveSupport::Concern
+
+  included do
+    before_create :generate_api_key
+  end
+
+  private
+  def generate_api_key
+    self.api_key ||= Digest::SHA1.hexdigest(Time.now.to_s + attributes.inspect)
+  end
+end&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Then you can authenticate a request using the token like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;User.find_by_api_key!(request.headers[&amp;#39;HTTP_X_API_TOKEN&amp;#39;] || params[:token])&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Easy. I&amp;#8217;m not sure if this pattern could be wrapped up in a gem because it&amp;#8217;s very simple but it doesn&amp;#8217;t change much. Either way, this technique gets the job done.&lt;/p&gt;
+
+&lt;h2 id='getting_it_done_generating_json'&gt;Getting it Done: Generating JSON&lt;/h2&gt;
+
+&lt;p&gt;Your API has return JSON. It&amp;#8217;s very surprising to me that some solutions make this so damn complicated (I&amp;#8217;m looking at you JBuilder and Rabl). Returning JSON is a very simple process. You only need to generate a Hash. This is done very easily via the Presenter pattern. The presenter also needs to take the &lt;code&gt;current_user&lt;/code&gt; into account since different people get to see different things. The presenter pattern is perfect because you can define a different presenter class for each resource and even scope them under different namespaces when you need to version things.&lt;/p&gt;
+
+&lt;p&gt;I use &lt;a href='https://github.com/josevalim/active_model_serializers'&gt;ActiveModel::Serializers&lt;/a&gt; because it&amp;#8217;s the perfect solution. It&amp;#8217;s very easy to define schemas and test them independently of everything else. This is very important! It seems to me that people forget this. OOP is good. Use it!&lt;/p&gt;
+
+&lt;p&gt;Here is an example serializer:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;class BlogPostSerializer &amp;lt; ActiveModel::Serializer
+  attributes :title, :content, :posted_at
+
+  has_many :comments
+
+  def attributes
+    hash = super
+
+    # include secret if the user is an admin
+    hash[:secret] = object.secret if user.admin?
+    hash
+  end
+end&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;You can test this very easily. Instantiate it with a blog post and user and test that &lt;code&gt;as_json&lt;/code&gt; returns the right stuff. No view layer. No bullshit. Just classes following SRP. If you use Ember (which is awesome), &lt;code&gt;ActiveModel::Serializers&lt;/code&gt; will be be the default format for the data store. Rails will automatically use the proper serializer when using &lt;code&gt;respond_with&lt;/code&gt; or &lt;code&gt;respond_to&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;I advise you to use ActiveModel::Serializers because it&amp;#8217;s a very simple solution. You can easily define &amp;#8220;partials&amp;#8221; in modules that declare more attributes. Unfortunately, there is only a 0.1.0 release out now. The project is still under active development.&lt;/p&gt;
+
+&lt;h2 id='next_step_parameter_santization_and_authorization'&gt;Next Step: Parameter Santization and Authorization&lt;/h2&gt;
+
+&lt;p&gt;&lt;a href='https://github.com/rails/strong_parameters'&gt;Strong Paramters&lt;/a&gt; is a good first step in moving authorization out of the model. I hope that dhh&amp;#8217;s strong paramters is merged into Rails 4. It&amp;#8217;s a basic variation on the slice pattern. It uses a method inside the controller to select the valid parameters that can be sent to the model.&lt;/p&gt;
+
+&lt;p&gt;Here is the important example from the readme:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;class PeopleController &amp;lt; ActionController::Base
+  # This will raise an ActiveModel::ForbiddenAttributes exception because it&amp;#39;s using mass assignment
+  # without an explicit permit step.
+  def create
+    Person.create(params[:person])
+  end
+
+  # This will pass with flying colors as long as there&amp;#39;s a person key in the parameters, otherwise
+  # it&amp;#39;ll raise a ActionController::MissingParameter exception, which will get caught by 
+  # ActionController::Base and turned into that 400 Bad Request reply.
+  def update
+    redirect_to current_account.people.find(params[:id]).tap do |person|
+      person.update_attributes!(person_params)
+    end
+  end
+
+  private
+    # Using a private method to encapsulate the permissible parameters is just a good pattern
+    # since you&amp;#39;ll be able to reuse the same permit list between create and update. Also, you
+    # can specialize this method with per-user checking of permissible attributes.
+    def person_params
+      params.required(:person).permit(:name, :age)
+    end
+end&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I think that this is a step in the right direction, but I&amp;#8217;d like to see this logic moved into it&amp;#8217;s own class. StrongParameters doesn&amp;#8217;t consider authorizations that may happen outside of a controller. It does make it possible to extract the &lt;code&gt;person_params&lt;/code&gt; method into it&amp;#8217;s own class. You &lt;strong&gt;should&lt;/strong&gt; do this.&lt;/p&gt;
+
+&lt;h2 id='action_authorization'&gt;Action Authorization&lt;/h2&gt;
+
+&lt;p&gt;There is only one thing to say: &lt;a href='https://github.com/ryanb/cancan'&gt;CanCan&lt;/a&gt;. It is the best thing for this. I think CanCan is almost perfect.&lt;/p&gt;
+
+&lt;h2 id='versioning'&gt;Versioning&lt;/h2&gt;
+
+&lt;p&gt;Enter the no-mans land. I still haven&amp;#8217;t found any that will handle versioning in a clean way. I&amp;#8217;m looking for something that builds boundaries in my code. I&amp;#8217;m looking for something that completely separates the request input and request response. For example, say in version API version 2, the parameters to &lt;code&gt;POST /foos&lt;/code&gt; have changed. How do you handle that? IMO, you need a class that can convert the message. Same thing for output formats. How do you handle returning a different format for version 2? You &lt;em&gt;could&lt;/em&gt; be a slacker and namespace routes (&lt;code&gt;/api/v1/&lt;/code&gt;, &lt;code&gt;/api/v2&lt;/code&gt;). I don&amp;#8217;t think this is a good solution. The version should be passed in the headers, not in the URI. It would be perfect if I could find a gem that would take the Accept header and automatically use &lt;code&gt;V2::Messages&lt;/code&gt; and &lt;code&gt;V2::PostSerializer&lt;/code&gt;.&lt;/p&gt;
+
+&lt;h2 id='documentation'&gt;Documentation&lt;/h2&gt;
+
+&lt;p&gt;Documenting programs is hard. It is always hard no matter the context. I think there are two different types of documentation. There is the exact technical documentation. For example, this route takes this parameter. This parameter must be this format or these values etc. These are return values etc. Then there is the high level user guide type documentation. Think the rails guides vs the API docs. You need both to create a successful platform.&lt;/p&gt;
+
+&lt;p&gt;The major difference between them is that one is generated from documentation in the code and the other is written by humans. At this point it is infeasible that user guides can be generated automatically. It is feasible that technical documentation can be generated. Isn&amp;#8217;t the holy grail that you can change the code and have the documentation updated? The big problem with documentation is that it gets out of date because it&amp;#8217;s maintained in two separate places. What if could solve that problem?&lt;/p&gt;
+
+&lt;p&gt;I think we can solve this problem. The first step, as with any code documentation, is to define a standard format and where to put it. I think you can put this code in the controller. Why the controller? Because the controller is where your API meets the outside world. The controller is what takes input and tells other classes to do stuff. Also, the controller may do specific logic on parameters to sanitize them or something else. The controller is the gatekeeper for your application and the entry rules should be written on the gate. Now you can combine this parameter declaration with parameter sanitization (ala StrongParamters) and you&amp;#8217;d really be onto something!&lt;/p&gt;
+
+&lt;p&gt;Here is an example from &lt;a href='https://github.com/mifo/sinatra-rabbit'&gt;Rabbit&lt;/a&gt;. This doesn&amp;#8217;t do everything that I&amp;#8217;m talking about, but you&amp;#8217;ll see where I&amp;#8217;m going:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;operation :show do
+  description &amp;quot;Index operation description&amp;quot;
+  param :id,  :string, :required
+  param :r1,  :string, :optional, &amp;quot;Optional parameter&amp;quot;
+  param :v1,  :string, :optional, [ &amp;#39;test1&amp;#39;, &amp;#39;test2&amp;#39;, &amp;#39;test3&amp;#39; ], &amp;quot;Optional parameter&amp;quot;
+  param :v2,  :string, :optional, &amp;quot;Optional parameter&amp;quot;
+  control do
+    &amp;quot;Hey #{params[:id]}&amp;quot;
+  end
+end&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;At this point you could load the code and read the declarations. Everything you need is there. You could write code to transform it into &lt;a href='http://petstore.swagger.wordnik.com/'&gt;http://swagger.wordnik.com/&lt;/a&gt;. How awesome would that be? This is just an example of what can be done. The important part is updating the code regenerates the documentation.&lt;/p&gt;
+
+&lt;p&gt;We still have to handle the user guide level documentation. I think there are two ways to handle it. #1, you use something like &lt;a href='http://tomdoc.org/'&gt;Tomdoc&lt;/a&gt; in the controller for high level documentation. #2, you maintain it separately. I&amp;#8217;ve opted for #2 in my situation. I&amp;#8217;m using my own code here to write &lt;a href='https://github.com/threadedlabs/api_guides'&gt;api guides&lt;/a&gt;. It&amp;#8217;s heavily inspired by Stripe&amp;#8217;s &lt;a href='https://stripe.com/docs/api'&gt;docs&lt;/a&gt;. You can see an example &lt;a href='http://developer.radiumcrm.com'&gt;here&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Unfortunately, I haven&amp;#8217;t been able to solve the generated technical documentation problem yet, but at least this is a start.&lt;/p&gt;
+
+&lt;p&gt;I think there is a lot to be done on this front. If we as a community can solve this problem, I think that crafting API&amp;#8217;s will be much easier and more importantly, much faster.&lt;/p&gt;
+
+&lt;h2 id='get_going'&gt;GET /going&lt;/h2&gt;
+
+&lt;p&gt;I think there is still much work to be done on this front. I hope that Rails 4 takes some of these ideas and folds them into the core. I know that parameter authorization will be moved to the controller in Rails 4. I hope they address the serialization problem as well (by not using JBuilder). However, given DHH&amp;#8217;s love for it, I don&amp;#8217;t see that happening.&lt;/p&gt;
+
+&lt;p&gt;I&amp;#8217;d really like to see the community address the documentation problem. I think there is a will too. It seems to me that more rails developers are building simple applications and aren&amp;#8217;t really interested in tackling the entire scope of the problem: How can build an HTTP API in rails, maintain it, and release it to the public. At Radium, we are building enterprise software. We think big. Working in this scope has made me tackle many large problems. I hope that my experience will help you as well.&lt;/p&gt;
+
+&lt;p&gt;When building an API, just remember: Rails is not your code. Your application is separate. The controllers just talk to your code. Don&amp;#8217;t get the two confused!&lt;/p&gt;
+
+&lt;p&gt;Now in the vein of &amp;#8220;Sharing is Caring&amp;#8221;, here is my base API controller that I use:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;class ApiController &amp;lt; ApplicationController
+  class InvalidAppToken &amp;lt; RuntimeError ; end
+  class InvalidUserToken &amp;lt; RuntimeError ; end
+
+  USER_ID_HEADER = &amp;#39;HTTP_X_USER_ID&amp;#39;
+  APP_ID_HEADER = &amp;#39;HTTP_X_APP_ID&amp;#39;
+
+  respond_to :json
+
+  rescue_from InvalidUserToken, InvalidAppToken do
+    render :text =&amp;gt; &amp;quot;Could not authenticate user or app&amp;quot;, :status =&amp;gt; :unauthorized
+  end
+
+  rescue_from ::CanCan::AccessDenied do
+    render :text =&amp;gt; &amp;quot;You do not have access to this service&amp;quot;, :status =&amp;gt; :forbidden
+  end
+
+  before_filter :set_default_format
+
+  def current_user
+    begin
+      @current_user ||= User.find(user_id)
+    rescue Mongoid::Errors::DocumentNotFound
+      raise InvalidAppToken
+    end
+  end
+
+  def current_app
+    begin
+      @current_app ||= current_user.apps.find(app_id)
+    rescue Mongoid::Errors::DocumentNotFound
+      raise InvalidUserToken
+    end
+  end
+
+  def current_ability
+    @current_ability ||= Ability.new current_app
+  end
+
+  private
+  def user_id
+    if params[:user_id]
+      params[:user_id]
+    elsif request.headers[USER_ID_HEADER]
+      request.headers[USER_ID_HEADER]
+    else
+      authenticate_with_http_basic do |user, pass|
+        user
+      end
+    end
+  end
+
+  def app_id
+    if params[:app_id]
+      params[:app_id]
+    elsif request.headers[APP_ID_HEADER]
+      request.headers[APP_ID_HEADER]
+    else
+      authenticate_with_http_basic do |user, pass|
+        pass
+      end
+    end
+  end
+
+  def set_default_format
+    request.format = &amp;#39;json&amp;#39;
+  end
+end&lt;/code&gt;&lt;/pre&gt;</description>
+    </item>
     
     <item>
       <title>Deploy Scripts for Git &amp; Heroku Applications</title>
