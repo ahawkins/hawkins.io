@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "State of Writing API Servers with Rails [Revised]"
+title: "State of Writing API Servers with Rails"
 tags: [rails, api]
 ---
 

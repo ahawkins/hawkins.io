@@ -6,12 +6,12 @@
     <atom:link href="http://broadcastingadam.com/rss.xml" rel="self" type="application/rss+xml" />
     <description>Thoughts on Modern Web Development</description>
     <language>en-us</language>
-    <pubDate>Fri, 30 Mar 2012 12:10:01 +0200</pubDate>
-    <lastBuildDate>Fri, 30 Mar 2012 12:10:01 +0200</lastBuildDate>
+    <pubDate>Fri, 30 Mar 2012 12:12:04 +0200</pubDate>
+    <lastBuildDate>Fri, 30 Mar 2012 12:12:04 +0200</lastBuildDate>
 
     
     <item>
-      <title>State of Writing API Servers with Rails [Revised]</title>
+      <title>State of Writing API Servers with Rails</title>
       <link>http://broadcastingadam.com/2012/03/state_of_rails_apis</link>
       <pubDate>Wed, 28 Mar 2012 00:00:00 +0200</pubDate>
       <author>me@broadcastingadam.com (Adam Hawkins)</author>
