@@ -6,8 +6,8 @@
     <atom:link href="http://broadcastingadam.com/rss.xml" rel="self" type="application/rss+xml" />
     <description>Thoughts on Modern Web Development</description>
     <language>en-us</language>
-    <pubDate>Fri, 30 Mar 2012 12:12:04 +0200</pubDate>
-    <lastBuildDate>Fri, 30 Mar 2012 12:12:04 +0200</lastBuildDate>
+    <pubDate>Fri, 30 Mar 2012 12:14:15 +0200</pubDate>
+    <lastBuildDate>Fri, 30 Mar 2012 12:14:15 +0200</lastBuildDate>
 
     
     <item>
@@ -167,8 +167,6 @@ end&lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;When building an API, just remember: Rails is not your code. Your application is separate. The controllers just talk to your code. Don&amp;#8217;t get the two confused!&lt;/p&gt;
 
-&lt;p&gt;Now in the vein of &amp;#8220;Sharing is Caring&amp;#8221;, here is my base API controller that I use:&lt;/p&gt;
-&lt;script src='https://gist.github.com/2237832.js?file=api_controller.rb' /&gt;
 &lt;h2 id='appendex'&gt;Appendex&lt;/h2&gt;
 
 &lt;p&gt;I&amp;#8217;ve added this section to include links to things people have tweeted me or showed me on IRC.&lt;/p&gt;
@@ -185,7 +183,12 @@ end&lt;/code&gt;&lt;/pre&gt;
 &lt;li&gt;&lt;a href='http://designinghypermediaapis.com/'&gt;Hypermedia APIs&lt;/a&gt; - Book&lt;/li&gt;
 
 &lt;li&gt;&lt;a href='https://github.com/rails/rails/commit/6db930cb5bbff9ad824590b5844e04768de240b1'&gt;Rails API Mode&lt;/a&gt; - Reverted Commit for API mode for rails&lt;/li&gt;
-&lt;/ul&gt;</description>
+&lt;/ul&gt;
+
+&lt;h2 id='sharing_is_caring'&gt;Sharing is Caring&lt;/h2&gt;
+
+&lt;p&gt;Now in the vein of &amp;#8220;Sharing is Caring&amp;#8221;, here is my base API controller that I use:&lt;/p&gt;
+&lt;script src='https://gist.github.com/2237832.js?file=api_controller.rb' /&gt;</description>
     </item>
     
     <item>
