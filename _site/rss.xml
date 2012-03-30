@@ -6,9 +6,91 @@
     <atom:link href="http://broadcastingadam.com/rss.xml" rel="self" type="application/rss+xml" />
     <description>Thoughts on Modern Web Development</description>
     <language>en-us</language>
-    <pubDate>Fri, 30 Mar 2012 12:14:15 +0200</pubDate>
-    <lastBuildDate>Fri, 30 Mar 2012 12:14:15 +0200</lastBuildDate>
+    <pubDate>Fri, 30 Mar 2012 13:25:31 +0200</pubDate>
+    <lastBuildDate>Fri, 30 Mar 2012 13:25:31 +0200</lastBuildDate>
 
+    
+    <item>
+      <title>Defining Gems, Plugins, Railties, and Engines</title>
+      <link>http://broadcastingadam.com/2012/03/defining_plugins_gems_railties_and_engines</link>
+      <pubDate>Fri, 30 Mar 2012 00:00:00 +0200</pubDate>
+      <author>me@broadcastingadam.com (Adam Hawkins)</author>
+      <guid>http://broadcasting.com/2012/03/defining_plugins_gems_railties_and_engines</guid>
+      <description>&lt;p&gt;I listened to the Ruby Rogues &lt;a href='http://rubyrogues.com/048-rr-crafting-rails-applications-with-jose-valim/'&gt;podcast&lt;/a&gt;. One of the people on the show asked Jose when you should use a gem, railtie or an engine. I think that many people are unclear what defines each and when to use them.&lt;/p&gt;
+
+&lt;h2 id='gems'&gt;Gems&lt;/h2&gt;
+
+&lt;p&gt;A gem is a portable unit of Ruby code. It may contain &lt;code&gt;railties&lt;/code&gt; or &lt;code&gt;engines. Gems can bundle pretty much anything and do all sorts of
+crazyness.&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;Use Cases&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;You want to distrube portable units of Ruby code.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id='plugins'&gt;Plugins&lt;/h2&gt;
+
+&lt;p&gt;Plugins are an alias for Gems. However, there is another layer to this discussion. Prior to Rails 3.2 and officialy in Rails 4 there were things were officially called &amp;#8220;plugins.&amp;#8221; Plugins were usually smaller than Gems and lived inside &lt;code&gt;vendor/plugins&lt;/code&gt;. Essentially no one uses them anymore besides Heroku because they love raising deprecation errors in current applications. You can use &lt;code&gt;rails plugin new&lt;/code&gt; which will generate a new &lt;strong&gt;gem&lt;/strong&gt; that&amp;#8217;s connected to rails via &lt;strong&gt;railties&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;p&gt;Use Cases&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;None&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id='railties'&gt;Railties&lt;/h2&gt;
+
+&lt;p&gt;The name itself defines its purpose. A &amp;#8220;railtie&amp;#8221; provides a connector for external code to tie into Rails. It allows you do things like define configuration for Rails or add initializers. Here are some common use cases suggested from the Railtie docs:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;configuring a Rails framework for the application, like setting a generator&lt;/li&gt;
+
+&lt;li&gt;adding &lt;code&gt;config.*&lt;/code&gt; keys to the environment&lt;/li&gt;
+
+&lt;li&gt;setting up a subscriber with &lt;code&gt;ActiveSupport::Notifications&lt;/code&gt;&lt;/li&gt;
+
+&lt;li&gt;adding rake tasks&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;ActiveRecord, ActionPack, ActiveSupport are all connected to rails via railties. Railties connect separate sections of code into Rails. Here is an real life example of a simple Railtie in the wild:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;module Cashier
+  class Railtie &amp;lt; ::Rails::Railtie
+    config.cashier = Cashier
+
+    initializer &amp;quot;cashier.active_support.cache.instrumentation&amp;quot;
+      ActiveSupport::Cache::Store.instrument = true
+    end
+  end
+end&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Use Cases&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Connecting non rails code to rails&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id='engines'&gt;Engines&lt;/h2&gt;
+
+&lt;p&gt;&amp;#8220;Engines&amp;#8221; are actually a &lt;code&gt;railtie&lt;/code&gt; subclass. They can do everything a railtie can do and more. Engines are essentially self contained rails applications. They can have all their own models, controllers, views, routes, and internal code. Engines can be packaged as gems. You can do everything in an engine that you can do in your application. That&amp;#8217;s because your Rails application is actually just an engine. You can generate a new engine like this: &lt;code&gt;rails plugin new foo --mountable&lt;/code&gt; (Yes plugin is confusing.)&lt;/p&gt;
+
+&lt;p&gt;Examples:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href='https://github.com/plataformatec/devise'&gt;Devise&lt;/a&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;a href='https://github.com/radar/forem'&gt;Forem&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Use Cases&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;You want make a self contained rails application that can be redistruted.&lt;/li&gt;
+
+&lt;li&gt;You want to decompose your large rails application into smaller components&lt;/li&gt;
+&lt;/ul&gt;</description>
+    </item>
     
     <item>
       <title>State of Writing API Servers with Rails</title>

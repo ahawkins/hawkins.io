@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en-US">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>BroadcastingAdam - Defining Gems, Plugins, Railties, and Engines</title>
+
+    
+<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.8.2r1/build/reset/reset-min.css">
+<link rel="stylesheet" type="text/css" href="/stylesheets/style.css" />
+
+
+    <script type="text/javascript" src="http://yandex.st/highlightjs/5.16/highlight.min.js"></script>
+    <link rel="stylesheet" href="http://yandex.st/highlightjs/5.16/styles/github.min.css">
+    <script>hljs.initHighlightingOnLoad();</script>
+  </head>
+  <body>
+    <div id="container">
+      <header>
+  <h1>BroadcastingAdam</h1>
+  <a href="http://feeds.feedburner.com/BroadcastingAdam" id="rss"><img src="images/rss_icon.png" alt="rss" /></a>
+  <nav>
+    <a href="/">Home</a>
+    <a href="/nettuts.html">Nettuts</a>
+    <a href="/talks.html">Talks</a>
+    <a href="/open_source.html">Open Source</a>
+  </nav>
+</header>
+
+
+      <div id="content" class="post">
+        <header >
+          <h2>Defining Gems, Plugins, Railties, and Engines</h2>
+          <div class='meta'>
+            </p>March 30, 2012 &nbsp; | &nbsp; rails</p>
+          </div>
+        </header>
+        <article>
+          <p>I listened to the Ruby Rogues <a href='http://rubyrogues.com/048-rr-crafting-rails-applications-with-jose-valim/'>podcast</a>. One of the people on the show asked Jose when you should use a gem, railtie or an engine. I think that many people are unclear what defines each and when to use them.</p>
+
+<h2 id='gems'>Gems</h2>
+
+<p>A gem is a portable unit of Ruby code. It may contain <code>railties</code> or <code>engines. Gems can bundle pretty much anything and do all sorts of
+crazyness.</code></p>
+
+<p>Use Cases</p>
+
+<ul>
+<li>You want to distrube portable units of Ruby code.</li>
+</ul>
+
+<h2 id='plugins'>Plugins</h2>
+
+<p>Plugins are an alias for Gems. However, there is another layer to this discussion. Prior to Rails 3.2 and officialy in Rails 4 there were things were officially called &#8220;plugins.&#8221; Plugins were usually smaller than Gems and lived inside <code>vendor/plugins</code>. Essentially no one uses them anymore besides Heroku because they love raising deprecation errors in current applications. You can use <code>rails plugin new</code> which will generate a new <strong>gem</strong> that&#8217;s connected to rails via <strong>railties</strong>.</p>
+
+<p>Use Cases</p>
+
+<ul>
+<li>None</li>
+</ul>
+
+<h2 id='railties'>Railties</h2>
+
+<p>The name itself defines its purpose. A &#8220;railtie&#8221; provides a connector for external code to tie into Rails. It allows you do things like define configuration for Rails or add initializers. Here are some common use cases suggested from the Railtie docs:</p>
+
+<ul>
+<li>configuring a Rails framework for the application, like setting a generator</li>
+
+<li>adding <code>config.*</code> keys to the environment</li>
+
+<li>setting up a subscriber with <code>ActiveSupport::Notifications</code></li>
+
+<li>adding rake tasks</li>
+</ul>
+
+<p>ActiveRecord, ActionPack, ActiveSupport are all connected to rails via railties. Railties connect separate sections of code into Rails. Here is an real life example of a simple Railtie in the wild:</p>
+
+<pre><code>module Cashier
+  class Railtie &lt; ::Rails::Railtie
+    config.cashier = Cashier
+
+    initializer &quot;cashier.active_support.cache.instrumentation&quot;
+      ActiveSupport::Cache::Store.instrument = true
+    end
+  end
+end</code></pre>
+
+<p>Use Cases</p>
+
+<ul>
+<li>Connecting non rails code to rails</li>
+</ul>
+
+<h2 id='engines'>Engines</h2>
+
+<p>&#8220;Engines&#8221; are actually a <code>railtie</code> subclass. They can do everything a railtie can do and more. Engines are essentially self contained rails applications. They can have all their own models, controllers, views, routes, and internal code. Engines can be packaged as gems. You can do everything in an engine that you can do in your application. That&#8217;s because your Rails application is actually just an engine. You can generate a new engine like this: <code>rails plugin new foo --mountable</code> (Yes plugin is confusing.)</p>
+
+<p>Examples:</p>
+
+<ul>
+<li><a href='https://github.com/plataformatec/devise'>Devise</a></li>
+
+<li><a href='https://github.com/radar/forem'>Forem</a></li>
+</ul>
+
+<p>Use Cases</p>
+
+<ul>
+<li>You want make a self contained rails application that can be redistruted.</li>
+
+<li>You want to decompose your large rails application into smaller components</li>
+</ul>
+
+          <h3>Contact Me</h3>
+          <p>
+            Find a problem or have a question about this post? <a href="http://twitter.com/adman65/">@adman65</a> on
+            Twitter or Adman65 on #freenode. Find me in (#rubyonrails or
+            #sproutcore). You can find my code on <a href="http://github.com/twinturbo/">GitHub</a> or hit me up on
+            <a href="https://plus.google.com/u/0/116377228668850173159">Google+</a>.
+          </p>
+        </article>
+      </div>
+    </div>
+
+    <script type="text/javascript">
+  var _gauges = _gauges || [];
+  (function() {
+    var t   = document.createElement('script');
+    t.type  = 'text/javascript';
+    t.async = true;
+    t.id    = 'gauges-tracker';
+    t.setAttribute('data-site-id', '4eb0f672613f5d482f000001');
+    t.src = '//secure.gaug.es/track.js';
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(t, s);
+  })();
+</script>
+
+  </body>
+</html>
