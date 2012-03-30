@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "State of Writing API Servers with Rails"
+title: "State of Writing API Servers with Rails [Revised]"
 tags: [rails, api]
 ---
 
@@ -256,3 +256,15 @@ Now in the vein of "Sharing is Caring", here is my base API controller
 that I use:
 
 <script src="https://gist.github.com/2237832.js?file=api_controller.rb"></script>
+
+## Appendex
+
+I've added this section to include links to things people have tweeted
+me or showed me on IRC.
+
+* [Grape](https://github.com/intridea/grape) - Github
+* [Rabbit](https://github.com/mifo/sinatra-rabbit) - Github
+* [Versionist](https://github.com/bploetz/versionist) - Github
+* [Versioning RESTful APIs](http://freelancing-gods.com/posts/versioning_your_ap_is) - Blog Post
+* [Hypermedia APIs](http://designinghypermediaapis.com/) - Book
+* [Rails API Mode](https://github.com/rails/rails/commit/6db930cb5bbff9ad824590b5844e04768de240b1) - Reverted Commit for API mode for rails
