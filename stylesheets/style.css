@@ -1,12 +1,12 @@
 @font-face {
   font-family: Vegur-Bold;
-  src: url('fonts/vegur_bold.otf');
+  src: url('/fonts/vegur_bold.otf');
 }
 
 
 @font-face {
   font-family: Vegur;
-  src: url('fonts/vegur_regular.otf');
+  src: url('/fonts/vegur_regular.otf');
 }
 
 html {
