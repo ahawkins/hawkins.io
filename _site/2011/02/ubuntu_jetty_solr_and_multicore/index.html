@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en-US">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>BroadcastingAdam - Ubuntu, Jetty, Solr & MultiCore</title>
+
+    <link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.8.2r1/build/reset/reset-min.css">
+<link rel="stylesheet" type="text/css" href="/stylesheets/style.css" />
+
+
+    <link rel="stylesheet" href="http://yandex.st/highlightjs/5.16/styles/github.min.css">
+
+    <script type="text/javascript" src="http://yandex.st/highlightjs/5.16/highlight.min.js"></script>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+
+    <!-- <script>hljs.initHighlightingOnLoad();</script> -->
+
+    <script type="text/javascript">
+      $(function() {
+        $("pre code[class]").each(function(i, e) {hljs.highlightBlock(e)});
+      });
+    </script>
+  </head>
+  <body>
+    <div id="container">
+      <header>
+  <h1>BroadcastingAdam</h1>
+  <a href="http://feeds.feedburner.com/BroadcastingAdam" id="rss"><img src="images/rss_icon.png" alt="rss" /></a>
+  <nav>
+    <a href="/">Home</a>
+    <a href="/nettuts.html">Nettuts</a>
+    <a href="https://github.com/twinturbo/talks">Talks</a>
+    <a href="/open_source.html">Open Source</a>
+  </nav>
+</header>
+
+
+      <div id="content" class="post">
+        <header >
+          <h2>Ubuntu, Jetty, Solr & MultiCore</h2>
+          <div class='meta'>
+            </p>February 02, 2011 &nbsp; | &nbsp; ruby javascript gems</p>
+          </div>
+        </header>
+        <article>
+          <p><a href="http://lucene.apache.org/solr/">Solr</a> is a wonderful fulltext search
+program. It can be configured to do a great many things. It can also be a
+royal pain to setup. Solr is written in Java. In order to use solr in
+your application you must configure a java application somewhere to
+serve up Solr. Solr runs as an web service. You index docouments by
+posting XML to the server for indexing. You can install a java
+application server like Tomcat or Jetty to host Solr. By default, Solr
+can only index one set of data. This means, if you need to host multiple
+applications on the same solr server, then you have a few options. You
+can create new Solr instances for each application, or you can use
+Solr&#39;s MultiCore functionality to index different datasets. MultiCore is
+like creating another database for Postgres. I&#39;ll show you how to get
+this up and running under Ubuntu.</p>
+
+<h2>Installing Jetty, Java and Solr.</h2>
+
+<p>This is one of the reasons I love ubuntu server. It just has packages. I
+don&#39;t have to worry about downloading code from random place, it just
+has everything a boy could need in a server. Install these packages
+using apt:</p>
+
+<pre><code>sudo apt-get install solr-jetty openjdk-6-jdk
+</code></pre>
+
+<p>This pulls in ~60MB and a ton of packages so watch out for that :D</p>
+
+<p>The next thing we want to do is setup Jetty to listen on all
+connections. By default the installation is only available on
+htt://localhost:8080. That&#39;s great if you&#39;re making a local server, but
+we need to open our box up to the world. Ubuntu uses a file
+<code>/etc/defaults/jetty</code> to manage daemon settings. Open this file in vim
+and replace this line:</p>
+
+<pre><code>#JETTY_HOST=$(uname -n)
+</code></pre>
+
+<p>With:</p>
+
+<pre><code>JETTY_HOST=
+</code></pre>
+
+<p>This will tell jetty to listen on all connections. You can also put in
+your own ip or domain name if you please. Feel free to change the port
+as well at this point.</p>
+
+<p>Now navigate to the top of the file and <code>/NO_START</code> to go to the next
+setting we need to change. Replace the 1 with a 0 and wer&#39;re in
+business. This will tell jetty to start when the server is loaded.</p>
+
+<p>Now fire the server up with:</p>
+
+<pre><code>/etc/init.d/jetty start
+</code></pre>
+
+<p>Once all is good you should be able to navigate to
+<a href="http://yourhost.com:8080">http://yourhost.com:8080</a> and get welcome
+page. This is basically a &quot;it works page&quot;. Now you can move on to solr. 
+Ubuntu already did a lot of extra work for you by installing a runnable
+version of solr into Jetty. You can access that at
+<a href="http://yourhost.com:8080/solr">http://yourhost.com:8080</a>. It is a very
+basic admin--but it&#39;s something. Now we&#39;re ready for MulitCore.</p>
+
+<h2>Multi Core</h2>
+
+<p>MultiCore is was the most complicated part for me to get setup,
+partially because everything I read conflicted with something--but don&#39;t
+worry. It should be easy for you if you follow along. You can read the
+offical wiki page <a href="here">http://wiki.apache.org/solr/CoreAdmin</a>. </p>
+
+<p><strong>Here&#39;s what they don&#39;t tell you, or assume you should know:</strong> In order
+for MultiCore to work, each core must have it&#39;s own solrconfig.xml and
+schema.xml. That&#39;s fantastic, but excuse me, where the hell do I put
+these files? That was my life for 3 hours. Mucking around with random
+configurations until POOF. \o/ It all worked. </p>
+
+<p>You also have to create a <code>solr.xml</code> file separate from all the other
+config files that tells Solr to load multicore. This was outlined
+reasonably well in the documentation, but it still gave me headaches. </p>
+
+<h3>Step 1. Solr.xml</h3>
+
+<p>We need to create a file that tells Solr to load our cores. You can
+decided ahead of time what they are, or just use this as a template for
+now. Below is a template you can follow. You can create as many cores as
+you want. When Editing the file, be sure to replace all copies of
+&quot;production&quot; with whatever the name of your core is. In my setup, I
+needed 3 different cores. One for production code, one for staging code,
+and one for a beta code. Once you&#39;ve created this file, save it as:
+<strong>/usr/share/solr/solr.xml</strong>.</p>
+
+<pre><code>&lt;solr persistent=&quot;true&quot;&gt;
+ &lt;cores adminPath=&quot;/admin/cores&quot;&gt;
+   &lt;core name=&quot;production&quot; instanceDir=&quot;production&quot; dataDir=&quot;/var/lib/solr/production/data&quot; /&gt;
+   &lt;core name=&quot;staging&quot; instanceDir=&quot;staging&quot; dataDir=&quot;/var/lib/solr/staging/data&quot; /&gt;
+   &lt;core name=&quot;beta&quot; instanceDir=&quot;beta&quot; dataDir=&quot;/var/lib/solr/beta/data&quot; /&gt;
+ &lt;/cores&gt;
+&lt;/solr&gt;
+</code></pre>
+
+<p><strong>Don&#39;t forget to set the dataDirectory attribute as well!</strong></p>
+
+<h3>Step 2. Making Data Directories</h3>
+
+<p>Now we must create directories for our index data to live. They were
+specified earlier in the step 1. These directories must be writable by
+the jetty user. Apt automatically added this user for you when you
+installed jetty-solr. You can create them with this command.</p>
+
+<pre><code>sudo mkdir -p /var/lib/solr/production/data
+</code></pre>
+
+<p>Repeat this command for however many cores you need. Next make jetty the
+owner.</p>
+
+<pre><code>sudo chown -R jetty /var/lib/solr/
+</code></pre>
+
+<h3>Step 3. Copying the Config Files</h3>
+
+<p>This was the hidden step. First thing we need to do is create
+directories for our cores to live. Each core has it&#39;s own schema and
+config files. These need to be created. It&#39;s just like we did in step 2,
+but with a different directory.</p>
+
+<pre><code>sudo mkdir /usr/share/solr/production
+</code></pre>
+
+<p>Now we need to create the configuration files. I&#39;ve posted them in
+gists. These files are templates and just enough to get the server
+started. It is up to you to do the customization!</p>
+
+<ul>
+<li><a href="https://gist.github.com/816101">solrconfig.xml</a></li>
+<li><a href="https://gist.github.com/816103">schema.xml</a></li>
+</ul>
+
+<p>Download those files or keep them open. Now create a conf directory
+inside the directory you&#39;ve already created</p>
+
+<pre><code>sudo mkdir /usr/share/solr/production/conf
+</code></pre>
+
+<p>Now enter the directory and paste those files.</p>
+
+<pre><code>cd /usr/share/solr/production/conf
+# paste solrconfig.xml into your editor and save it
+# paste schema.xml into your editor and save it
+</code></pre>
+
+<p>Now at this point, you can simply copy this directory for the other
+stages. This is especially helpful if you have 5 stages. You can
+duplicate the config like so</p>
+
+<pre><code>sudo cp -R /usr/share/solr/production /usr/share/solr/new_name1
+sudo cp -R /usr/share/solr/production /usr/share/solr/new_name2
+# and so on
+</code></pre>
+
+<p>Now you are ready to restart the server</p>
+
+<pre><code>sudo /etc/init.d/jetty stop
+sudo /etc/init.d/jetty start
+</code></pre>
+
+<p>Now head back over to 
+<a href="http://yourhost.com:8080/solr/admin">http://yourhost.com:8080/solr/admin</a>
+And you should see links to all your cores!</p>
+
+<h3>Step 4. Customization</h3>
+
+<p>Depending your needs you may have different schemas and configurations
+for each core. You should configure them now. If you need to use the
+same configuration to each core, you should symlink the main
+solrconfig.xml to the various stages. For example, you should have the
+production and staging cores running the same config.</p>
+
+<p>Feel free to hit me up on twitter at @Adman65 with questions or
+problems! Hope this helped.</p>
+
+
+          <h3>Contact Me</h3>
+          <p>
+            Find a problem or have a question about this post? <a href="http://twitter.com/adman65/">@adman65</a> on
+            Twitter or Adman65 on #freenode. Find me in (#rubyonrails or
+            #sproutcore). You can find my code on <a href="http://github.com/twinturbo/">GitHub</a> or hit me up on
+            <a href="https://plus.google.com/u/0/116377228668850173159">Google+</a>.
+          </p>
+        </article>
+      </div>
+    </div>
+
+    <script type="text/javascript">
+  var _gauges = _gauges || [];
+  (function() {
+    var t   = document.createElement('script');
+    t.type  = 'text/javascript';
+    t.async = true;
+    t.id    = 'gauges-tracker';
+    t.setAttribute('data-site-id', '4eb0f672613f5d482f000001');
+    t.src = '//secure.gaug.es/track.js';
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(t, s);
+  })();
+</script>
+
+  </body>
+</html>

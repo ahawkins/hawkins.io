@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en-US">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>BroadcastingAdam - Deploy Scripts for Git & Heroku Applications</title>
+
+    <link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.8.2r1/build/reset/reset-min.css">
+<link rel="stylesheet" type="text/css" href="/stylesheets/style.css" />
+
+
+    <link rel="stylesheet" href="http://yandex.st/highlightjs/5.16/styles/github.min.css">
+
+    <script type="text/javascript" src="http://yandex.st/highlightjs/5.16/highlight.min.js"></script>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+
+    <!-- <script>hljs.initHighlightingOnLoad();</script> -->
+
+    <script type="text/javascript">
+      $(function() {
+        $("pre code[class]").each(function(i, e) {hljs.highlightBlock(e)});
+      });
+    </script>
+  </head>
+  <body>
+    <div id="container">
+      <header>
+  <h1>BroadcastingAdam</h1>
+  <a href="http://feeds.feedburner.com/BroadcastingAdam" id="rss"><img src="images/rss_icon.png" alt="rss" /></a>
+  <nav>
+    <a href="/">Home</a>
+    <a href="/nettuts.html">Nettuts</a>
+    <a href="https://github.com/twinturbo/talks">Talks</a>
+    <a href="/open_source.html">Open Source</a>
+  </nav>
+</header>
+
+
+      <div id="content" class="post">
+        <header >
+          <h2>Deploy Scripts for Git & Heroku Applications</h2>
+          <div class='meta'>
+            </p>March 26, 2012 &nbsp; | &nbsp; devops</p>
+          </div>
+        </header>
+        <article>
+          <p>Our company is growing. It&#39;s not longer just me. I&#39;m not the only one
+who deploys code anymore. All of our code is deployed to Heroku. You&#39;d
+think this is a very simple thing to do: <code>git push heroku master</code>. It is
+on the surface. But think about everything you do <strong>before</strong> you deploy?
+Do you tag commits? Do you merge into a production branch? Do you record
+the deployed commit? Do you test that things are green on your CI
+machine? There are lot of things you may do before. I used to do all
+these sort of these manually. But now that someone else needs to deploy
+code, it&#39;s time to automate it.</p>
+
+<p>I started out writing a Rake task. This became unweidly. I needed
+something more general for CLI applications. I thought about writing the
+scripts in bash, but I don&#39;t have enough experience to write good bash
+scripts or structure them to allow them to go. I do have plenty of
+experience with Ruby. I decided to write my deploy script using 
+<a href="https://github.com/wycats/thor">Thor</a>. Thor includes many different
+utilities for interacting with the shell. For me, it feels like bash on
+steroids and in Ruby which is a win. I wanted to create a simple script
+so that I (or anyone else) could run:</p>
+
+<pre><code>$ ./script/deploy
+</code></pre>
+
+<p>That way there is no fancy invocations. It could easily be extended to:
+<code>./script/deploy (production|staging)</code>. </p>
+
+<p>The basic structure is to:</p>
+
+<ol>
+<li>Check all preconditions</li>
+<li>If all prereqs are green, then continue</li>
+<li>Compile assets</li>
+<li>Record a deploy commit</li>
+<li>Push to github</li>
+<li>Push to heroku</li>
+<li>Log all this stuff</li>
+</ol>
+
+<p>Here are the prereqs:</p>
+
+<ol>
+<li>There are no uncommited files</li>
+<li>User can ssh to github</li>
+<li>User can ssh to heroku</li>
+<li>HEAD is fast forward commit to master</li>
+<li>HEAD hasn&#39;t been deployed to heroku</li>
+<li>All required ENV variables are present on Heroku</li>
+<li>Assets compile correctly</li>
+</ol>
+
+<p>And the deploy process</p>
+
+<ol>
+<li>Compile assets</li>
+<li>Record this commit and time in the deploy file</li>
+<li>Push commit to github</li>
+<li>Push commit to heroku</li>
+</ol>
+
+<p>Now that the structure and understanding is there, here is the base
+class for our deploy task.</p>
+
+<pre><code class="ruby">require &quot;rubygems&quot; # ruby1.9 doesn&#39;t &quot;require&quot; it though
+require &quot;thor&quot;
+
+RAILS_ROOT = File.expand_path &quot;../../&quot;, __FILE__
+
+LOG_FILE = &quot;#{RAILS_ROOT}/deploy.log&quot;
+
+class Deploy &lt; Thor
+  include Thor::Actions
+
+  class CommandFailed &lt; StandardError ; end
+
+  no_tasks do
+    def run(command, options = {})
+      `echo &quot;#{command}&quot; &gt; #{LOG_FILE}`
+
+      command = &quot;#{command} &gt; #{LOG_FILE} 2&gt;&amp;1&quot; unless options[:capture]
+
+      options[:verbose] ||= false
+
+      super command, options
+    end
+
+    def run_with_status(command, options = {})
+      run command, options
+      $?
+    end
+
+    def success?(command, options = {})
+      run_with_status(command, options).success?
+    end
+
+    def run!(command, options = {})
+      raise CommandFailed, &quot;Expected #{command} to return successfully, but didn&#39;t&quot; unless success?(command, options)
+    end
+
+    def pass(message)
+      say_status &quot;OK&quot;, message, :green
+      true
+    end
+
+    def abort_deploy(message)
+      say_status &quot;ABORT&quot;, message, :red
+      say &quot;Deploy Failed! Check log file #{LOG_FILE}&quot;
+    end
+
+    def failure(message)
+      say_status &quot;FAIL&quot;, message, :red
+      false
+    end
+  end
+end
+</code></pre>
+
+<p>I&#39;ve added some helper methods to make it easier to write my scripts.
+Mainly, to redefine <code>run</code> to return <code>$?</code> instead of whatever the script
+output. I did this because I needed the exit code to check preconditions
+and successful commands.  <code>run!</code> is important because it will raise an
+error if a command fails. This is for the deploy stage when all commands
+need to execute successfully for the deploy to succeed. The helpers
+it easier to log the deploy process.</p>
+
+<p>And now for the complete script:</p>
+
+<pre><code class="ruby">#!/usr/bin/env ruby
+require &quot;rubygems&quot; # ruby1.9 doesn&#39;t &quot;require&quot; it though
+require &quot;thor&quot;
+
+RAILS_ROOT = File.expand_path &quot;../../&quot;, __FILE__
+
+LOG_FILE = &quot;#{RAILS_ROOT}/deploy.log&quot;
+
+class Deploy &lt; Thor
+  include Thor::Actions
+
+  class CommandFailed &lt; StandardError ; end
+
+  no_tasks do
+    def run(command, options = {})
+      `echo &quot;#{command}&quot; &gt; #{LOG_FILE}`
+
+      command = &quot;#{command} &gt; #{LOG_FILE} 2&gt;&amp;1&quot; unless options[:capture]
+
+      options[:verbose] ||= false
+
+      super command, options
+    end
+
+    def run_with_status(command, options = {})
+      run command, options
+      $?
+    end
+
+    def success?(command, options = {})
+      run_with_status(command, options).success?
+    end
+
+    def run!(command, options = {})
+      raise CommandFailed, &quot;Expected #{command} to return successfully, but didn&#39;t&quot; unless success?(command, options)
+    end
+
+    def pass(message)
+      say_status &quot;OK&quot;, message, :green
+      true
+    end
+
+    def abort_deploy(message)
+      say_status &quot;ABORT&quot;, message, :red
+      say &quot;Deploy Failed! Check log file #{LOG_FILE}&quot;
+    end
+
+    def failure(message)
+      say_status &quot;FAIL&quot;, message, :red
+      false
+    end
+  end
+
+  desc &quot;ensure_environment&quot;, &quot;Test Rails can boot&quot;
+  def ensure_environment
+    inside RAILS_ROOT do
+      if success? &quot;RAILS_ENV=production bundle exec rake environment&quot;
+        return pass &quot;Rails boots&quot;
+      else
+        return failure &quot;Make sure Rails can boot in Production locally&quot;
+      end
+    end
+  end
+
+  desc &quot;ensure_github_connection&quot;, &quot;Tests this user can ssh to github&quot;
+  def ensure_github_connection
+    if run_with_status(&quot;ssh -T git@github.com &quot;).exitstatus == 1
+      pass &quot;Github conencted&quot;
+    else
+      failure &quot;SSH keys missing for Github&quot;
+    end
+  end
+
+  desc &quot;ensure_heroku_connection&quot;, &quot;Tests this user can access heroku&quot;
+  def ensure_heroku_connection
+    if success? &quot;heroku config&quot;
+      pass &quot;Heroku connected&quot;
+    else
+      failure &quot;SSH key missing or user is not a collabator&quot;
+    end
+  end
+
+  desc &quot;ensure_clean&quot;, &quot;Test to see if the repo is clean&quot;
+  def ensure_clean
+    if success? &quot;git diff --exit-code&quot;
+      pass &quot;No uncommited files&quot;
+    else
+      failure &quot;There are uncommited files&quot;
+    end
+  end
+
+  desc &quot;ensure_heroku_outdated&quot;, &quot;Test to see if this code has been deployed or not&quot;
+  def ensure_heroku_outdated
+    if !success? &quot;git diff head heroku/master --exit-code&quot;
+      pass &quot;Code not deployed&quot;
+    else
+      failure &quot;Code already deployed&quot;
+    end
+  end
+
+  desc &quot;ensure_fast_forward&quot;, &quot;Tests if this is a fast forward commit&quot;
+  def ensure_head
+    inside RAILS_ROOT do
+      if success? &quot;git pull origin master&quot;
+        return pass &quot;Fast forwarded&quot;
+      else
+        failure &quot;Could not fast forward. Human required&quot;
+        run &quot;git reset --hard HEAD&quot;
+        return false
+      end
+    end
+  end
+
+  desc &quot;ensure_assets_compile&quot;, &quot;Tests assets compile correctly&quot;
+  def ensure_assets_compile
+    inside RAILS_ROOT do
+      if success? &quot;bundle exec rake assets:precompile&quot;
+        pass &quot;Assts compiled&quot;
+        run &quot;git reset --hard HEAD&quot;
+        return true
+      else
+        return failure &quot;Assets failed to compiled&quot;
+      end
+    end
+  end
+
+  desc &quot;compile_assets&quot;, &quot;Precompiles assets&quot;
+  def compile_assets
+    inside RAILS_ROOT do
+      run! &quot;bundle exec rake assets:precompile&quot;
+
+      say_status &quot;Assets&quot;, &quot;Compiled&quot;
+    end
+  end
+
+  desc &quot;record&quot;, &quot;Records this deploy in deploys.md&quot;
+  def record
+    inside RAILS_ROOT do
+      commit_info = run(&#39;git show --format=&quot;format:%h - %an: %s&quot;&#39;, :capture =&gt; true, :verbose =&gt; false).split(&quot;\n&quot;)[0]
+
+      run &quot;touch #{LOG_FILE}&quot;
+
+      format = &quot;* [%s] %s\n&quot;
+
+      existing_contents = File.read &quot;#{RAILS_ROOT}/deploys.md&quot;
+
+      File.open &quot;#{RAILS_ROOT}/deploys.md&quot;, &#39;w&#39; do |f|
+        f.puts format % [Time.now.strftime(&quot;%Y-%m-%d %H:%M %z&quot;), commit_info]
+        f.puts existing_contents.chomp
+      end
+
+      say_status &quot;Deploy Log&quot;, commit_info
+    end
+
+    true
+  end
+
+  desc &quot;commit&quot;, &quot;Commits assets and pushes to Github&quot; 
+  def commit
+    inside RAILS_ROOT do
+      run! &quot;git add deploys.md&quot;
+      run! &quot;git add public/assets&quot;
+      run! &quot;git commit -m &#39;[Deploy]&#39;&quot;
+      @new_commit = true # so we can catch the failure and blow away the last commit
+    end
+
+    say_status &quot;Deploy Files&quot;, &quot;Commited&quot;
+  end
+
+  desc &quot;run_deploy&quot;, &quot;Tests prereqs and runs a deploy&quot;
+  method_option :environment, :default =&gt; &quot;production&quot;
+  def run_deploy
+    say &quot;Checking prereqs...&quot;
+
+    prereqs = invoke(:ensure_clean) &amp;&amp;
+      invoke(:ensure_github_connection) &amp;&amp;
+      invoke(:ensure_heroku_connection) &amp;&amp;
+      invoke(:ensure_heroku_outdated) &amp;&amp;
+      invoke(:ensure_head) &amp;&amp;
+      invoke(:ensure_environment) &amp;&amp;
+      invoke(:ensure_assets_compile)
+
+    if !prereqs
+      abort_deploy &quot;Failed prereqs&quot;
+      return false
+    end
+
+    say &quot;Running predeploy tasks...&quot;
+
+    begin
+      invoke :compile_assets
+      invoke :record
+      invoke :commit
+    rescue CommandFailed =&gt; ex
+      abort_deploy &quot;A deploy step failed to run: #{ex}&quot;
+
+      if @new_commit
+        run &quot;git reset HEAD~1&quot;
+      else
+        run &quot;git reset --hard HEAD&quot;
+      end
+
+      return false
+    end
+
+    say &quot;Deploying...&quot;
+
+    begin
+      inside RAILS_ROOT do
+        run! &quot;git push origin master&quot;
+        say_status &quot;Github&quot;, &quot;Pushed&quot;
+
+        run! &quot;git push heroku master&quot;
+        say_status &quot;Heorku&quot;, &quot;Deployed&quot;
+      end
+    rescue CommandFailed =&gt; ex
+      abort_deploy &quot;Push failed. Please check logs.&quot;
+    end
+  end
+
+  default_task :run_deploy
+end
+
+Deploy.start
+</code></pre>
+
+<p>Each step is wrapped in its own method. Thor makes each method
+available. This way you can easily test the individual sections. The
+deploy task checks all the prereqs, then does all the hard work. It also
+looks pretty while doing it thanks to built in colorization support from
+thor. Happy deploying!</p>
+
+<p><strong>UPDATE</strong>: Here is the link to simple expandable version in a <a href="https://gist.github.com/2237714">gist</a></p>
+
+
+          <h3>Contact Me</h3>
+          <p>
+            Find a problem or have a question about this post? <a href="http://twitter.com/adman65/">@adman65</a> on
+            Twitter or Adman65 on #freenode. Find me in (#rubyonrails or
+            #sproutcore). You can find my code on <a href="http://github.com/twinturbo/">GitHub</a> or hit me up on
+            <a href="https://plus.google.com/u/0/116377228668850173159">Google+</a>.
+          </p>
+        </article>
+      </div>
+    </div>
+
+    <script type="text/javascript">
+  var _gauges = _gauges || [];
+  (function() {
+    var t   = document.createElement('script');
+    t.type  = 'text/javascript';
+    t.async = true;
+    t.id    = 'gauges-tracker';
+    t.setAttribute('data-site-id', '4eb0f672613f5d482f000001');
+    t.src = '//secure.gaug.es/track.js';
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(t, s);
+  })();
+</script>
+
+  </body>
+</html>

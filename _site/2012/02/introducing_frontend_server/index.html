@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en-US">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>BroadcastingAdam - Introducing FrontendServer</title>
+
+    <link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.8.2r1/build/reset/reset-min.css">
+<link rel="stylesheet" type="text/css" href="/stylesheets/style.css" />
+
+
+    <link rel="stylesheet" href="http://yandex.st/highlightjs/5.16/styles/github.min.css">
+
+    <script type="text/javascript" src="http://yandex.st/highlightjs/5.16/highlight.min.js"></script>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+
+    <!-- <script>hljs.initHighlightingOnLoad();</script> -->
+
+    <script type="text/javascript">
+      $(function() {
+        $("pre code[class]").each(function(i, e) {hljs.highlightBlock(e)});
+      });
+    </script>
+  </head>
+  <body>
+    <div id="container">
+      <header>
+  <h1>BroadcastingAdam</h1>
+  <a href="http://feeds.feedburner.com/BroadcastingAdam" id="rss"><img src="images/rss_icon.png" alt="rss" /></a>
+  <nav>
+    <a href="/">Home</a>
+    <a href="/nettuts.html">Nettuts</a>
+    <a href="https://github.com/twinturbo/talks">Talks</a>
+    <a href="/open_source.html">Open Source</a>
+  </nav>
+</header>
+
+
+      <div id="content" class="post">
+        <header >
+          <h2>Introducing FrontendServer</h2>
+          <div class='meta'>
+            </p>February 20, 2012 &nbsp; | &nbsp; rails</p>
+          </div>
+        </header>
+        <article>
+          <p>Radium has turned out to be a real beast. After much delibration, we
+decided to move to a pure JS frontend written in
+<a href="http://emberjs.com">Ember</a>. He&#39;s written in JS and basic CSS. No
+coffeescript or SASS. We needed an easy way to compile all the JS and
+CSS files into two different files and host them on the web. We also
+have a few other requirements.</p>
+
+<ol>
+<li>Frontend code is completly separate of backend API.</li>
+<li>Frontend code can be deployed and maintained independently.</li>
+<li>Enable SASS/Coffeescript. I freaking love SASS.</li>
+<li>Recompile assets in development</li>
+<li>API proxy to avoid CORS issues in development</li>
+<li>Easily deployable by non server guys.</li>
+</ol>
+
+<p>So me being the server side guy, I had to sort this out. Josh turned me on
+to: @wycats&#39;s <a href="https://github.com/wycats/rake-pipeline-web-filters">rake-pipeline-web-filters</a>.
+It&#39;s an extension to rake-pipeline. Rake-pipeline is essentially the
+Rails asset pipeline done in a less bitchy way. It&#39;s a rake extension
+that does what the rails asset pipeline does, except it&#39;s <strong>much</strong> more powerful.
+You can easily define custom filters for things like minification.</p>
+
+<p>Rake::Pipeline::WebFilters provides the heavy lifting. I wrote a simple
+Rack app to serve the stuff based on sensible defaults (convention over
+configuration) and voilla! We have asset compilation and a development
+server. Combine some more glue code to connect a proxy and other
+bits and we have a more complete solution.</p>
+
+<p>Introducting
+<a href="https://github.com/adman65/frontend_server">FrontendServer</a>. Here&#39;s
+what it does:</p>
+
+<ol>
+<li>Compile JS/CS into Minispade modules</li>
+<li>Compile LESS/SASS/CSS into css files</li>
+<li>Reload assets in development</li>
+<li>Proxy the backend API</li>
+<li>Compile into one public directory</li>
+<li>Deployable to heroku by any git user</li>
+</ol>
+
+<p>I&#39;ve used the classic Backbone todos app for an example. The example is
+running <a href="http://warm-ocean-3185.herokuapp.com/">here</a>. 
+Source <a href="https://github.com/adman65/frontend_server_example">here</a>.</p>
+
+
+          <h3>Contact Me</h3>
+          <p>
+            Find a problem or have a question about this post? <a href="http://twitter.com/adman65/">@adman65</a> on
+            Twitter or Adman65 on #freenode. Find me in (#rubyonrails or
+            #sproutcore). You can find my code on <a href="http://github.com/twinturbo/">GitHub</a> or hit me up on
+            <a href="https://plus.google.com/u/0/116377228668850173159">Google+</a>.
+          </p>
+        </article>
+      </div>
+    </div>
+
+    <script type="text/javascript">
+  var _gauges = _gauges || [];
+  (function() {
+    var t   = document.createElement('script');
+    t.type  = 'text/javascript';
+    t.async = true;
+    t.id    = 'gauges-tracker';
+    t.setAttribute('data-site-id', '4eb0f672613f5d482f000001');
+    t.src = '//secure.gaug.es/track.js';
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(t, s);
+  })();
+</script>
+
+  </body>
+</html>
