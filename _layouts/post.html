@@ -6,9 +6,18 @@
 
     {% include stylesheets.html %}
 
-    <script type="text/javascript" src="http://yandex.st/highlightjs/5.16/highlight.min.js"></script>
     <link rel="stylesheet" href="http://yandex.st/highlightjs/5.16/styles/github.min.css">
-    <script>hljs.initHighlightingOnLoad();</script>
+
+    <script type="text/javascript" src="http://yandex.st/highlightjs/5.16/highlight.min.js"></script>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+
+    <!-- <script>hljs.initHighlightingOnLoad();</script> -->
+
+    <script type="text/javascript">
+      $(function() {
+        $("pre code[class]").each(function(i, e) {hljs.highlightBlock(e)});
+      });
+    </script>
   </head>
   <body>
     <div id="container">
