@@ -49,15 +49,17 @@ ActiveRecord, ActionPack, ActiveSupport are all connected to rails via
 railties. Railties connect separate sections of code into Rails. Here is
 an real life example of a simple Railtie in the wild:
 
-    module Cashier
-      class Railtie < ::Rails::Railtie
-        config.cashier = Cashier
+```ruby
+module Cashier
+  class Railtie < ::Rails::Railtie
+    config.cashier = Cashier
 
-        initializer "cashier.active_support.cache.instrumentation"
-          ActiveSupport::Cache::Store.instrument = true
-        end
-      end
+    initializer "cashier.active_support.cache.instrumentation"
+      ActiveSupport::Cache::Store.instrument = true
     end
+  end
+end
+```
 
 Use Cases
 

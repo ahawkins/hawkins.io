@@ -36,22 +36,26 @@ The primary method is using a token. The token is passed to the API
 through headers (preferred) or standard parameter passing. Here
 is the code I use to generate API keys in all my applications. 
 
-    module HasApiToken
-      extend ActiveSupport::Concern
+```ruby
+module HasApiToken
+  extend ActiveSupport::Concern
 
-      included do
-        before_create :generate_api_key
-      end
+  included do
+    before_create :generate_api_key
+  end
 
-      private
-      def generate_api_key
-        self.api_key ||= Digest::SHA1.hexdigest(Time.now.to_s + attributes.inspect)
-      end
-    end
+  private
+  def generate_api_key
+    self.api_key ||= Digest::SHA1.hexdigest(Time.now.to_s + attributes.inspect)
+  end
+end
+```
 
 Then you can authenticate a request using the token like this:
 
-    User.find_by_api_key!(request.headers['HTTP_X_API_TOKEN'] || params[:token])
+```ruby
+User.find_by_api_key!(request.headers['HTTP_X_API_TOKEN'] || params[:token])
+```
 
 Easy. I'm not sure if this pattern could be wrapped up in a gem because
 it's very simple but it doesn't change much. Either way, this technique
@@ -76,19 +80,21 @@ seems to me that people forget this. OOP is good. Use it!
 
 Here is an example serializer:
 
-    class BlogPostSerializer < ActiveModel::Serializer
-      attributes :title, :content, :posted_at
+```ruby
+class BlogPostSerializer < ActiveModel::Serializer
+  attributes :title, :content, :posted_at
 
-      has_many :comments
+  has_many :comments
 
-      def attributes
-        hash = super
+  def attributes
+    hash = super
 
-        # include secret if the user is an admin
-        hash[:secret] = object.secret if user.admin?
-        hash
-      end
-    end
+    # include secret if the user is an admin
+    hash[:secret] = object.secret if user.admin?
+    hash
+  end
+end
+```
 
 You can test this very easily. Instantiate it with a blog post and user
 and test that `as_json` returns the right stuff. No view layer. No
@@ -112,30 +118,32 @@ valid parameters that can be sent to the model.
 
 Here is the important example from the readme:
 
-    class PeopleController < ActionController::Base
-      # This will raise an ActiveModel::ForbiddenAttributes exception because it's using mass assignment
-      # without an explicit permit step.
-      def create
-        Person.create(params[:person])
-      end
+```ruby
+class PeopleController < ActionController::Base
+  # This will raise an ActiveModel::ForbiddenAttributes exception because it's using mass assignment
+  # without an explicit permit step.
+  def create
+    Person.create(params[:person])
+  end
 
-      # This will pass with flying colors as long as there's a person key in the parameters, otherwise
-      # it'll raise a ActionController::MissingParameter exception, which will get caught by 
-      # ActionController::Base and turned into that 400 Bad Request reply.
-      def update
-        redirect_to current_account.people.find(params[:id]).tap do |person|
-          person.update_attributes!(person_params)
-        end
-      end
-
-      private
-        # Using a private method to encapsulate the permissible parameters is just a good pattern
-        # since you'll be able to reuse the same permit list between create and update. Also, you
-        # can specialize this method with per-user checking of permissible attributes.
-        def person_params
-          params.required(:person).permit(:name, :age)
-        end
+  # This will pass with flying colors as long as there's a person key in the parameters, otherwise
+  # it'll raise a ActionController::MissingParameter exception, which will get caught by 
+  # ActionController::Base and turned into that 400 Bad Request reply.
+  def update
+    redirect_to current_account.people.find(params[:id]).tap do |person|
+      person.update_attributes!(person_params)
     end
+  end
+
+  private
+    # Using a private method to encapsulate the permissible parameters is just a good pattern
+    # since you'll be able to reuse the same permit list between create and update. Also, you
+    # can specialize this method with per-user checking of permissible attributes.
+    def person_params
+      params.required(:person).permit(:name, :age)
+    end
+end
+```
 
 I think that this is a step in the right direction, but I'd like to see
 this logic moved into it's own class. StrongParameters doesn't consider
@@ -198,16 +206,18 @@ Here is an example from
 [Rabbit](https://github.com/mifo/sinatra-rabbit). This doesn't do
 everything that I'm talking about, but you'll see where I'm going:
 
-    operation :show do
-      description "Index operation description"
-      param :id,  :string, :required
-      param :r1,  :string, :optional, "Optional parameter"
-      param :v1,  :string, :optional, [ 'test1', 'test2', 'test3' ], "Optional parameter"
-      param :v2,  :string, :optional, "Optional parameter"
-      control do
-        "Hey #{params[:id]}"
-      end
-    end
+```ruby
+operation :show do
+  description "Index operation description"
+  param :id,  :string, :required
+  param :r1,  :string, :optional, "Optional parameter"
+  param :v1,  :string, :optional, [ 'test1', 'test2', 'test3' ], "Optional parameter"
+  param :v2,  :string, :optional, "Optional parameter"
+  control do
+    "Hey #{params[:id]}"
+  end
+end
+```
 
 At this point you could load the code and read the declarations.
 Everything you need is there. You could write code to transform it into

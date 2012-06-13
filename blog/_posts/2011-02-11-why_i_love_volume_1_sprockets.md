@@ -137,39 +137,47 @@ me group similar files. Sprockets will always process application.js
 first. I use this to set the stage by requiring all different JS my
 application needs.
 
-    // application.js
+```javascript
+// application.js
 
-    //=require 'jquery'
+//=require 'jquery'
+```
 
 jquery.js is a file simple loads all the stuff in /vendor:
 
-    // jquery.js
+```javascript
+// jquery.js
 
-    //=require <jquery.1.4.4.>
-    //=require <jquery-ui>
-    //=require <jquery.plugin1>
-    //=require <jquery.plugin2>
+//=require <jquery.1.4.4.>
+//=require <jquery-ui>
+//=require <jquery.plugin1>
+//=require <jquery.plugin2>
+```
 
 Here's what one of the page file looks like:
 
-    //= require '../components/widget1.js'
-    //= require '../components/widget2.js'
+```javascript
+//= require '../components/widget1.js'
+//= require '../components/widget2.js'
 
-    var DashboardPage = {
-      init: function() {
-          // do stuff, this is called when the page is loaded
-      },
-      // protip, use an ajax callback for the page automagically
-      ajaxComplete: function() { }
-    };
+var DashboardPage = {
+  init: function() {
+      // do stuff, this is called when the page is loaded
+  },
+  // protip, use an ajax callback for the page automagically
+  ajaxComplete: function() { }
+};
+```
 
 I added a helper to initialize the page and attach the current page. It
 generates javascript like along these lines and embeds it into the page:
 
-    $(function(){
-      #{page_name.titleize}Page.init();
-      $('body').ajaxComplete(#{page_name.titleize}Page.ajaxComplete);
-    });
+```javascript
+$(function(){
+  #{page_name.titleize}Page.init();
+  $('body').ajaxComplete(#{page_name.titleize}Page.ajaxComplete);
+});
+```
 
 Then in the view (/app/views/dashboards/show):
 
@@ -180,7 +188,7 @@ Then in the view (/app/views/dashboards/show):
 This was the best changed I've ever made to this application. Before the
 JS was spread out into random files and it was a pain in the ass to
 track down *how* it got included and *where* it was. Now this way I know
-there is /app/javascripts/pages/page_name.js file and by the time that
+there is `/app/javascripts/pages/page_name.js` file and by the time that
 code is executed, all the required code is added. It's also been very
 easy to add new plugins. Drop the jquery plugin into /vendor and update
 the jquery.js in /app/javascripts. Boom. Available everywhere. It is

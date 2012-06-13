@@ -21,33 +21,35 @@ go on your merry way. It works, but it's got some problems.
 Let's first examine the most basic and widely adverised Rails RESTful
 API controlller.
 
-    class FoosController < ApplicationController
-      respond_to :json
+```ruby
+class FoosController < ApplicationController
+  respond_to :json
 
-      def new
-        respond_with Foo.create(params[:foo])
-      end
+  def new
+    respond_with Foo.create(params[:foo])
+  end
 
-      def show
-        respond_with Foo.find params[:id]
-      end
+  def show
+    respond_with Foo.find params[:id]
+  end
 
-      def index
-        respond_with Foo.all
-      end
+  def index
+    respond_with Foo.all
+  end
 
-      def update
-        foo = Foo.find params[:id]
+  def update
+    foo = Foo.find params[:id]
 
-        respond_with foo.update_attributes(params[:foo])
-      end
+    respond_with foo.update_attributes(params[:foo])
+  end
 
-      def destroy
-        foo = Foo.find params[:id]
+  def destroy
+    foo = Foo.find params[:id]
 
-        respond_with foo.destroy
-      end
-    end
+    respond_with foo.destroy
+  end
+end
+```
 
 **Zomg!** You have an API! Well, no. You've just defined a simple
 webservice that communicates with JSON. You have not met the two
@@ -89,19 +91,21 @@ some various other massaging to fit current model. So I decided to write
 a class for each different type of API call. There are todos, contacts,
 and meetings. Here is a snippet of one of the classes:
 
-    module SymbianAPI
-      class LegacyTodoConverter
-        def self.convert(params)
-          params[:finished] = true if params.delete(:finished_at)
-          params[:description] = params.delete :task
-          params[:finish_by] = params.delete :due_at
+```ruby
+module SymbianAPI
+  class LegacyTodoConverter
+    def self.convert(params)
+      params[:finished] = true if params.delete(:finished_at)
+      params[:description] = params.delete :task
+      params[:finish_by] = params.delete :due_at
 
-          # more stuff
+      # more stuff
 
-          params
-        end
-      end
+      params
     end
+  end
+end
+```
 
 I ended up writing 3 of these type's of classes. They massage the legacy
 params for the API request and update them to fit the current model.
@@ -116,68 +120,70 @@ legacy parameters based on the route. So if the route mataches
 in the new params. There is some other trickery going on here, but I
 figure I'd share the code for anyone who is interested.
 
-    class SymbianApiAdapter
-      def initialize(app)
-        @app = app
-      end
+```ruby
+class SymbianApiAdapter
+  def initialize(app)
+    @app = app
+  end
 
-      def call(env)
-        if request_for_symbian_api?(env)
-          @app.call convert_legacy_input(env)
-        else
-          @app.call env
+  def call(env)
+    if request_for_symbian_api?(env)
+      @app.call convert_legacy_input(env)
+    else
+      @app.call env
+    end
+  end
+
+  private 
+  def request_for_symbian_api?(env)
+    parts = env['PATH_INFO'].split('/')
+    parts[1] == 'api' && parts[2] != 'v2'
+  end
+
+  def convert_legacy_input(env)
+    # No fucking clue why we have to do this trickery for PUTS
+    if env['REQUEST_METHOD'] == 'PUT'
+      params = Rack::Request.new(env).POST
+    else
+      params = env['rack.request.form_hash']
+    end
+
+    if params.present? && params['xml'].present?
+      adapter = case env['PATH_INFO']
+                when '/api/todos/sync'
+                  Api::Adapters::TodosAdapter
+                when /todo/
+                  Api::Adapters::TodoAdapter
+                when '/api/meetings/sync'
+                  Api::Adapters::MeetingsAdapter
+                when /meeting/
+                  Api::Adapters::MeetingAdapter
+                when '/api/customers/sync'
+                  Api::Adapters::CustomersAdapter
+                when /customer/
+                  Api::Adapters::CustomerAdapter
+                end
+
+      env['rack.request.form_hash'] || {}
+
+      if adapter
+        xml = params.delete 'xml'
+        hash = Hash.from_xml(xml)
+
+        if hash.values.first.is_a?(Hash)
+          converted_params = {}
+          converted_params[hash.keys.first] = adapter.convert(hash.values.first.with_indifferent_access)
+          env['rack.request.form_hash'].merge! converted_params
+        elsif hash.values.first.is_a?(Array)
+          env['rack.request.form_hash'].merge! adapter.convert(hash)
         end
-      end
-
-      private 
-      def request_for_symbian_api?(env)
-        parts = env['PATH_INFO'].split('/')
-        parts[1] == 'api' && parts[2] != 'v2'
-      end
-
-      def convert_legacy_input(env)
-        # No fucking clue why we have to do this trickery for PUTS
-        if env['REQUEST_METHOD'] == 'PUT'
-          params = Rack::Request.new(env).POST
-        else
-          params = env['rack.request.form_hash']
-        end
-
-        if params.present? && params['xml'].present?
-          adapter = case env['PATH_INFO']
-                    when '/api/todos/sync'
-                      Api::Adapters::TodosAdapter
-                    when /todo/
-                      Api::Adapters::TodoAdapter
-                    when '/api/meetings/sync'
-                      Api::Adapters::MeetingsAdapter
-                    when /meeting/
-                      Api::Adapters::MeetingAdapter
-                    when '/api/customers/sync'
-                      Api::Adapters::CustomersAdapter
-                    when /customer/
-                      Api::Adapters::CustomerAdapter
-                    end
-
-          env['rack.request.form_hash'] || {}
-
-          if adapter
-            xml = params.delete 'xml'
-            hash = Hash.from_xml(xml)
-
-            if hash.values.first.is_a?(Hash)
-              converted_params = {}
-              converted_params[hash.keys.first] = adapter.convert(hash.values.first.with_indifferent_access)
-              env['rack.request.form_hash'].merge! converted_params
-            elsif hash.values.first.is_a?(Array)
-              env['rack.request.form_hash'].merge! adapter.convert(hash)
-            end
-          end
-        end
-
-        env
       end
     end
+
+    env
+  end
+end
+```
 
 This keeps my controllers small since they don't have to worry about
 handling the paramters. They are just correct when the request finally
@@ -187,13 +193,15 @@ easier to **ensure future support**. All I need to do is update those
 convertor classes and things will continue. Now at this point I can
 write this controller action and never worry about the params.
 
-    class FoosController < ApplicationController
-      respond_to :json
+```ruby
+class FoosController < ApplicationController
+  respond_to :json
 
-      def create
-        reapond_with Foo.create(params[:foo])
-      end
-    end
+  def create
+    reapond_with Foo.create(params[:foo])
+  end
+end
+```
 
 ## Handling Legacy API Output Formats
 
@@ -209,33 +217,37 @@ are no other options). I wrote another three classes that take the
 record to be returned and generate an output hash. That hash can then be
 used for `to_json` or `to_xml`. Here's how they work.
 
-    module Api
-      class LegacyContactAdapter
-        def self.convert(contact)
-         {
-          :town => contact.city, # API was specified to return a 'town' attribute
-          :postcode => contact.zip_code # API specificed a 'postcode' attribute
+```ruby
+module Api
+  class LegacyContactAdapter
+    def self.convert(contact)
+     {
+      :town => contact.city, # API was specified to return a 'town' attribute
+      :postcode => contact.zip_code # API specificed a 'postcode' attribute
 
-          # so on and so forth. Build up the hash with the specified
-          # attributes
-        }
-      end
-    end
+      # so on and so forth. Build up the hash with the specified
+      # attributes
+    }
+  end
+end
+```
 
 Now, the controller can use that class to return the required JSON. 
 
-    def create
-      foo = Foo.create params[:foo]
+```ruby
+def create
+  foo = Foo.create params[:foo]
 
-      if foo.save
-        respond_to do |wants|
-          wants.json { render :json => Api::LegacyContactAdapter.convert(contact), :status => :created }
-        end
-      else
-        respond_to do |wants|
-          wants.json { render :json => contact.errors, :status => :unprocessable_entity }
-        end
-      end
+  if foo.save
+    respond_to do |wants|
+      wants.json { render :json => Api::LegacyContactAdapter.convert(contact), :status => :created }
+    end
+  else
+    respond_to do |wants|
+      wants.json { render :json => contact.errors, :status => :unprocessable_entity }
+    end
+  end
+```
 
 Using that classes ensure that it's easy(ier) to support the legacy API
 into the future because there is a wall in the code. Also, if the

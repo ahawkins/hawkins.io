@@ -101,19 +101,21 @@ stands for "Behavior Driven Development." It is essentially the same
 thing as TDD, except tests respresent documentation and are readable by
 stake holders. You can express this in code:
 
-    class TestDriveDevelopment
+```ruby
+class TestDriveDevelopment
 
-      def strategy
-        write_a_test(requirements)
-        while(test_failing)
-          write_implementation(test)
-          run_test_suite
-        end
-      end
+  def strategy
+    write_a_test(requirements)
+    while(test_failing)
+      write_implementation(test)
+      run_test_suite
     end
+  end
+end
 
-    class BehaviorDrivenDevelopment < TestDrivenDevelopment
-    end
+class BehaviorDrivenDevelopment < TestDrivenDevelopment
+end
+```
 
 The testing saves your bacon chapter is very short and suite. It's only
 real purpose it to introduce Cucumber and RSpec. (More information on

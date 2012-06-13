@@ -24,7 +24,9 @@ utilities for interacting with the shell. For me, it feels like bash on
 steroids and in Ruby which is a win. I wanted to create a simple script
 so that I (or anyone else) could run:
 
-    $ ./script/deploy
+```
+$ ./script/deploy
+```
 
 That way there is no fancy invocations. It could easily be extended to:
 `./script/deploy (production|staging)`. 
@@ -59,58 +61,60 @@ And the deploy process
 Now that the structure and understanding is there, here is the base
 class for our deploy task.
 
-    require "rubygems" # ruby1.9 doesn't "require" it though
-    require "thor"
+```ruby
+require "rubygems" # ruby1.9 doesn't "require" it though
+require "thor"
 
-    RAILS_ROOT = File.expand_path "../../", __FILE__
+RAILS_ROOT = File.expand_path "../../", __FILE__
 
-    LOG_FILE = "#{RAILS_ROOT}/deploy.log"
+LOG_FILE = "#{RAILS_ROOT}/deploy.log"
 
-    class Deploy < Thor
-      include Thor::Actions
+class Deploy < Thor
+  include Thor::Actions
 
-      class CommandFailed < StandardError ; end
+  class CommandFailed < StandardError ; end
 
-      no_tasks do
-        def run(command, options = {})
-          `echo "#{command}" > #{LOG_FILE}`
+  no_tasks do
+    def run(command, options = {})
+      `echo "#{command}" > #{LOG_FILE}`
 
-          command = "#{command} > #{LOG_FILE} 2>&1" unless options[:capture]
+      command = "#{command} > #{LOG_FILE} 2>&1" unless options[:capture]
 
-          options[:verbose] ||= false
+      options[:verbose] ||= false
 
-          super command, options
-        end
-
-        def run_with_status(command, options = {})
-          run command, options
-          $?
-        end
-
-        def success?(command, options = {})
-          run_with_status(command, options).success?
-        end
-
-        def run!(command, options = {})
-          raise CommandFailed, "Expected #{command} to return successfully, but didn't" unless success?(command, options)
-        end
-
-        def pass(message)
-          say_status "OK", message, :green
-          true
-        end
-
-        def abort_deploy(message)
-          say_status "ABORT", message, :red
-          say "Deploy Failed! Check log file #{LOG_FILE}"
-        end
-
-        def failure(message)
-          say_status "FAIL", message, :red
-          false
-        end
-      end
+      super command, options
     end
+
+    def run_with_status(command, options = {})
+      run command, options
+      $?
+    end
+
+    def success?(command, options = {})
+      run_with_status(command, options).success?
+    end
+
+    def run!(command, options = {})
+      raise CommandFailed, "Expected #{command} to return successfully, but didn't" unless success?(command, options)
+    end
+
+    def pass(message)
+      say_status "OK", message, :green
+      true
+    end
+
+    def abort_deploy(message)
+      say_status "ABORT", message, :red
+      say "Deploy Failed! Check log file #{LOG_FILE}"
+    end
+
+    def failure(message)
+      say_status "FAIL", message, :red
+      false
+    end
+  end
+end
+```
 
 I've added some helper methods to make it easier to write my scripts.
 Mainly, to redefine `run` to return `$?` instead of whatever the script
@@ -122,231 +126,232 @@ it easier to log the deploy process.
 
 And now for the complete script:
 
-    #!/usr/bin/env ruby
-    require "rubygems" # ruby1.9 doesn't "require" it though
-    require "thor"
+```ruby
+#!/usr/bin/env ruby
+require "rubygems" # ruby1.9 doesn't "require" it though
+require "thor"
 
-    RAILS_ROOT = File.expand_path "../../", __FILE__
+RAILS_ROOT = File.expand_path "../../", __FILE__
 
-    LOG_FILE = "#{RAILS_ROOT}/deploy.log"
+LOG_FILE = "#{RAILS_ROOT}/deploy.log"
 
-    class Deploy < Thor
-      include Thor::Actions
+class Deploy < Thor
+  include Thor::Actions
 
-      class CommandFailed < StandardError ; end
+  class CommandFailed < StandardError ; end
 
-      no_tasks do
-        def run(command, options = {})
-          `echo "#{command}" > #{LOG_FILE}`
+  no_tasks do
+    def run(command, options = {})
+      `echo "#{command}" > #{LOG_FILE}`
 
-          command = "#{command} > #{LOG_FILE} 2>&1" unless options[:capture]
+      command = "#{command} > #{LOG_FILE} 2>&1" unless options[:capture]
 
-          options[:verbose] ||= false
+      options[:verbose] ||= false
 
-          super command, options
-        end
-
-        def run_with_status(command, options = {})
-          run command, options
-          $?
-        end
-
-        def success?(command, options = {})
-          run_with_status(command, options).success?
-        end
-
-        def run!(command, options = {})
-          raise CommandFailed, "Expected #{command} to return successfully, but didn't" unless success?(command, options)
-        end
-
-        def pass(message)
-          say_status "OK", message, :green
-          true
-        end
-
-        def abort_deploy(message)
-          say_status "ABORT", message, :red
-          say "Deploy Failed! Check log file #{LOG_FILE}"
-        end
-
-        def failure(message)
-          say_status "FAIL", message, :red
-          false
-        end
-      end
-
-      desc "ensure_environment", "Test Rails can boot"
-      def ensure_environment
-        inside RAILS_ROOT do
-          if success? "RAILS_ENV=production bundle exec rake environment"
-            return pass "Rails boots"
-          else
-            return failure "Make sure Rails can boot in Production locally"
-          end
-        end
-      end
-
-      desc "ensure_github_connection", "Tests this user can ssh to github"
-      def ensure_github_connection
-        if run_with_status("ssh -T git@github.com ").exitstatus == 1
-          pass "Github conencted"
-        else
-          failure "SSH keys missing for Github"
-        end
-      end
-
-      desc "ensure_heroku_connection", "Tests this user can access heroku"
-      def ensure_heroku_connection
-        if success? "heroku config"
-          pass "Heroku connected"
-        else
-          failure "SSH key missing or user is not a collabator"
-        end
-      end
-
-      desc "ensure_clean", "Test to see if the repo is clean"
-      def ensure_clean
-        if success? "git diff --exit-code"
-          pass "No uncommited files"
-        else
-          failure "There are uncommited files"
-        end
-      end
-
-      desc "ensure_heroku_outdated", "Test to see if this code has been deployed or not"
-      def ensure_heroku_outdated
-        if !success? "git diff head heroku/master --exit-code"
-          pass "Code not deployed"
-        else
-          failure "Code already deployed"
-        end
-      end
-
-      desc "ensure_fast_forward", "Tests if this is a fast forward commit"
-      def ensure_head
-        inside RAILS_ROOT do
-          if success? "git pull origin master"
-            return pass "Fast forwarded"
-          else
-            failure "Could not fast forward. Human required"
-            run "git reset --hard HEAD"
-            return false
-          end
-        end
-      end
-
-      desc "ensure_assets_compile", "Tests assets compile correctly"
-      def ensure_assets_compile
-        inside RAILS_ROOT do
-          if success? "bundle exec rake assets:precompile"
-            pass "Assts compiled"
-            run "git reset --hard HEAD"
-            return true
-          else
-            return failure "Assets failed to compiled"
-          end
-        end
-      end
-
-      desc "compile_assets", "Precompiles assets"
-      def compile_assets
-        inside RAILS_ROOT do
-          run! "bundle exec rake assets:precompile"
-
-          say_status "Assets", "Compiled"
-        end
-      end
-
-      desc "record", "Records this deploy in deploys.md"
-      def record
-        inside RAILS_ROOT do
-          commit_info = run('git show --format="format:%h - %an: %s"', :capture => true, :verbose => false).split("\n")[0]
-
-          run "touch #{LOG_FILE}"
-
-          format = "* [%s] %s\n"
-
-          existing_contents = File.read "#{RAILS_ROOT}/deploys.md"
-
-          File.open "#{RAILS_ROOT}/deploys.md", 'w' do |f|
-            f.puts format % [Time.now.strftime("%Y-%m-%d %H:%M %z"), commit_info]
-            f.puts existing_contents.chomp
-          end
-
-          say_status "Deploy Log", commit_info
-        end
-
-        true
-      end
-
-      desc "commit", "Commits assets and pushes to Github" 
-      def commit
-        inside RAILS_ROOT do
-          run! "git add deploys.md"
-          run! "git add public/assets"
-          run! "git commit -m '[Deploy]'"
-          @new_commit = true # so we can catch the failure and blow away the last commit
-        end
-
-        say_status "Deploy Files", "Commited"
-      end
-
-      desc "run_deploy", "Tests prereqs and runs a deploy"
-      method_option :environment, :default => "production"
-      def run_deploy
-        say "Checking prereqs..."
-
-        prereqs = invoke(:ensure_clean) &&
-          invoke(:ensure_github_connection) &&
-          invoke(:ensure_heroku_connection) &&
-          invoke(:ensure_heroku_outdated) &&
-          invoke(:ensure_head) &&
-          invoke(:ensure_environment) &&
-          invoke(:ensure_assets_compile)
-
-        if !prereqs
-          abort_deploy "Failed prereqs"
-          return false
-        end
-
-        say "Running predeploy tasks..."
-
-        begin
-          invoke :compile_assets
-          invoke :record
-          invoke :commit
-        rescue CommandFailed => ex
-          abort_deploy "A deploy step failed to run: #{ex}"
-
-          if @new_commit
-            run "git reset HEAD~1"
-          else
-            run "git reset --hard HEAD"
-          end
-
-          return false
-        end
-
-        say "Deploying..."
-
-        begin
-          inside RAILS_ROOT do
-            run! "git push origin master"
-            say_status "Github", "Pushed"
-
-            run! "git push heroku master"
-            say_status "Heorku", "Deployed"
-          end
-        rescue CommandFailed => ex
-          abort_deploy "Push failed. Please check logs."
-        end
-      end
-
-      default_task :run_deploy
+      super command, options
     end
 
-    Deploy.start
+    def run_with_status(command, options = {})
+      run command, options
+      $?
+    end
 
+    def success?(command, options = {})
+      run_with_status(command, options).success?
+    end
+
+    def run!(command, options = {})
+      raise CommandFailed, "Expected #{command} to return successfully, but didn't" unless success?(command, options)
+    end
+
+    def pass(message)
+      say_status "OK", message, :green
+      true
+    end
+
+    def abort_deploy(message)
+      say_status "ABORT", message, :red
+      say "Deploy Failed! Check log file #{LOG_FILE}"
+    end
+
+    def failure(message)
+      say_status "FAIL", message, :red
+      false
+    end
+  end
+
+  desc "ensure_environment", "Test Rails can boot"
+  def ensure_environment
+    inside RAILS_ROOT do
+      if success? "RAILS_ENV=production bundle exec rake environment"
+        return pass "Rails boots"
+      else
+        return failure "Make sure Rails can boot in Production locally"
+      end
+    end
+  end
+
+  desc "ensure_github_connection", "Tests this user can ssh to github"
+  def ensure_github_connection
+    if run_with_status("ssh -T git@github.com ").exitstatus == 1
+      pass "Github conencted"
+    else
+      failure "SSH keys missing for Github"
+    end
+  end
+
+  desc "ensure_heroku_connection", "Tests this user can access heroku"
+  def ensure_heroku_connection
+    if success? "heroku config"
+      pass "Heroku connected"
+    else
+      failure "SSH key missing or user is not a collabator"
+    end
+  end
+
+  desc "ensure_clean", "Test to see if the repo is clean"
+  def ensure_clean
+    if success? "git diff --exit-code"
+      pass "No uncommited files"
+    else
+      failure "There are uncommited files"
+    end
+  end
+
+  desc "ensure_heroku_outdated", "Test to see if this code has been deployed or not"
+  def ensure_heroku_outdated
+    if !success? "git diff head heroku/master --exit-code"
+      pass "Code not deployed"
+    else
+      failure "Code already deployed"
+    end
+  end
+
+  desc "ensure_fast_forward", "Tests if this is a fast forward commit"
+  def ensure_head
+    inside RAILS_ROOT do
+      if success? "git pull origin master"
+        return pass "Fast forwarded"
+      else
+        failure "Could not fast forward. Human required"
+        run "git reset --hard HEAD"
+        return false
+      end
+    end
+  end
+
+  desc "ensure_assets_compile", "Tests assets compile correctly"
+  def ensure_assets_compile
+    inside RAILS_ROOT do
+      if success? "bundle exec rake assets:precompile"
+        pass "Assts compiled"
+        run "git reset --hard HEAD"
+        return true
+      else
+        return failure "Assets failed to compiled"
+      end
+    end
+  end
+
+  desc "compile_assets", "Precompiles assets"
+  def compile_assets
+    inside RAILS_ROOT do
+      run! "bundle exec rake assets:precompile"
+
+      say_status "Assets", "Compiled"
+    end
+  end
+
+  desc "record", "Records this deploy in deploys.md"
+  def record
+    inside RAILS_ROOT do
+      commit_info = run('git show --format="format:%h - %an: %s"', :capture => true, :verbose => false).split("\n")[0]
+
+      run "touch #{LOG_FILE}"
+
+      format = "* [%s] %s\n"
+
+      existing_contents = File.read "#{RAILS_ROOT}/deploys.md"
+
+      File.open "#{RAILS_ROOT}/deploys.md", 'w' do |f|
+        f.puts format % [Time.now.strftime("%Y-%m-%d %H:%M %z"), commit_info]
+        f.puts existing_contents.chomp
+      end
+
+      say_status "Deploy Log", commit_info
+    end
+
+    true
+  end
+
+  desc "commit", "Commits assets and pushes to Github" 
+  def commit
+    inside RAILS_ROOT do
+      run! "git add deploys.md"
+      run! "git add public/assets"
+      run! "git commit -m '[Deploy]'"
+      @new_commit = true # so we can catch the failure and blow away the last commit
+    end
+
+    say_status "Deploy Files", "Commited"
+  end
+
+  desc "run_deploy", "Tests prereqs and runs a deploy"
+  method_option :environment, :default => "production"
+  def run_deploy
+    say "Checking prereqs..."
+
+    prereqs = invoke(:ensure_clean) &&
+      invoke(:ensure_github_connection) &&
+      invoke(:ensure_heroku_connection) &&
+      invoke(:ensure_heroku_outdated) &&
+      invoke(:ensure_head) &&
+      invoke(:ensure_environment) &&
+      invoke(:ensure_assets_compile)
+
+    if !prereqs
+      abort_deploy "Failed prereqs"
+      return false
+    end
+
+    say "Running predeploy tasks..."
+
+    begin
+      invoke :compile_assets
+      invoke :record
+      invoke :commit
+    rescue CommandFailed => ex
+      abort_deploy "A deploy step failed to run: #{ex}"
+
+      if @new_commit
+        run "git reset HEAD~1"
+      else
+        run "git reset --hard HEAD"
+      end
+
+      return false
+    end
+
+    say "Deploying..."
+
+    begin
+      inside RAILS_ROOT do
+        run! "git push origin master"
+        say_status "Github", "Pushed"
+
+        run! "git push heroku master"
+        say_status "Heorku", "Deployed"
+      end
+    rescue CommandFailed => ex
+      abort_deploy "Push failed. Please check logs."
+    end
+  end
+
+  default_task :run_deploy
+end
+
+Deploy.start
+```
 
 Each step is wrapped in its own method. Thor makes each method
 available. This way you can easily test the individual sections. The

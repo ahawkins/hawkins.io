@@ -39,18 +39,22 @@ example of what I'm talking about for one page.
 
 Everyone is used to seeing this:
 
-    def show
-      @customer = Customer.find params[:id]
-    end
+```ruby
+def show
+  @customer = Customer.find params[:id]
+end
+```
 
 That's all well in good for simple applications. What if you have this?
 
-    def show
-      @customer = Customer.find params[:id]
+```ruby
+def show
+  @customer = Customer.find params[:id]
 
-      # insert 30 more lines of instantiation
-      # and other trickery to get the view to render
-    end
+  # insert 30 more lines of instantiation
+  # and other trickery to get the view to render
+end
+```
 
 That's gonna get old real quick--especially if you have to do that for
 many different pages. The controller is becoming ove run run with logic
@@ -68,10 +72,12 @@ not a random assortment of instance variables.
 
 Now many of my previous complex controller actions look like this:
 
-    def show
-      customer = Customer.find params[:id]
-      @presenter = CustomerPresenter.new customer, current_user
-    end
+```ruby
+def show
+  customer = Customer.find params[:id]
+  @presenter = CustomerPresenter.new customer, current_user
+end
+```
 
 At this point, the presenter does all the required instantiation and
 other trickery that the view needs.
@@ -81,20 +87,22 @@ other trickery that the view needs.
 I created a common base class for all the presenters in my application.
 I call it ApplicationPresenter. Here's the code: (Rails 2.3)
 
-    class ApplicationPresenter
-      extend ActiveSupport::Memoizable
-      include ActionController::UrlWriter
-      include ActionController::RecordIdentifier
+```ruby
+class ApplicationPresenter
+  extend ActiveSupport::Memoizable
+  include ActionController::UrlWriter
+  include ActionController::RecordIdentifier
 
-      def self.default_url_options
-        ActionMailer::Base.default_url_options
-      end
+  def self.default_url_options
+    ActionMailer::Base.default_url_options
+  end
 
-      private
-      def t(*args)
-        I18n.translate(*args)
-      end
-    end
+  private
+  def t(*args)
+    I18n.translate(*args)
+  end
+end
+```
 
 This code enables me to do a few things:
 
@@ -113,245 +121,253 @@ That presenter is passed into the partial as a local variable. It works
 out pretty well. Here is an example view. Most of the views look like
 this:
 
-    -# This is the dashboard type view
+```haml
+-# This is the dashboard type view
 
-    - title @presenter.title
+- title @presenter.title
 
-    = render :partial => 'announcements/announcement', :locals => {:presenter => @presenter.announcement_presenter}
+= render :partial => 'announcements/announcement', :locals => {:presenter => @presenter.announcement_presenter}
 
-    = render :partial => "activities/activities" , :locals => {:presenter => @presenter.activities_presenter}
+= render :partial => "activities/activities" , :locals => {:presenter => @presenter.activities_presenter}
 
-    = render_statistics @presenter.statistics_presenter
+= render_statistics @presenter.statistics_presenter
 
-    - content_for :sidebar do
+- content_for :sidebar do
 
-      = render :partial => "todos/widget", :locals => { :presenter => @presenter.todo_widget_presenter }
+  = render :partial => "todos/widget", :locals => { :presenter => @presenter.todo_widget_presenter }
 
-      = render :partial => 'users/widget', :locals => { :presenter => @presenter.user_widget_presenter }
+  = render :partial => 'users/widget', :locals => { :presenter => @presenter.user_widget_presenter }
 
-      = render :partial => 'customers/search_widget'
+  = render :partial => 'customers/search_widget'
 
-      = render :partial => 'companies/widget', :locals => {:presenter => @presenter.company_widget_presenter}
+  = render :partial => 'companies/widget', :locals => {:presenter => @presenter.company_widget_presenter}
+```
 
 Now you know what a basic view looks like, here's the code for that
 page's presenter.
 
-    class DashboardPresenter < ApplicationPresenter
-      def initialize(user)
-        @user = user
-      end
+```ruby
+class DashboardPresenter < ApplicationPresenter
+  def initialize(user)
+    @user = user
+  end
 
-      def user_widget_presenter
-        UserWidgetPresenter.new @user 
-      end
-      memoize :user_widget_presenter
+  def user_widget_presenter
+    UserWidgetPresenter.new @user 
+  end
+  memoize :user_widget_presenter
 
-      def company_widget_presenter
-        CompanyWidgetPresenter.new @user
-      end
-      memoize :company_widget_presenter
+  def company_widget_presenter
+    CompanyWidgetPresenter.new @user
+  end
+  memoize :company_widget_presenter
 
-      def todo_widget_presenter
-        TodoWidgetPresenter.new @user, @user
-      end
-      memoize :todo_widget_presenter
+  def todo_widget_presenter
+    TodoWidgetPresenter.new @user, @user
+  end
+  memoize :todo_widget_presenter
 
-      def announcement_presenter
-        AnnouncementPresenter.new @user
-      end
-      memoize :announcement_presenter
+  def announcement_presenter
+    AnnouncementPresenter.new @user
+  end
+  memoize :announcement_presenter
 
-      def activities_presenter
-        DashboardActivitiesPresenter.new @user, @user
-      end
-      memoize :activities_presenter
+  def activities_presenter
+    DashboardActivitiesPresenter.new @user, @user
+  end
+  memoize :activities_presenter
 
-      def statistics_presenter
-        DashboardStatisticsPresenter.new @user
-      end
-      memoize :statistics_presenter
+  def statistics_presenter
+    DashboardStatisticsPresenter.new @user
+  end
+  memoize :statistics_presenter
 
-      def title
-        t 'dashboard.page_title'
-      end
-      memoize :title
-    end
+  def title
+    t 'dashboard.page_title'
+  end
+  memoize :title
+end
+```
 
 The main page presenters really don't have much to them. The just create
 presenters for all the different components I want on that page.
 However, some of the individual presenters can get pretty hairy. I'll
 share a simple one first:
 
-    class NotesPresenter < ApplicationPresenter
-      def initialize(record)
-        @record = record
-      end
+```ruby
+class NotesPresenter < ApplicationPresenter
+  def initialize(record)
+    @record = record
+  end
 
-      def notes
-        @record.notes.all(:include => :user)
-      end
-      memoize :notes
+  def notes
+    @record.notes.all(:include => :user)
+  end
+  memoize :notes
 
-      def show_explanation?
-        @record.notes.count == 0
-      end
-      memoize :show_explanation?
+  def show_explanation?
+    @record.notes.count == 0
+  end
+  memoize :show_explanation?
 
-      def explanation
-        t('explanations.notes')
-      end
-      memoize :explanation
-    end
+  def explanation
+    t('explanations.notes')
+  end
+  memoize :explanation
+end
+```
 
 Now for the hairy one:
 
-    class DealsPresenter < ApplicationPresenter
+```ruby
+class DealsPresenter < ApplicationPresenter
 
-      PER_PAGE = 35
+  PER_PAGE = 35
 
-      def initialize(user, params)
-        @user = user
-        @params = params
-      end
+  def initialize(user, params)
+    @user = user
+    @params = params
+  end
 
-      def deals
-        if @user.is_a?(Manager)
-          bucket = account.deals
-        else
-          bucket = @user.deals
-        end
-
-        case filter
-        when 'user'
-          bucket = bucket.with_user(account.users.find(@params[:user_id]))
-        when 'status_pending'
-          bucket = bucket.pending
-        when 'status_closed'
-          bucket = bucket.closed
-        when 'status_rejected'
-          bucket = bucket.rejected
-        when 'status_paid'
-          bucket = bucket.paid
-        when 'due_this_week'
-          bucket = bucket.due_between(Time.zone.now.beginning_of_week..Time.zone.now.end_of_week)
-        when 'due_this_month'
-          bucket = bucket.due_between(Time.zone.now.beginning_of_month..Time.zone.now.end_of_month)
-        when 'due_overdue'
-          bucket = bucket.overdue
-        else
-          bucket
-        end
-
-        bucket.paginate :order => "#{ordered_column} #{sort_direction}",
-                        :include => [{:customer => :company}, :user],
-                        :page => @params[:page],
-                        :per_page => PER_PAGE
-      end
-      memoize :deals
-
-      def filters_presenter
-        presenter = FiltersPresenter.new
-
-        presenter.filter I18n.translate('deals.filters.all_deals'), deals_path, :class => (filter == 'all' ? 'selected' : 'unselected')
-
-        text = case filter
-               when 'user'
-                 I18n.translate('deals.filters.filtered_by_user', :user => account.users.find(@params[:user_id]))
-               else
-                 I18n.translate('deals.filters.by_user')
-               end
-
-        if @user.is_a?(Manager)
-          presenter.dropdown text, :class => (filter == 'user' ? 'selected' : 'unselected') do |drop_down|
-            account.users.alphabetical.except(@user).each do |user|
-              drop_down.filter user, deals_path(:filter => :user, :user_id => user.id)
-            end
-          end
-        end
-
-        text = case filter
-               when 'status_pending'
-                 I18n.translate('deals.filters.status_pending')
-               when 'status_closed'
-                 I18n.translate('deals.filters.status_closed')
-               when 'status_paid'
-                 I18n.translate('deals.filters.status_paid')
-               when 'status_rejected'
-                 I18n.translate('deals.filters.status_rejected')
-               else
-                 I18n.translate('deals.filters.status')
-               end
-
-        presenter.dropdown text, :class => (filter =~ /status/ ? 'selected' : 'unselected') do |drop_down|
-          %w(pending closed paid rejected).each do |status|
-            drop_down.filter I18n.translate("deals.states.#{status}"), deals_path(:filter => "status_#{status}") if filter != status
-          end
-        end
-
-        presenter
-      end
-      memoize :filters_presenter
-
-      def deal
-        Deal.new
-      end
-      memoize :deal
-
-      def sortable_options
-        @params.slice(:filter, :user_id)
-      end
-      memoize :sortable_options
-
-      def sort_column
-        %w(user customer company amount due_on status).include?(@params[:sort]) ? @params[:sort] : 'user'
-      end
-      memoize :sort_column
-
-      def sort_direction
-        @params[:direction] == 'desc' ? 'desc' : 'asc'
-      end
-      memoize :sort_direction
-
-      def ordered_column
-        case sort_column
-        when 'user'
-          'users.name'
-        when 'customer'
-          'customers.name'
-        when 'company'
-          'companies.name'
-        when 'amount'
-          'deals.value'
-        when 'status'
-          'deals.state'
-        when 'due_on'
-          'deals.due_by'
-        end
-      end
-      memoize :ordered_column
-
-      def title
-        I18n.translate 'plurals.deals'
-      end
-      memoize :title
-
-      def statistics_presenter
-
-      end
-      memoize :statistics_presenter
-
-      private
-      def filter
-        %w(user status_pending status_closed status_rejected status_paid
-          due_this_week due_this_month due_overdue all).include?(@params[:filter]) ? @params[:filter] : 'all'
-      end
-      memoize :filter
-
-      def account
-        @user.account
-      end
-      memoize :account
+  def deals
+    if @user.is_a?(Manager)
+      bucket = account.deals
+    else
+      bucket = @user.deals
     end
+
+    case filter
+    when 'user'
+      bucket = bucket.with_user(account.users.find(@params[:user_id]))
+    when 'status_pending'
+      bucket = bucket.pending
+    when 'status_closed'
+      bucket = bucket.closed
+    when 'status_rejected'
+      bucket = bucket.rejected
+    when 'status_paid'
+      bucket = bucket.paid
+    when 'due_this_week'
+      bucket = bucket.due_between(Time.zone.now.beginning_of_week..Time.zone.now.end_of_week)
+    when 'due_this_month'
+      bucket = bucket.due_between(Time.zone.now.beginning_of_month..Time.zone.now.end_of_month)
+    when 'due_overdue'
+      bucket = bucket.overdue
+    else
+      bucket
+    end
+
+    bucket.paginate :order => "#{ordered_column} #{sort_direction}",
+                    :include => [{:customer => :company}, :user],
+                    :page => @params[:page],
+                    :per_page => PER_PAGE
+  end
+  memoize :deals
+
+  def filters_presenter
+    presenter = FiltersPresenter.new
+
+    presenter.filter I18n.translate('deals.filters.all_deals'), deals_path, :class => (filter == 'all' ? 'selected' : 'unselected')
+
+    text = case filter
+           when 'user'
+             I18n.translate('deals.filters.filtered_by_user', :user => account.users.find(@params[:user_id]))
+           else
+             I18n.translate('deals.filters.by_user')
+           end
+
+    if @user.is_a?(Manager)
+      presenter.dropdown text, :class => (filter == 'user' ? 'selected' : 'unselected') do |drop_down|
+        account.users.alphabetical.except(@user).each do |user|
+          drop_down.filter user, deals_path(:filter => :user, :user_id => user.id)
+        end
+      end
+    end
+
+    text = case filter
+           when 'status_pending'
+             I18n.translate('deals.filters.status_pending')
+           when 'status_closed'
+             I18n.translate('deals.filters.status_closed')
+           when 'status_paid'
+             I18n.translate('deals.filters.status_paid')
+           when 'status_rejected'
+             I18n.translate('deals.filters.status_rejected')
+           else
+             I18n.translate('deals.filters.status')
+           end
+
+    presenter.dropdown text, :class => (filter =~ /status/ ? 'selected' : 'unselected') do |drop_down|
+      %w(pending closed paid rejected).each do |status|
+        drop_down.filter I18n.translate("deals.states.#{status}"), deals_path(:filter => "status_#{status}") if filter != status
+      end
+    end
+
+    presenter
+  end
+  memoize :filters_presenter
+
+  def deal
+    Deal.new
+  end
+  memoize :deal
+
+  def sortable_options
+    @params.slice(:filter, :user_id)
+  end
+  memoize :sortable_options
+
+  def sort_column
+    %w(user customer company amount due_on status).include?(@params[:sort]) ? @params[:sort] : 'user'
+  end
+  memoize :sort_column
+
+  def sort_direction
+    @params[:direction] == 'desc' ? 'desc' : 'asc'
+  end
+  memoize :sort_direction
+
+  def ordered_column
+    case sort_column
+    when 'user'
+      'users.name'
+    when 'customer'
+      'customers.name'
+    when 'company'
+      'companies.name'
+    when 'amount'
+      'deals.value'
+    when 'status'
+      'deals.state'
+    when 'due_on'
+      'deals.due_by'
+    end
+  end
+  memoize :ordered_column
+
+  def title
+    I18n.translate 'plurals.deals'
+  end
+  memoize :title
+
+  def statistics_presenter
+
+  end
+  memoize :statistics_presenter
+
+  private
+  def filter
+    %w(user status_pending status_closed status_rejected status_paid
+      due_this_week due_this_month due_overdue all).include?(@params[:filter]) ? @params[:filter] : 'all'
+  end
+  memoize :filter
+
+  def account
+    @user.account
+  end
+  memoize :account
+end
+```
 
 **Note:** this particular presenter is waiting to be refactored. But it
 does give you an idea of some of the logic that I removed from the
@@ -367,19 +383,21 @@ you had in place become too cumbersome to maintain. Sometimes I simply want
 to test that a new instance variable is created. Using my presenter, I
 could write a test like this:
 
-    class NotesPresenter < ApplicationPresenter
-      def note
-        Note.new
-      end
-      memoize :note
-    end
+```ruby
+class NotesPresenter < ApplicationPresenter
+  def note
+    Note.new
+  end
+  memoize :note
+end
 
-    describe NotesPresenter do
-      it "should provide a new note for a form" do
-        subject.note.should be_new_record
-        subject.note.should be_a(Note)
-      end
-    end
+describe NotesPresenter do
+  it "should provide a new note for a form" do
+    subject.note.should be_new_record
+    subject.note.should be_a(Note)
+  end
+end
+```
 
 Good luck doing that in a controller action with more complex logic.
 It's very easy to test in an isolate class.
@@ -391,44 +409,48 @@ is trivial enough to ignore writing a test case. Instead, I use rspec's
 interface. Here is the test for the previously mentioned
 `DashboardPresenter`:
 
-    require 'spec_helper'
+```ruby
+require 'spec_helper'
 
-    describe DashboardPresenter do
-      def mock_user(stubs = {})
-        @mock_user ||= mock_model(User, stubs)
-      end
+describe DashboardPresenter do
+  def mock_user(stubs = {})
+    @mock_user ||= mock_model(User, stubs)
+  end
 
-      subject { DashboardPresenter.new(mock_user) }
+  subject { DashboardPresenter.new(mock_user) }
 
-      it_should_behave_like "a presenter with activities"
+  it_should_behave_like "a presenter with activities"
 
-      it_should_behave_like "a presenter with todos"
+  it_should_behave_like "a presenter with todos"
 
-      it_should_behave_like "a presenter with stats"
+  it_should_behave_like "a presenter with stats"
 
-      it_should_behave_like "a presenter with companies"
+  it_should_behave_like "a presenter with companies"
 
-      it_should_behave_like "a presenter with a page title"
+  it_should_behave_like "a presenter with a page title"
 
-      it { should respond_to(:user_widget_presenter) }
+  it { should respond_to(:user_widget_presenter) }
 
-      it { should respond_to(:announcement_presenter) }
-    end
+  it { should respond_to(:announcement_presenter) }
+end
+```
 
 
 Now for a component presenter:
 
-    require 'spec_helper'
+```ruby
+require 'spec_helper'
 
-    describe NotesPresenter do
-      fixtures :customers
+describe NotesPresenter do
+  fixtures :customers
 
-      subject { NotesPresenter.new customers(:teemu) }
+  subject { NotesPresenter.new customers(:teemu) }
 
-      it_should_behave_like "a presenter with an explanation"
+  it_should_behave_like "a presenter with an explanation"
 
-      it { should respond_to(:notes) }
-    end
+  it { should respond_to(:notes) }
+end
+```
 
 ## Closing Thoughts
 

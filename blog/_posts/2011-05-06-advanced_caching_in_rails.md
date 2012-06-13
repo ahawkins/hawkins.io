@@ -51,39 +51,41 @@ examples of manually using the cache to store things. I am using
 memcached with dalli for all these examples. Any driver that
 implements the cache store pattern should work.
 
-    # Rails.cache.write takes two value: key and a value
-    > Rails.cache.write 'foo', 'bar'
-    => true
+```
+# Rails.cache.write takes two value: key and a value
+> Rails.cache.write 'foo', 'bar'
+=> true
 
-    # We can read an object back with read
-    > Rails.cache.read 'foo'
-    => "bar"
+# We can read an object back with read
+> Rails.cache.read 'foo'
+=> "bar"
 
-    # We can store a complicated object as well
-    > hash = {:this => {:is => 'a hash'}}
-    > Rails.cache.write 'complicated-object', object
-    > Rails.cache.read 'complicated-object'
-    => {:this=>{:is=>"a hash"}}
+# We can store a complicated object as well
+> hash = {:this => {:is => 'a hash'}}
+> Rails.cache.write 'complicated-object', object
+> Rails.cache.read 'complicated-object'
+=> {:this=>{:is=>"a hash"}}
 
-    # If we want something that doesn't exist, we get nil
-    > Rails.cache.read 'we-havent-cached-this-yet'
-    => nil
+# If we want something that doesn't exist, we get nil
+> Rails.cache.read 'we-havent-cached-this-yet'
+=> nil
 
-    # "Fetch" is the most common pattern. You give it a key and a block
-    # to execute to store if the cache misses. The block is not executed
-    # if there is a cache hit.
-    > Rails.cache.fetch 'huge-array' do
-        huge_array = Array.new
-        1000000.times { |i| huge_array << i }
-        huge_array # retrun value is stored in cache
-      end
-    => [huge array] # took some time to generate
-    > Rails.cache.read 'huge-array'
-    => [huge array] # but returned instantly
+# "Fetch" is the most common pattern. You give it a key and a block
+# to execute to store if the cache misses. The block is not executed
+# if there is a cache hit.
+> Rails.cache.fetch 'huge-array' do
+    huge_array = Array.new
+    1000000.times { |i| huge_array << i }
+    huge_array # retrun value is stored in cache
+  end
+=> [huge array] # took some time to generate
+> Rails.cache.read 'huge-array'
+=> [huge array] # but returned instantly
 
-    # You can also delete everything from the cache
-    > Rails.cache.clear 
-    => [true]
+# You can also delete everything from the cache
+> Rails.cache.clear 
+=> [true]
+```
 
 Those are the basics of interacting withe the Rails cache. The rails
 cache is a wrapper around whatever functionality is provided by the
@@ -100,47 +102,53 @@ pre-rendered HTML from the cache, then it takes to generate a fresh copy.
 This is very true. If you haven't noticed, view generation can be very
 costly. Let's say you have generated a basic scaffold for a post:
 
-    $ rails g scaffold post title:string content:text author:string
-    # that will generate some views to play with
+```
+$ rails g scaffold post title:string content:text author:string
+# that will generate some views to play with
+```
 
 Let's start with the most common use case: caching information specific
 to one thing. IE: One post. Here is a show view:
 
-    <!-- nothing fancy going on here -->
-    <p>
-      <b>Title:</b>
-      <%= @post.title %>
-    </p>
+```erb
+<!-- nothing fancy going on here -->
+<p>
+  <b>Title:</b>
+  <%= @post.title %>
+</p>
 
-    <p>
-      <b>Content:</b>
-      <%= @post.content %>
-    </p>
+<p>
+  <b>Content:</b>
+  <%= @post.content %>
+</p>
 
-    <p>
-      <b>Author:</b>
-      <%= @post.author %>
-    </p>
+<p>
+  <b>Author:</b>
+  <%= @post.author %>
+</p>
+```
 
 Let's say we wanted to cache fragment. Simple wrap it in `cache` and
 Rails will do it.
 
-    <%= cache "post-#{@post.id}" do %>
-      <p>
-        <b>Title:</b>
-        <%= @post.title %>
-      </p>
+```erb
+<%= cache "post-#{@post.id}" do %>
+  <p>
+    <b>Title:</b>
+    <%= @post.title %>
+  </p>
 
-      <p>
-        <b>Content:</b>
-        <%= @post.content %>
-      </p>
+  <p>
+    <b>Content:</b>
+    <%= @post.content %>
+  </p>
 
-      <p>
-        <b>Author:</b>
-        <%= @post.author %>
-      </p>
-    <% end %>
+  <p>
+    <b>Author:</b>
+    <%= @post.author %>
+  </p>
+<% end %>
+```
 
 The first argument is the key for this fragment. The rendered HTML is
 stored with this key: `views/posts-1`. Wait what? Where did that 'views'
@@ -148,22 +156,28 @@ come from? The `cache` view helper automatically prepends 'view' to all
 keys. This is important later. When you first load the page you'll see
 this in the log:
 
-    Exist fragment? views/post-2 (1.6ms)
-    Write fragment views/post-2 (0.9ms)
+```
+Exist fragment? views/post-2 (1.6ms)
+Write fragment views/post-2 (0.9ms)
+```
 
 You can see the key and the operations. Rails is checking to see if the
 specific key exists. It will fetch it or write it. In this case, it has
 not been stored so it is written. When you reload the page, you'll see a
 cache hit:
 
-    Exist fragment? views/post-2 (0.6ms)
-    Read fragment views/post-2 (0.0ms)
+```
+Exist fragment? views/post-2 (0.6ms)
+Read fragment views/post-2 (0.0ms)
+```
 
 There we go. We got HTML from the cache instead of rendering it. Look at
 the response times for the two requests:
 
-    Completed 200 OK in 17ms (Views: 11.6ms | ActiveRecord: 0.1ms)
-    Completed 200 OK in 16ms (Views: 9.7ms | ActiveRecord: 0.1ms)
+```
+Completed 200 OK in 17ms (Views: 11.6ms | ActiveRecord: 0.1ms)
+Completed 200 OK in 16ms (Views: 9.7ms | ActiveRecord: 0.1ms)
+```
 
 Very small differences in this case. 2ms different in view generation.
 This is a very simple example, but it can make a world of difference in
@@ -186,28 +200,36 @@ change as the content changes **and we will not have to expire things
 manually.** (We'll come back to sweepers later). Let's change our cache
 key to this:
 
-    <% cache "post-#{@post.id}", @post.updated_at.to_i do %>
+```erb
+<% cache "post-#{@post.id}", @post.updated_at.to_i do %>
+```
 
 Now we can see we have a new cache key that's dependent on the objects
 timestamps. Check out the rails log:
 
-    Exist fragment? views/post-2/1304291241 (0.5ms)
-    Write fragment views/post-2/1304291241 (0.4ms)
+```
+Exist fragment? views/post-2/1304291241 (0.5ms)
+Write fragment views/post-2/1304291241 (0.4ms)
+```
 
 Cool! Now let's make it so creating a comment updates the post's
 timestamp:
 
-    class Comment < ActiveRecord::Base
-      belongs_to :post, :touch => true
-    end
+```ruby
+class Comment < ActiveRecord::Base
+  belongs_to :post, :touch => true
+end
+```
 
 Now all comments will touch the post and change the `updated_at`
 time stamp. You can see this in action by `touch`'ing a post.
 
-    Post.find(1).touch
+```
+Post.find(1).touch
 
-    Exist fragment? views/post-2/1304292445 (0.4ms)
-    Write fragment views/post-2/1304292445 (0.4ms)
+Exist fragment? views/post-2/1304292445 (0.4ms)
+Write fragment views/post-2/1304292445 (0.4ms)
+```
 
 This concept is known as: **auto expiring cache keys.** You create a
 composite key with the normal key and a time stamp. This will create some
@@ -239,16 +261,20 @@ because depending on what type of arguments you pass into the `cache`
 method it will be called on them. For the time being, this code is
 functionally equal to our previous examples.
 
-    <%= cache @post do %>
+```erb
+<%= cache @post do %>
+```
 
 The `cache` helper takes different forms for arguments. Here are some
 examples:
 
-    cache 'explicit-key'      # views/explicit-key
-    cache @post               # views/posts/2-1283479827349
-    cache [@post, 'sidebar']  # views/posts/2-2348719328478/sidebar
-    cache [@post, @comment]   # views/posts/2-2384193284878/comments/1-2384971487
-    cache :hash => :of_things # views/localhost:3000/posts/2?hash_of_things
+```ruby
+cache 'explicit-key'      # views/explicit-key
+cache @post               # views/posts/2-1283479827349
+cache [@post, 'sidebar']  # views/posts/2-2348719328478/sidebar
+cache [@post, @comment]   # views/posts/2-2384193284878/comments/1-2384971487
+cache :hash => :of_things # views/localhost:3000/posts/2?hash_of_things
+```
 
 If an `Array` is the first arguments, Rails will use cache key expansion
 to generate a string key. This means calling doing logic on each object
@@ -256,29 +282,31 @@ then joining each result together with a '/'. Essentially, if the object
 responds to `cache_key`, it will use that. Else it will do various
 things. Here's the source for `expand_cache_key`:
 
-    def self.expand_cache_key(key, namespace = nil)
-      expanded_cache_key = namespace ? "#{namespace}/" : ""
+```ruby
+def self.expand_cache_key(key, namespace = nil)
+  expanded_cache_key = namespace ? "#{namespace}/" : ""
 
-      prefix = ENV["RAILS_CACHE_ID"] || ENV["RAILS_APP_VERSION"]
-      if prefix
-        expanded_cache_key << "#{prefix}/"
+  prefix = ENV["RAILS_CACHE_ID"] || ENV["RAILS_APP_VERSION"]
+  if prefix
+    expanded_cache_key << "#{prefix}/"
+  end
+
+  expanded_cache_key <<
+    if key.respond_to?(:cache_key)
+      key.cache_key
+    elsif key.is_a?(Array)
+      if key.size > 1
+        key.collect { |element| expand_cache_key(element) }.to_param
+      else
+        key.first.to_param
       end
+    elsif key
+      key.to_param
+    end.to_s
 
-      expanded_cache_key <<
-        if key.respond_to?(:cache_key)
-          key.cache_key
-        elsif key.is_a?(Array)
-          if key.size > 1
-            key.collect { |element| expand_cache_key(element) }.to_param
-          else
-            key.first.to_param
-          end
-        elsif key
-          key.to_param
-        end.to_s
-
-      expanded_cache_key
-    end
+  expanded_cache_key
+end
+```
 
 This is where all the magic happens. Our simple fragment caching example
 could easily be converted into an idea like this: The post hasn't
@@ -299,22 +327,26 @@ hasn't changed, return the entire cached page as the HTTP response, else
 render the show view, cache it, and return that as the HTTP response. Or
 in code:
 
-    Rails.cache.fetch 'views/localhost:3000/posts/1' do
-      @post = Post.find params[:id]
-      render :show
-    end
+```ruby
+Rails.cache.fetch 'views/localhost:3000/posts/1' do
+  @post = Post.find params[:id]
+  render :show
+end
+```
 
 Declaring action caching is easy. Here's how you can cache the show
 action:
 
-    class PostsController < ApplicationController
+```ruby
+class PostsController < ApplicationController
 
-      caches_action :show
+  caches_action :show
 
-      def show
-        # do stuff
-      end
-    end
+  def show
+    # do stuff
+  end
+end
+```
 
 Now refresh the page and look at what's been cached.
 
@@ -367,7 +399,9 @@ that each server has it's own cache key. IE, server one does not collide
 with server 2. We could generate our own url for this resource by doing
 something like this:
 
-    url_for(@post, :tag => @post.updated_at.to_i)
+```ruby
+url_for(@post, :tag => @post.updated_at.to_i)
+```
 
 This will generate this url:
 
@@ -378,18 +412,20 @@ this method to tag GET urls for static assets. That way the browser does
 not send a new HTTP request when it sees 'application.css?1234' since it
 is caching it. We can use this strategy to with action caching as well.
 
-    caches_action :show, :cache_path => proc { |c|
-      # c is the instance of the controller. Since action caching
-      # is declared at the class level, we don't have access to instance
-      # variables. If cache_path is a proc, it will be evaluated in the
-      # the context of the current controller. This is the same idea
-      # as validations with the :if and :unless options
-      #
-      # Remember, what is returned from this block will be passed in as
-      # extra parameters to the url_for method.
-      post = Post.find c.params[:id]
-      {:tag => post.updated_at.to_i}
-    end
+```ruby
+caches_action :show, :cache_path => proc { |c|
+  # c is the instance of the controller. Since action caching
+  # is declared at the class level, we don't have access to instance
+  # variables. If cache_path is a proc, it will be evaluated in the
+  # the context of the current controller. This is the same idea
+  # as validations with the :if and :unless options
+  #
+  # Remember, what is returned from this block will be passed in as
+  # extra parameters to the url_for method.
+  post = Post.find c.params[:id]
+  {:tag => post.updated_at.to_i}
+end
+```
 
 This calls `url_for` with the parameters already assigned by it through
 the router and whatever is returned by the block. Now if you refresh the
@@ -438,10 +474,12 @@ Now with action caching:
 
 Here's the code for action caching:
 
-    caches_action :index, :cache_path => proc {|c|
-      post = Post.order('updated_at DESC').limit(1).first
-      {:tag => post.updated_at.to_i}
-    }
+```ruby
+caches_action :index, :cache_path => proc {|c|
+  post = Post.order('updated_at DESC').limit(1).first
+  {:tag => post.updated_at.to_i}
+}
+```
 
 These are simple examples designed to show you who can create auto
 expiring keys for different situations. At this point we have not add to
@@ -464,11 +502,11 @@ Everything I've demonstrated so far can be done with sweepers.
 Each `cache_*` method has an opposite `expire_*` method. Here's the
 mapping:
 
-1. caches_page , expire_page
-2. caches_action , expire_action
-3. cache , expire_fragment
+1. caches\_page , expire\_page
+2. caches\_action , expire\_action
+3. cache , expire\_fragment
 
-Their arguments work the same with using cache_key_expansion to find a
+Their arguments work the same with using cache key expansion to find a
 key to read or delete. Depending on the complexity of your application,
 it may be very to use sweepers or it may be impossible. Our simple
 examples can use sweepers easily. We only need to tie into the save
@@ -477,21 +515,23 @@ the cache for that specific post. When a create, update, or delete
 happens we need to expire the index action. Here's what a the sweeper
 would look like:
 
-    class PostSweeper < ActionController::Caching::Sweeper
-      observe Post
+```ruby
+class PostSweeper < ActionController::Caching::Sweeper
+  observe Post
 
-      def after_create(post)
-        expire_action :index
-        expire_action :show, :id => post
-        # this is the same as the previous line
-        expire_action :controller => :posts, :action => :show, :id => @post.id
-      end
-    end
+  def after_create(post)
+    expire_action :index
+    expire_action :show, :id => post
+    # this is the same as the previous line
+    expire_action :controller => :posts, :action => :show, :id => @post.id
+  end
+end
 
-    # then in the controller, load the sweeper
-    class PostsController < ApplicationController
-      cache_sweeper :post_sweeper
-    end
+# then in the controller, load the sweeper
+class PostsController < ApplicationController
+  cache_sweeper :post_sweeper
+end
+```
 
 I will not go into much depth on sweepers because they are the only
 thing covered in the rails caching guide. The work, but I feel they are
@@ -534,19 +574,21 @@ if `perform_caching` is set to false, the `Rails.cache` methods will
 create a simple observer for our models. What it would be cool if we had
 a class like this:
 
-    class Cache 
-      def self.expire_page(*args)
-        # do stuff
-      end
+```ruby
+class Cache 
+  def self.expire_page(*args)
+    # do stuff
+  end
 
-      def self.expire_action(*args)
-        # do stuff
-      end
+  def self.expire_action(*args)
+    # do stuff
+  end
 
-      def self.expire_fragment(*args)
-        # do stuff
-      end
-    end
+  def self.expire_fragment(*args)
+    # do stuff
+  end
+end
+```
 
 Then we can use that utility class anywhere in our code to expire
 different things we have cached. First, we need to be able to generate
@@ -563,60 +605,64 @@ generated module which contains `url_for`, `path_for` and all the named
 route helpers. We also need a class level variable for the host name.
 Here's what we can do so far:
 
-    class Cache
-      include Rails.application.routes.url_helpers # for url generation
+```ruby
+class Cache
+  include Rails.application.routes.url_helpers # for url generation
 
-      def self.default_url_options
-        ActionMailer::Base.default_url_options
-      end
+  def self.default_url_options
+    ActionMailer::Base.default_url_options
+  end
 
-      def expire_action(*args)
-        # do stuff
-      end
+  def expire_action(*args)
+    # do stuff
+  end
 
-      def expire_fragment(*args)
-        # do stuff
-      end
-    end
+  def expire_fragment(*args)
+    # do stuff
+  end
+end
+```
 
 Now we can pull in some knowledge on how the cache system works to fill
 in the gaps. Some of this comes from reading the various source files
 and observation in generating the cache keys. Here is the complete
 class:
 
-    # will not work in Rails 2 -- Rails 3 only!
-    class Cache
-      include Rails.application.routes.url_helpers # for url generation
+```ruby
+# will not work in Rails 2 -- Rails 3 only!
+class Cache
+  include Rails.application.routes.url_helpers # for url generation
 
-      def self.default_url_options
-        ActionMailer::Base.default_url_options
-      end
+  def self.default_url_options
+    ActionMailer::Base.default_url_options
+  end
 
-      def expire_action(key, options = {})
-        expire(key, options)
-      end
+  def expire_action(key, options = {})
+    expire(key, options)
+  end
 
-      def expire_fragment(key, options={})
-        expire(key, options)
-      end
+  def expire_fragment(key, options={})
+    expire(key, options)
+  end
 
-      private
-      def caching_enabled?
-        return ActionController::Base.perform_caching
-      end
+  private
+  def caching_enabled?
+    return ActionController::Base.perform_caching
+  end
 
-      def expire(key, options = {})
-        return unless caching_enabled?
-        Rails.cache.delete expand_cache_key(key), options
-      end
+  def expire(key, options = {})
+    return unless caching_enabled?
+    Rails.cache.delete expand_cache_key(key), options
+  end
 
-      def expand_cache_key(key)
-        # if the key is a hash, then use url for
-        # else use expand_cache_key like fragment caching
-        to_expand = key.is_a?(Hash) ? url_for(key).split('://').last : key
-        ActiveSupport::Cache.expand_cache_key to_expand, :views
-      end
-    end
+  def expand_cache_key(key)
+    # if the key is a hash, then use url for
+    # else use expand_cache_key like fragment caching
+    to_expand = key.is_a?(Hash) ? url_for(key).split('://').last : key
+    ActiveSupport::Cache.expand_cache_key to_expand, :views
+  end
+end
+```
 
 Since action and fragment caching all use Rails.cache under the hood, we
 can simply generate the keys ourselves and remove them manually--all
@@ -625,40 +671,44 @@ define a method on your application namespace so it's globally
 accessible. I like this way because it's easy to reference in any piece
 of code.
 
-    # config/initializers/cache.rb
-    require 'cache'
+```ruby
+# config/initializers/cache.rb
+require 'cache'
 
-    module App # whatever you application module is
-      class << self
-        def cache
-          @cache ||= Cache.new
-        end
-
-        def expire_fragment(*args)
-          cache.expire_fragment(*args)
-        end
-
-        def expire_action(*args)
-          cache.expire_fragment(*args)
-        end
-      end
+module App # whatever you application module is
+  class << self
+    def cache
+      @cache ||= Cache.new
     end
+
+    def expire_fragment(*args)
+      cache.expire_fragment(*args)
+    end
+
+    def expire_action(*args)
+      cache.expire_fragment(*args)
+    end
+  end
+end
+```
 
 Now we can merrily go about our business expiring cached content from
 **anywhere.** Here are some examples:
 
-    App.cache # reference to a Cache instance
+```ruby
+App.cache # reference to a Cache instance
 
-    App.expire_fragment @post
-    App.expire_fragment [@post, 'sidebar']
-    App.expire_fragment 'explicit-key'
+App.expire_fragment @post
+App.expire_fragment [@post, 'sidebar']
+App.expire_fragment 'explicit-key'
 
-    # in a controller
-    App.expire_fragment post_url(@post)
-    # Have to pass in the hash since it's most likely
-    # that you won't have access to the url helpers
-    # in whatever scope your're in.
-    App.expire_action :action => :show, :controller => :posts, :id => @post, :tag => @post.updated_at.to_i
+# in a controller
+App.expire_fragment post_url(@post)
+# Have to pass in the hash since it's most likely
+# that you won't have access to the url helpers
+# in whatever scope your're in.
+App.expire_action :action => :show, :controller => :posts, :id => @post, :tag => @post.updated_at.to_i
+```
 
 The `expire_fragment` and `expire_action` methods work just like the
 ones described in the Rails guides. Only difference is, you can use them
@@ -668,11 +718,13 @@ Here's an example. I am assuming a todo is created outside an HTTP
 request through a background process. The observer will capture the
 event. 
 
-    class TodoObserver < ActivRecord::Observer
-      def after_create
-        App.expire_fragment :controller => :todos, :action => :index
-      end
-    end
+```ruby
+class TodoObserver < ActivRecord::Observer
+  def after_create
+    App.expire_fragment :controller => :todos, :action => :index
+  end
+end
+```
 
 The beauty here is that we can use this code anywhere. If you have more
 complicated cache expirations you may have to use a background job. This
@@ -715,8 +767,10 @@ mechanism to write to the cache, we simply have to override the
 Through all of this trickery, you'll be able to express this type of
 statement:
 
-    App.cache.expire_tag 'stats' 
-    App.cache.expire_tag @account
+```ruby
+App.cache.expire_tag 'stats' 
+App.cache.expire_tag @account
+```
 
 The content could from anywhere, but all you know is that's stale.
 
@@ -724,7 +778,6 @@ This is exactly where [Cashier](http://rubygems.org/gems/cashier) comes
 in. It is (my gem) that allows you associate actions and fragments with
 one or more tags, then expire based of tags. Of course you can expire
 the cache from anywhere in your code. Here are some examples:
-
 
     caches_action :stats, :tag => proc {|c|
       "account-#{Account.find(c.params[:id]).id}"
@@ -737,31 +790,35 @@ the cache from anywhere in your code. Here are some examples:
 
 Then you can expire like this:
 
-    Cashier.expire 'account' # wipe all keys tagged 'account'
+```ruby
+Cashier.expire 'account' # wipe all keys tagged 'account'
+```
 
 All this is possible through this module:
 
-    module Cashier
-      module ControllerHelper
-        def self.included(klass)
-          klass.class_eval do
-            def write_fragment_with_tagged_key(key, content, options = nil)
-              if options && options[:tag] && Cashier.perform_caching? 
-                tags = case options[:tag].class.to_s
-                       when 'Proc', 'Lambda'
-                         options[:tag].call(self)
-                       else 
-                         options[:tag]
-                       end
-                Cashier.store_fragment fragment_cache_key(key), *tags
-              end
-              write_fragment_without_tagged_key(key, content, options)
-            end
-            alias_method_chain :write_fragment, :tagged_key
+```ruby
+module Cashier
+  module ControllerHelper
+    def self.included(klass)
+      klass.class_eval do
+        def write_fragment_with_tagged_key(key, content, options = nil)
+          if options && options[:tag] && Cashier.perform_caching? 
+            tags = case options[:tag].class.to_s
+                   when 'Proc', 'Lambda'
+                     options[:tag].call(self)
+                   else 
+                     options[:tag]
+                   end
+            Cashier.store_fragment fragment_cache_key(key), *tags
           end
+          write_fragment_without_tagged_key(key, content, options)
         end
+        alias_method_chain :write_fragment, :tagged_key
       end
     end
+  end
+end
+```
 
 I higly recommend you checkout [Cashier](http://rubygems.org/gems/cashier).
 It may be useful in your application especially if you have complicated
@@ -790,16 +847,18 @@ so we'll have no problems using it for these examples. It takes a string
 input and generates a hash. We'll create a composite key with a
 timestamp and string representation of the input parameters.
 
-  require 'digest/sha1'
+```ruby
+require 'digest/sha1'
 
-  class ComplicatedSearchController < ApplicationController
+class ComplicatedSearchController < ApplicationController
 
-    caches_action :search, :cache_path => proc {|c|
-      timestamp = Model.most_recently_updated.updated_at
-      string = timestamp + c.params.inspect
-      {:tag => Digest::SHA.hexdigest(string)}
-    }
-  end
+  caches_action :search, :cache_path => proc {|c|
+    timestamp = Model.most_recently_updated.updated_at
+    string = timestamp + c.params.inspect
+    {:tag => Digest::SHA.hexdigest(string)}
+  }
+end
+```
 
 That will cache every combination of input parameters you can throw at
 it. This is perfect for actions with pagination as well. It's perfect
@@ -815,14 +874,16 @@ computationally intensive. We can use `Rails.cache` inside the models to
 make them more efficient. Let's say you wanted to cached the listing of
 all the top 100 posts on reddit.
 
-    class Post
-      def self.top_100
-        timestamp = Post.most_recently_updated.updated_at
-        Rails.cache.fetch ['top-100', timestamp.to_i'].join('/') do
-          order('vote_count DESC').limit(100).all
-        end
-      end
+```ruby
+class Post
+  def self.top_100
+    timestamp = Post.most_recently_updated.updated_at
+    Rails.cache.fetch ['top-100', timestamp.to_i'].join('/') do
+      order('vote_count DESC').limit(100).all
     end
+  end
+end
+```
 
 I've used the `most_recently_updated` method a few times. It is not a
 defined method, but a method named so that you understand what it is
@@ -835,35 +896,39 @@ customers or companies in the scope of a specific account. That means, I
 only use the account and customers/companies association. Rails gives
 you the ability to specific a different attribute for `:touch` on
 `belongs_to`. I use this to my advantage to create an
-'association_name_updated_at' column. Then specify :touch =>
-'association_name_updated_at'. Here's how it looks in code:
+`association_name_updated_at` column. Then specify `:touch =>
+association_name_updated_at`. Here's how it looks in code:
 
-    class Account < ActiveRecord::Base
-      has_many :customers
-    end
+```ruby
+class Account < ActiveRecord::Base
+  has_many :customers
+end
 
-    class Customers < ActiveRecord::Base
-      belongs_to :account, :touch => :customers_updated_at
-    end
+class Customers < ActiveRecord::Base
+  belongs_to :account, :touch => :customers_updated_at
+end
+```
 
 That gives me a timestamp I can use to generate all keys. Now I can use
 Rails.cache to fetch different queries and keep them all cached. You can
 wrap this functionality in a module and include in other associations.
 
-    require 'digest/sha1'
+```ruby
+require 'digest/sha1'
 
-    module CachedFinderExtension
-      def cached(options = {})
-        key = Digest::SHA1.hexdigest(options.to_s)
-        association_name = proxy_reflection.name
-        owner_key = [proxy_owner.class.to_s.underscore, proxy_owner.id].join('/')
-        tag = proxy_owner.send("#{association_name}_updated_at").to_i
+module CachedFinderExtension
+  def cached(options = {})
+    key = Digest::SHA1.hexdigest(options.to_s)
+    association_name = proxy_reflection.name
+    owner_key = [proxy_owner.class.to_s.underscore, proxy_owner.id].join('/')
+    tag = proxy_owner.send("#{association_name}_updated_at").to_i
 
-        Rails.cache.fetch [owner_key, association_name, tag, key].join('/') do
-          all options
-        end
-      end
+    Rails.cache.fetch [owner_key, association_name, tag, key].join('/') do
+      all options
     end
+  end
+end
+```
 
 `all` is a method that takes many options. We don't really care what's
 passed in, we just need to be able to generate a cache key based on the
@@ -872,13 +937,15 @@ the method will return fresh content depending if records have been
 modified. Include the extension in your association and you're on your
 way!
 
-    class Account < ActiveRecord::Base
-      has_many :customers, :extend => CachedFinderExentsion
-    end
+```ruby
+class Account < ActiveRecord::Base
+  has_many :customers, :extend => CachedFinderExentsion
+end
 
-    # all find's now automatically cached and expired
-    @account.customers.cached(:conditions => {:name => 'Adam'})
-    @account.customers.cache(:order => 'name ASC', :limit => 10})
+# all find's now automatically cached and expired
+@account.customers.cached(:conditions => {:name => 'Adam'})
+@account.customers.cached(:order => 'name ASC', :limit => 10})
+```
 
 These are just examples of what you can do with caching in the model
 layer. You could even write the type of cached finder extension for
@@ -952,16 +1019,18 @@ relative or something like `strftime`. I've encapsulated this process in
 a helper in my Rails applications. Once all the data is in the DOM, you
 can do all the parsing in JavaScript.
 
-    def timestamp(time, options = {})
-      classes = %w(timestamp)
-      classes << 'past' if time.past?
-      classes << 'future' if time.future?
+```ruby
+def timestamp(time, options = {})
+  classes = %w(timestamp)
+  classes << 'past' if time.past?
+  classes << 'future' if time.future?
 
-      options[:class] ||= ""
-      options[:class] += classes.join(' ')
+  options[:class] ||= ""
+  options[:class] += classes.join(' ')
 
-      content_tag(:span, time.utc.iso8601, options)
-    end
+  content_tag(:span, time.utc.iso8601, options)
+end
+```
 
 Then, when the page loads you can use a library like date.js to create
 more user friendly dates.

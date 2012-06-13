@@ -25,41 +25,44 @@ we can just piggy back off the configuration.
 
 Here's an example `Router` class
 
-    class Router
-      include Rails.application.routes.url_helpers
+```ruby
+class Router
+  include Rails.application.routes.url_helpers
 
-      def self.default_url_options
-        ActionMailer::Base.default_url_options
-      end
-    end
+  def self.default_url_options
+    ActionMailer::Base.default_url_options
+  end
+end
 
-    router = Router.new
-    router.posts_url  # http://localhost:3000/posts
-    router.posts_path # /posts
+router = Router.new
+router.posts_url  # http://localhost:3000/posts
+router.posts_path # /posts
 
-    # all -2ez-
+# all -2ez-
+```
 
 If you want to simply include routing support in any class you can
 easily combine this into a module
 
-    module Routing
-      extend ActiveSupport::Concern
-      include Rails.application.routes.url_helpers
+```ruby
+module Routing
+  extend ActiveSupport::Concern
+  include Rails.application.routes.url_helpers
 
-      included do
-        def default_url_options
-          ActionMailer::Base.default_url_options
-        end
-      end
+  included do
+    def default_url_options
+      ActionMailer::Base.default_url_options
     end
+  end
+end
 
-    class UrlGenerator
-      include Routing
-    end
+class UrlGenerator
+  include Routing
+end
 
-    generator = UrlGenerator.new
-    generator.posts_url
-    generator.posts_path
+generator = UrlGenerator.new
+generator.posts_url
+generator.posts_path
+```
 
 Happy routing!
-

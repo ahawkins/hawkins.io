@@ -65,18 +65,20 @@ Now that I know this, I'm able to try to figure out why **every single
 key** is falling back to english. After some more code reading I look
 squarely at this method: (source taken from I18n code)
 
-    def lookup(locale, key, scope = [], options = {})
-      init_translations unless initialized?
-      keys = I18n.normalize_keys(locale, key, scope, options[:separator])
+```ruby
+def lookup(locale, key, scope = [], options = {})
+  init_translations unless initialized?
+  keys = I18n.normalize_keys(locale, key, scope, options[:separator])
 
-      keys.inject(translations) do |result, _key|
-        _key = _key.to_sym
-        return nil unless result.is_a?(Hash) && result.has_key?(_key)
-        result = result[_key]
-        result = resolve(locale, _key, result, options.merge(:scope => nil)) if result.is_a?(Symbol)
-        result
-      end
-    end
+  keys.inject(translations) do |result, _key|
+    _key = _key.to_sym
+    return nil unless result.is_a?(Hash) && result.has_key?(_key)
+    result = result[_key]
+    result = resolve(locale, _key, result, options.merge(:scope => nil)) if result.is_a?(Symbol)
+    result
+  end
+end
+```
 
 The underlying code is pretty simple. It loops over the translation keys
 like: `[en, dashboard, subkey, key, key]` to find the actual value in
@@ -85,19 +87,21 @@ course of this task), throw a debugger in and see what's happening.
 
 So I put a debugger here:
 
-    def lookup(locale, key, scope = [], options = {})
-      init_translations unless initialized?
-      keys = I18n.normalize_keys(locale, key, scope, options[:separator])
+```ruby
+def lookup(locale, key, scope = [], options = {})
+  init_translations unless initialized?
+  keys = I18n.normalize_keys(locale, key, scope, options[:separator])
 
-      keys.inject(translations) do |result, _key|
-        _key = _key.to_sym
-        debugger # <---------- Debugger added
-        return nil unless result.is_a?(Hash) && result.has_key?(_key)
-        result = result[_key]
-        result = resolve(locale, _key, result, options.merge(:scope => nil)) if result.is_a?(Symbol)
-        result
-      end
-    end
+  keys.inject(translations) do |result, _key|
+    _key = _key.to_sym
+    debugger # <---------- Debugger added
+    return nil unless result.is_a?(Hash) && result.has_key?(_key)
+    result = result[_key]
+    result = resolve(locale, _key, result, options.merge(:scope => nil)) if result.is_a?(Symbol)
+    result
+  end
+end
+```
 
 So I restart the server and go to page. My perfectly placed debugger
 hits and I get the nice rdb prompt. This is where my brain **starts to
@@ -114,13 +118,15 @@ of the X-Files.
 I quit the process and start over again. This time I don't step but
 inspect what's going on in memory. Here's me in the debugger
 
-    (rdb:2) translations.keys
-    [:"en-us", :"de-ch", :en, :fi :"en-gb"]
-    (rdb:2) translations[:fi]
-    nil
-    (rdb:2) translations[:en]
-    {:invitation_mailer=>{:rejection_notification=>{:description=>"%{name} has reje...
-    (rdb:2)
+```
+(rdb:2) translations.keys
+[:"en-us", :"de-ch", :en, :fi :"en-gb"]
+(rdb:2) translations[:fi]
+nil
+(rdb:2) translations[:en]
+{:invitation_mailer=>{:rejection_notification=>{:description=>"%{name} has reje...
+(rdb:2)
+```
 
 Well this is looking **very** suspect. I'm thinking symbols are globally
 unique! A `:fi` anywhere in any ruby source file in the same process is
@@ -137,26 +143,30 @@ meltdown.
 
 I start playing in the debugger more.
 
-    (rdb:2) translations[translations.keys.first]
-    # a ton of finnish
-    (rdb:2) translations.keys[:fi]
-    nil # wait wut.
+```
+(rdb:2) translations[translations.keys.first]
+# a ton of finnish
+(rdb:2) translations.keys[:fi]
+nil # wait wut.
+```
 
 Does. Not. Compute. Brain shutting down. More debugging:
 
-    (rdb:2) translations.keys
-    [:fi, :"en-gb", :en, :"en-us", :"de-ch"]
-    (rdb:2) translations.keys.first == :fi # HMMMM. Highly suspect <------------ WTF!
-    false
-    (rdb:2) translations.keys.first
-    :fi
-    (rdb:2) translations.keys[2] == :en
-    true
-    (rdb:2) translations[:en]
-    # a ton of english
-    (rdb:2) translations[:fi]
-    # nil
-    (rdb:2) translations[translations.keys.first]
+```
+(rdb:2) translations.keys
+[:fi, :"en-gb", :en, :"en-us", :"de-ch"]
+(rdb:2) translations.keys.first == :fi # HMMMM. Highly suspect <------------ WTF!
+false
+(rdb:2) translations.keys.first
+:fi
+(rdb:2) translations.keys[2] == :en
+true
+(rdb:2) translations[:en]
+# a ton of english
+(rdb:2) translations[:fi]
+# nil
+(rdb:2) translations[translations.keys.first]
+```
 
 GAH. I cannot handle this. There has got to be some completly sinister
 going on here. Something I've never heard about. Something that only
@@ -166,18 +176,20 @@ going in the C implementation. Just something fucking crazy.
 This sort of bug induced comma has been going on for a few hours now.
 Nearing the end of my rope I try some more things in the debugger:
 
-    /Users/adam/.rvm/gems/ree-1.8.7-2011.03/gems/i18n-0.6.0/lib/i18n/backend/simple.rb:33
-    locale = locale.to_sym
-    (rdb:1) locale
-    "fi"
-    (rdb:1) locale == "fi"
-    false
-    (rdb:1) locale <=> "fi"
-    1
-    (rdb:1) locale.length
-    5
-    (rdb:1) "fi".length
-    2
+```
+/Users/adam/.rvm/gems/ree-1.8.7-2011.03/gems/i18n-0.6.0/lib/i18n/backend/simple.rb:33
+locale = locale.to_sym
+(rdb:1) locale
+"fi"
+(rdb:1) locale == "fi"
+false
+(rdb:1) locale <=> "fi"
+1
+(rdb:1) locale.length
+5
+(rdb:1) "fi".length
+2
+```
 
 **HOLY CHRISTMAS**. There is the sinister bit! The keys are actually
 different! This is completely masked by any call to `puts` or `to_sym`.
@@ -186,12 +198,14 @@ Now I have to figure out why in god's name is the key for finnish in the
 cause this problem: Where the YML files are parsed and put into the
 translations file. I track that down and enter the debugger:
 
-    (rdb:1) locale.bytes
-    #<Enumerable::Enumerator:0x10ba360b8>
-    (rdb:1) locale.bytes.map(&:to_s)
-    ["239", "187", "191", "102", "105"]
-    (rdb:1) "fi".bytes.map(&:to_s)
-    ["102", "105"]
+```
+(rdb:1) locale.bytes
+#<Enumerable::Enumerator:0x10ba360b8>
+(rdb:1) locale.bytes.map(&:to_s)
+["239", "187", "191", "102", "105"]
+(rdb:1) "fi".bytes.map(&:to_s)
+["102", "105"]
+```
 
 ## Encodings, You've Done it to me Again!
 
@@ -210,14 +224,18 @@ other piece of code. Let's get a hex dump and figure out for sure.
 
 Here is the hex dump of the `en.yml` file. 
 
-    cs181226081:crm adam$ od config/locales/en.yml 
-    0000000    067145  005072  020040  067554  060543  062554  035163  020012
+```
+cs181226081:crm adam$ od config/locales/en.yml 
+0000000    067145  005072  020040  067554  060543  062554  035163  020012
+```
 
 Now we have the eternally lovely `fi.yml`
 
-    cs181226081:crm adam$ od -ax config/locales/fi.yml 
-    0000000    ?   ?   ?   f   i   :  nl  sp  sp   l   o   c   a   l   e   s
-             bbef    66bf    3a69    200a    6c20    636f    6c61    7365
+```
+cs181226081:crm adam$ od -ax config/locales/fi.yml 
+0000000    ?   ?   ?   f   i   :  nl  sp  sp   l   o   c   a   l   e   s
+         bbef    66bf    3a69    200a    6c20    636f    6c61    7365
+```
 
 **Dear god**. There is a BOM at the start of the file. That was it?! Yes
 folks, that was the problem. There was a BOM at the start of my locale

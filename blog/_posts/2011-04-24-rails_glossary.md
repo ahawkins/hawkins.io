@@ -92,36 +92,40 @@ Cucumber tests are divided up into "Feature" files. Each feature has
 many "scenarios." Features are like use cases. Scenarios are different
 permutations of that use case. Here is an example Feature file:
 
-    Feature: Make Widthdrawls from Accounts
-      As an account holder
-      I want to use my money
-      In order to use it buy thing
+```gerhkin
+Feature: Make Widthdrawls from Accounts
+  As an account holder
+  I want to use my money
+  In order to use it buy thing
 
-      Background:
-        Given I have account under "RubyX"
-        And my account is activated
+  Background:
+    Given I have account under "RubyX"
+    And my account is activated
 
-      Scenario: There is enough money in my account
-        Given my account has "$1,000"
-        And I'm at the bank
-        When I widthdraw "$500"
-        Then my account should have "$500"
+  Scenario: There is enough money in my account
+    Given my account has "$1,000"
+    And I'm at the bank
+    When I widthdraw "$500"
+    Then my account should have "$500"
 
-      Scenario: There is not enough money in my account
-        Given my account has "$1,000"
-        And I'm at the bank
-        When I widthdraw "$500"
-        Then the teller should reject my transaction
+  Scenario: There is not enough money in my account
+    Given my account has "$1,000"
+    And I'm at the bank
+    When I widthdraw "$500"
+    Then the teller should reject my transaction
+```
 
 Here is an example step definition:
 
-    Given /I'm at the bank/ do
-      # set up pre conditions
-    end
+```ruby
+Given /I'm at the bank/ do
+  # set up pre conditions
+end
 
-    Then /the teller should reject my transaction/ do
-      # assert on things
-    end
+Then /the teller should reject my transaction/ do
+  # assert on things
+end
+```
 
 ## DSL
 
@@ -134,14 +138,16 @@ a programmer's perspective. You may have used a DSL before and
 not realized it. Here is an example from Sunspot's search 
 functionality. It's designed for describing a search and nothing more:
 
-    Post.search do
-      fulltext 'best pizza'
-      with :blog_id, 1
-      with(:published_at).less_than Time.now
-      order_by :published_at, :desc
-      paginate :page => 2, :per_page => 15
-      facet :category_ids, :author_id
-    end
+```ruby
+Post.search do
+  fulltext 'best pizza'
+  with :blog_id, 1
+  with(:published_at).less_than Time.now
+  order_by :published_at, :desc
+  paginate :page => 2, :per_page => 15
+  facet :category_ids, :author_id
+end
+```
 
 ## ERB
 
@@ -149,9 +155,11 @@ ERB is Embedded Ruby. ERB is built into the Ruby core. It allows to to
 place Ruby inside other files. For example, placing Ruby inside HTML.
 Here is an example:
 
-    <div class="<%= @ticket.state %>"
-      <p><%= @ticket.message %></p>
-    </div>
+```erb
+<div class="<%= @ticket.state %>"
+  <p><%= @ticket.message %></p>
+</div>
+```
 
 ## Factories - FactoryGirl & Machinist
 
@@ -202,11 +210,13 @@ a class that's already been defined. ActiveSupport uses open classes to
 add all those nice methods to core Ruby objects. This is how you can add
 a method to the `String` class:
 
-    class String
-      def wtf?
-        puts "wtf? " * self.length
-      end
-    end
+```ruby
+class String
+  def wtf?
+    puts "wtf? " * self.length
+  end
+end
+```
 
 ## Rake
 
@@ -232,19 +242,21 @@ Rspec is a unit testing framework. It is based around the idea that test
 should describe behavior of classes in an english like way. Test files
 are called "specs". Spec files are divided into "examples." Examples
 contain matchers. Spec files can share examples. Here is an example
-spec_file:
+spec file:
 
-    require 'spec_helper'
+```ruby
+require 'spec_helper'
 
-    describe Post do
-      it { should have_many(:comments) }
+describe Post do
+  it { should have_many(:comments) }
 
-      describe "Post#out_dated?" do
-        subject { Post.new :created_at => 2.months.ago }
+  describe "Post#out_dated?" do
+    subject { Post.new :created_at => 2.months.ago }
 
-        it { should be_outdated }
-      end
-    end
+    it { should be_outdated }
+  end
+end
+```
 
 ## RVM
 
@@ -285,15 +297,17 @@ standard setup and tear down. Rails generates test files built in
 Test::Unit by default. It provides basic assertions. It's similar to
 jUnit or any member of the xUnit family. Here is an example:
 
-    require 'test_helper'
+```ruby
+require 'test_helper'
 
-    class PostTest < Test::Unit::TestCase 
+class PostTest < Test::Unit::TestCase 
 
-      def test_out_dated? do
-        post = Post.new :created_at => 2.months.ago
-        assertTrue(post.out_dated?)
-      end
-    end
+  def test_out_dated? do
+    post = Post.new :created_at => 2.months.ago
+    assertTrue(post.out_dated?)
+  end
+end
+```
 
 ## UJS (Unobstrusive JavaScript)
 

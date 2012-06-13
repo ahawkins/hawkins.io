@@ -86,49 +86,53 @@ Create a file named: `apps/login_tutorial/resource/login_page.js`.
 
 Here is the skeleton:
 
-    LoginTutorial.loginPage = SC.Page.design({
-        mainPane: SC.MainPane.design({
-        })
-    }); 
+```javascript
+LoginTutorial.loginPage = SC.Page.design({
+    mainPane: SC.MainPane.design({
+    })
+}); 
+```
 
 Inside the mainPane there will be view with 2 text feilds and a button to
 submit the form. Here is the scaffold code you can use to create the
 view:
 
-    LoginTutorial.loginPage = SC.Page.design({
-      mainPane: SC.MainPane.design({
-        childViews: 'form'.w(),
+```javascript
+LoginTutorial.loginPage = SC.Page.design({
+  mainPane: SC.MainPane.design({
+    childViews: 'form'.w(),
 
-        form: SC.View.design({
-          layout: { width: 200, height: 160, centerX: 0, centerY: 0 },
-          childViews: 'header userName password loginButton'.w(),
+    form: SC.View.design({
+      layout: { width: 200, height: 160, centerX: 0, centerY: 0 },
+      childViews: 'header userName password loginButton'.w(),
 
-          header: SC.LabelView.design({
-            layout: { width: 200, height: 24, top: 0, centerX: 0 },
-            controlSize: SC.LARGE_CONTROL_SIZE,
-            value: 'Login Required',
-            textAlign: SC.ALIGN_CENTER
-          }),
+      header: SC.LabelView.design({
+        layout: { width: 200, height: 24, top: 0, centerX: 0 },
+        controlSize: SC.LARGE_CONTROL_SIZE,
+        value: 'Login Required',
+        textAlign: SC.ALIGN_CENTER
+      }),
 
-          userName: SC.TextFieldView.design({
-            layout: { width: 150, height: 30, top: 30, centerX: 0},
-            hint: 'Username'
-          }),
+      userName: SC.TextFieldView.design({
+        layout: { width: 150, height: 30, top: 30, centerX: 0},
+        hint: 'Username'
+      }),
 
-          password: SC.TextFieldView.design({
-            layout: {  width: 150, height: 30, top: 80, centerX: 0 },
-            hint: 'Password',
-            isPassword: YES
-          }),
+      password: SC.TextFieldView.design({
+        layout: {  width: 150, height: 30, top: 80, centerX: 0 },
+        hint: 'Password',
+        isPassword: YES
+      }),
 
-          loginButton: SC.ButtonView.design({
-            layout: { width: 100, height: 30, top: 120, centerX: 0 },
-            conrolSize: SC.HUGE_CONTROL_SIZE,
-            title: 'Login'
-          })
-        })
+      loginButton: SC.ButtonView.design({
+        layout: { width: 100, height: 30, top: 120, centerX: 0 },
+        conrolSize: SC.HUGE_CONTROL_SIZE,
+        title: 'Login'
       })
-    });
+    })
+  })
+});
+```
 
 We still have to connect the controller to the data and setup the state
 chart. Let's do that next.
@@ -138,7 +142,9 @@ chart. Let's do that next.
 Firs, update the `Buildfile` in the root directory to
 require the state chart framework. Change the only line in the file to:
 
-    config :all, :required => [:sproutcore, 'sproutcore/statechart']
+```ruby
+config :all, :required => [:sproutcore, 'sproutcore/statechart']
+```
 
 Now create a file named: `apps/login_tutorial/core_states.js`. This file
 defines the state chart. It will have 2 states: loggedIn and loggedOut.
@@ -146,38 +152,42 @@ When we enter the logged out state, the login form will be displayed.
 The form will be removed when we leave the state. The main page will be
 displayed when we enter the logged in state. Here is the code:
 
-    LoginTutorial.statechart = SC.Statechart.create({
-      rootState: SC.State.design({
-        initialSubstate: 'loggedOut',
+```javascript
+LoginTutorial.statechart = SC.Statechart.create({
+  rootState: SC.State.design({
+    initialSubstate: 'loggedOut',
 
-        loggedOut: SC.State.design({
-          enterState: function() {
-            LoginTutorial.getPath('loginPage.mainPane').append();
-          },
+    loggedOut: SC.State.design({
+      enterState: function() {
+        LoginTutorial.getPath('loginPage.mainPane').append();
+      },
 
-          exitState: function() {
-            LoginTutorial.getPath('loginPage.mainPane').remove();
-          }
-        }),
+      exitState: function() {
+        LoginTutorial.getPath('loginPage.mainPane').remove();
+      }
+    }),
 
-        loggedIn: SC.State.design({
-          enterState: function() {
-            LoginTutorial.getPath('mainPage.mainPane').append();
-          }
-        })
-      })
-    });
+    loggedIn: SC.State.design({
+      enterState: function() {
+        LoginTutorial.getPath('mainPage.mainPane').append();
+      }
+    })
+  })
+});
+```
 
 The state chart is in charge of handling the flow of the application. It
 needs to be started when the user goes to the page. Open up
 `apps/login_tutorial/main.js` and replace the content of the `main`
 function with:
 
-    LoginTutorial.main = function main() {
+```javascript
+LoginTutorial.main = function main() {
 
-      LoginTutorial.statechart.initStatechart();
+  LoginTutorial.statechart.initStatechart();
 
-    } ;
+};
+```
 
 Now, reboot the server and head back to the application. You should see
 a shiny login form.
@@ -194,13 +204,15 @@ in the login form. First generate a controller:
 
 Now create two attributes for the controller like so:
 
-    LoginTutorial.loginController = SC.ObjectController.create(
-    /** @scope LoginTutorial.loginController.prototype */ {
+```javascript
+LoginTutorial.loginController = SC.ObjectController.create(
+/** @scope LoginTutorial.loginController.prototype */ {
 
-      userName: null,
-      password: null
+  userName: null,
+  password: null
 
-    }) ;
+});
+```
 
 Now we need to bind the controller to the inputs. We'll set the
 `valueBinding` property on the text fields to the correct value on the
@@ -209,18 +221,20 @@ controller's attributes will update. We'll use the controller to get the
 data to actually login soon. Here is the code to bind the text fields to
 the controller:
 
-    userName: SC.TextFieldView.design({
-      layout: { width: 150, height: 30, top: 30, centerX: 0},
-      hint: 'Username',
-      valueBinding: 'LoginTutorial.loginController.userName'
-    }),
+```javascript
+userName: SC.TextFieldView.design({
+  layout: { width: 150, height: 30, top: 30, centerX: 0},
+  hint: 'Username',
+  valueBinding: 'LoginTutorial.loginController.userName'
+}),
 
-    password: SC.TextFieldView.design({
-      layout: {  width: 150, height: 30, top: 80, centerX: 0 },
-      hint: 'Password',
-      isPassword: YES,
-      valueBinding: 'LoginTutorial.loginController.password'
-    }),
+password: SC.TextFieldView.design({
+  layout: {  width: 150, height: 30, top: 80, centerX: 0 },
+  hint: 'Password',
+  isPassword: YES,
+  valueBinding: 'LoginTutorial.loginController.password'
+}),
+```
 
 Reload the page and now you can type stuff into the fields. Then you can
 check controller properties in the console. So for example, if you type
@@ -232,7 +246,9 @@ check controller properties in the console. So for example, if you type
 Conversely, you could also set the value of userName in the controller
 and it would update the UI:
 
-    LoginTutorial.loginController.set('userName', 'rpm')
+```javascript
+LoginTutorial.loginController.set('userName', 'rpm')
+```
 
 ## Making the Form Do Something
 
@@ -250,103 +266,33 @@ example. Here is the strategy:
 
 Set the responder like this:
 
-    LoginTutorial.loginPage = SC.Page.design({
-      mainPane: SC.MainPane.design({
-        defaultResponder: 'LoginTutorial.statechart',
+```ruby
+LoginTutorial.loginPage = SC.Page.design({
+  mainPane: SC.MainPane.design({
+    defaultResponder: 'LoginTutorial.statechart',
 
-        //...
-      })
-    })
+    //...
+  })
+})
+```
 
 Update the button view like this:
 
-    loginButton: SC.ButtonView.design({
-        layout: { width: 100, height: 30, top: 120, centerX: 0 },
-        conrolSize: SC.HUGE_CONTROL_SIZE,
-        title: 'Login',
-        action: 'authenticate'
-      })
+```javascript
+loginButton: SC.ButtonView.design({
+  layout: { width: 100, height: 30, top: 120, centerX: 0 },
+  conrolSize: SC.HUGE_CONTROL_SIZE,
+  title: 'Login',
+  action: 'authenticate'
+})
+```
 
 Now add a method in the state chart to handle the action
 
-    LoginTutorial.statechart = SC.Statechart.create({
-      rootState: SC.State.design({
-        initialSubstate: 'loggedOut',
-
-        loggedOut: SC.State.design({
-          enterState: function() {
-            LoginTutorial.getPath('loginPage.mainPane').append();
-          },
-
-          exitState: function() {
-            LoginTutorial.getPath('loginPage.mainPane').remove();
-          },
-
-          authenticate: function() {
-            // we'll fill this in later
-            // you can call alert('weeeeee') to test it's working if you 
-            // don't trust me :D
-          }
-        }),
-
-        loggedIn: SC.State.design({
-          enterState: function() {
-            LoginTutorial.getPath('mainPage.mainPane').append();
-          }
-        })
-      })
-    });
-
-## Mock Authentication
-
-At this point we can check the credentials in the
-authenticate method we just added. For now we'll just check to see if
-the user has filled in both things, then move to logged in state.
-We'll show an error if either value is missing. Once the UI 
-working, we'll use a simple web service to authenticate.
-
-    authenticate: function() {
-        var userName = LoginTutorial.getPath('loginController.userName');
-        var password = LoginTutorial.getPath('loginController.password');
-
-        if(!SC.empty(userName) && !SC.empty(password)) {
-          this.gotoState('loggedIn');
-        } else {
-          SC.AlertPane.error("Login information incorrect!");
-        }
-      }
-
-Now, when you fill in both fields and press login, then you should see the
-original welcome message. Otherwise, you get a popup error message.
-
-![Error Message](/images/posts/sproutcore_login_tutorial/error.png)
-
-## Connecting to the Web
-
-Now we'll create a simple sinatra site that accepts a post and does the
-same basic checking. Here is `webservice.rb`:
-
-    require 'rubygems'
-    require 'sinatra' # make sure you install this gem
-    require 'json' # make sure you install this gem
-
-    post '/login' do
-      data = JSON.parse request.body.read
-
-      if data['user_name'] && data['password']
-        200
-      else
-        412
-      end
-    end
-
-Sproutcore sends parameters as JSON encoded strings. We need to decode
-the JSON to get the parameters. Now you can run the file like this:
-
-    $ ruby webservice.rb
-
-Now we have to update the authenticate method to post data to the
-server:
+```javascript
+LoginTutorial.statechart = SC.Statechart.create({
+  rootState: SC.State.design({
+    initialSubstate: 'loggedOut',
 
     loggedOut: SC.State.design({
       enterState: function() {
@@ -358,22 +304,103 @@ server:
       },
 
       authenticate: function() {
-        var userName = LoginTutorial.getPath('loginController.userName');
-        var password = LoginTutorial.getPath('loginController.password');
-
-        SC.Request.postUrl('/login', {user_name: userName, password: password}).
-          notify(this, 'didCompleteAuthentication').json().send();
-      },
-
-      didCompleteAuthentication: function(response){
-        if(SC.ok(response)) {
-           this.gotoState('loggedIn');
-         } else {
-           SC.AlertPane.error("Login information incorrect!");
-         } 
+        // we'll fill this in later
+        // you can call alert('weeeeee') to test it's working if you 
+        // don't trust me :D
       }
     }),
 
+    loggedIn: SC.State.design({
+      enterState: function() {
+        LoginTutorial.getPath('mainPage.mainPane').append();
+      }
+    })
+  })
+});
+```
+
+## Mock Authentication
+
+At this point we can check the credentials in the
+authenticate method we just added. For now we'll just check to see if
+the user has filled in both things, then move to logged in state.
+We'll show an error if either value is missing. Once the UI 
+working, we'll use a simple web service to authenticate.
+
+```javascript
+authenticate: function() {
+  var userName = LoginTutorial.getPath('loginController.userName');
+  var password = LoginTutorial.getPath('loginController.password');
+
+  if(!SC.empty(userName) && !SC.empty(password)) {
+    this.gotoState('loggedIn');
+  } else {
+    SC.AlertPane.error("Login information incorrect!");
+  }
+}
+```
+
+Now, when you fill in both fields and press login, then you should see the
+original welcome message. Otherwise, you get a popup error message.
+
+![Error Message](/images/posts/sproutcore_login_tutorial/error.png)
+
+## Connecting to the Web
+
+Now we'll create a simple sinatra site that accepts a post and does the
+same basic checking. Here is `webservice.rb`:
+
+```ruby
+require 'rubygems'
+require 'sinatra' # make sure you install this gem
+require 'json' # make sure you install this gem
+
+post '/login' do
+  data = JSON.parse request.body.read
+
+  if data['user_name'] && data['password']
+    200
+  else
+    412
+  end
+end
+```
+
+Sproutcore sends parameters as JSON encoded strings. We need to decode
+the JSON to get the parameters. Now you can run the file like this:
+
+    $ ruby webservice.rb
+
+Now we have to update the authenticate method to post data to the
+server:
+
+```javascript
+loggedOut: SC.State.design({
+  enterState: function() {
+    LoginTutorial.getPath('loginPage.mainPane').append();
+  },
+
+  exitState: function() {
+    LoginTutorial.getPath('loginPage.mainPane').remove();
+  },
+
+  authenticate: function() {
+    var userName = LoginTutorial.getPath('loginController.userName');
+    var password = LoginTutorial.getPath('loginController.password');
+
+    SC.Request.postUrl('/login', {user_name: userName, password: password}).
+      notify(this, 'didCompleteAuthentication').json().send();
+  },
+
+  didCompleteAuthentication: function(response){
+    if(SC.ok(response)) {
+       this.gotoState('loggedIn');
+     } else {
+       SC.AlertPane.error("Login information incorrect!");
+     } 
+  }
+})
+```
 
 We use `SC.Request` to create a HTTP POST ajax call. The second argument
 is the body. Calling .json() will encode the body argument when sending
