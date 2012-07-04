@@ -86,7 +86,10 @@ fixed. Here are some issue's we've observed so far.
   panel where the active view is switched in and out. If you're on page
   A and go to page B, keep page A around. Going back to page A shouldn't
   redraw the view. We've implemented this in our application.
-* Rendering collections: only redraw items that have changed.
+* Rendering collections: only redraw items that have changed. **UPDATE**:
+  The entire view is redrawn if the array is replaced. The content is
+  added to the array the view is updated. Ember-Data replaces the array
+  causing complete redraws.
 * Ember-Data: the entire thing needs a lot of work.
 * Computed properties are great, but why do they generate new data each
   time?
