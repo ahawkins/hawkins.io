@@ -25,7 +25,7 @@ isn't a "real" language and still has some stigma associated with it.
 I'd like to solve these problem somehow and lift the web up by elevating
 JavaScript and empowering developers.
 
-# Completely Separate JavaScript and the Browser
+## Completely Separate JavaScript and the Browser
 
 The tight coupling between js and browser causes many problems. This
 makes it very difficult to develop and learn js without a
@@ -65,7 +65,7 @@ js development much easier. This is also the first step to
 making js a first class language. A standard library could be
 built and more progress could be made.
 
-# First Class Modules
+## First Class Modules
 
 I think everyone agrees that js needs support for `require`
 (some concept of a load path). This implies support for discrete source
@@ -101,7 +101,7 @@ import * from controllers;
 
 `app.js` would work fine outside the browser and inside the browser.
 
-# Standard Testing Framework
+## Standard Testing Framework
 
 Testing is an extremely important part of software engineering. I think
 you cannot have successful engineering without automated testing.
@@ -117,7 +117,7 @@ Notable editions for better testing: test coverage tools, a good
 mock/stubbing framework, a good factory library, and support for
 mutation testing.
 
-# Change The Culture
+## Change The Culture
 
 This is not a technical challenge but a community challenge. Technical
 challenges can be evaluated with logical ruthlessness. Changing culture
