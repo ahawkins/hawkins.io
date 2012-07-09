@@ -113,6 +113,10 @@ engineers first class testing support. I think qUnit is a perfectly
 viable candidate to be "the" testing framework. Inside qUnit you can use
 other tools (like interacting with browsers) to complete your tests.
 
+Notable editions for better testing: test coverage tools, a good
+mock/stubbing framework, a good factory library, and support for
+mutation testing.
+
 # Change The Culture
 
 This is not a technical challenge but a community challenge. Technical
