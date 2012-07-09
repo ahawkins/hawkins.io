@@ -110,7 +110,7 @@ competing test runners. There is a difference between testing tools like
 Casper.js and test runners like qUnit or Jasmine. JavaScript needs to have unit
 testing support built into the standard library somehow. This enables
 engineers first class testing support. I think qUnit is a perfectly
-viable candiate to be "the" testing framework. Inside qUnit you can use
+viable candidate to be "the" testing framework. Inside qUnit you can use
 other tools (like interacting with browsers) to complete your tests.
 
 # Change The Culture
