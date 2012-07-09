@@ -7,13 +7,13 @@ tags: [javascript]
 JavaScript has gotten a big push in recent years. In the last 
 two years there has been an explosion of JavaScript development. I
 think Backbone was the catalyst for the revolution. Larger companies
-(Google and Apple) have been using JavaScript to create full fledged
-applications (Sproutcore) for a while. Recently complex client side are
+(Google and Apple) have been using JavaScript (Sproutcore) to create full fledged
+applications for a while. Complex client side are
 starting to flourish. These type of applications have primarily developed by
 engineers with legitimate software engineering experience and they need
 tools. There is a large influx of traditional backend developers
 (Java/Python/Ruby) with traditional and proven language experience
-making the move to creating frontends to their platforms in JavaScript.
+moving to js frontends for their platforms.
 There is also a large amount of untapped potential: people who only know
 JavaScript. I consider these people who are interested in creating
 complex client side applications, but don't know how to architect them.
@@ -29,17 +29,18 @@ JavaScript and empowering developers.
 
 The tight coupling between js and browser causes many problems. This
 makes it very difficult to develop and learn js without a
-browser. The DOM is the reason why js is tied to the browser. This isn't
+browser. This is because js was born in the browser. This isn't
 simply about being able to test js with a headless browser. This
 is about separating the DOM side of js and core js. This basically
-taking the good parts and removing the bad parts.
+takes the good parts and removes the bad parts--and making javascript an
+isolated language and not just a DOM interface.
 
 New developers must write HTML page to load in their browser to test
 their code. WTF? This isn't good practice for serious development.
 Imagine if you had to learn XML before you could run your Python code.
 You can use Node to execute js outside the browser. I think this is
 completely missing the point. Node is all about server-side js. What
-about plain js? I don't want to have to open chrome, I don't want to have
+about plain js? I don't want to have to open Chrome, I don't want to have
 to run `node inheritance_example.js`. I want to run: `javascript
 inheritance_example.js`. This opens up a complete new word of
 development!
@@ -80,8 +81,8 @@ Developers must come a solution for this to make js development.
 One possible solution is to simply treat to put "./" on the load path.
 The js VM simply has to have read access to files in that directory.
 It's common practice to package js applications as a single directory.
-It's the browser's VM to make files available over HTTP. For example:
-say you have this directory structure:
+The browser's VM's responsibility to make files available over HTTP.
+For example: say you have this directory structure:
 
 ```
 ./
@@ -93,7 +94,7 @@ say you have this directory structure:
 
 ```javascript
 // one version
-controllers = require('controllers')
+controllers = require('controllers');
 
 // EMCA6
 import * from controllers;
@@ -107,11 +108,11 @@ Testing is an extremely important part of software engineering. I think
 you cannot have successful engineering without automated testing.
 JavaScript needs to level up its testing infrastructure. There are many
 competing test runners. There is a difference between testing tools like
-Casper.js and test runners like qUnit or Jasmine. JavaScript needs to have unit
-testing support built into the standard library somehow. This enables
-engineers first class testing support. I think qUnit is a perfectly
+Casper.js and test runners like qUnit. JavaScript needs to have unit
+testing support built into the standard library somehow. This promotes
+first class testing support. I think qUnit is a perfectly
 viable candidate to be "the" testing framework. Inside qUnit you can use
-other tools (like interacting with browsers) to complete your tests.
+other tools (for interacting with browsers or other systems) to complete your tests.
 
 Notable editions for better testing: test coverage tools, a good
 mock/stubbing framework, a good factory library, and support for
@@ -134,7 +135,7 @@ since when was jQuery a programming language?). JavaScript is no longer
 the realm of copy and paste scripts from random web pages. There are
 still people doing this. These are not the people I want to engage. I
 want to engage passionate developers who care about the web and the
-techonlogies that compose it. We need to focus on quality engineering
+technologies that compose it. We need to focus on quality engineering
 and push the language forward. We can't push the web forward unless we
 push the tools forward. We need to encourage each other to try harder,
 push harder, to architect, to learn, to test more, to not settle and to
