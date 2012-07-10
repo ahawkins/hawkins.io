@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Advanced Caching in Rails
+title: "Advanced Caching in Rails: The Series"
 tags: [rails, tutorials]
 ---
 
@@ -13,14 +13,24 @@ Splitting it up into different chapters allows people to skip to their
 level or find relevant information. See the revision notes below for
 more information.
 
+## Purpose
+
+This series means to teach you everything you need to know to implement
+any different caching level inside your Rails application. It assumes
+you know nothing at all about caching in any of its forms. It takes from
+zero to knowledge to an intermediate level in all areas. If you can't
+implement caching in your app after reading this then I've failed.
+
 ## Index
 
 1. Caching Strategies: HTTP, page, action, fragment, and `Rails.cache`
 2. Using Strategies effectively
-3. Stepping Outside the HTTP Request
-4. Tag Based Caching
-5. Tips and Tricks
-6. Conclusion
+3. Handling Static Assets
+4. Stepping Outside the HTTP Request
+5. Tag Based Caching
+6. Fast JSON APIs
+6. Tips and Tricks
+7. Conclusion
 
 ## Revision Notes
 

@@ -1,15 +1,20 @@
-## Different Caching Layers
+---
+layout: post
+title: "Advanced Caching in Rails: Part 1 - Caching Strategies"
+tags: [rails, tutorials]
+---
 
 First, let's start with a brief overview of the different types of
 caching. We'll start from 50,000ft and work our way down.
 
-1. HTTP Caching: Uses HTTP headers (Last-Modified, ETag,
-   If-Modified-Since, If-None-Match, Cache-Control) to determine if the
-   browser can use a locally stored version of the page or if it needs
+1. HTTP Caching: Uses HTTP headers (`Last-Modified`, `ETag`,
+   `If-Modified-Since`, `If-None-Match`, `Cache-Control`) to determine if the
+   browser can use a locally stored version of the response or if it needs
    to request a fresh copy from the origin server. Rails makes it easy
    to use HTTP caching, however the cache is managed **outside** your
    application. You may have notice the `config.cache_control` and
-   `Rack::Cache` middlewares. These are used for HTTP caching.
+   `Rack::Cache`, `Rack::ETag`, `Rack::ConditionalGet` middlewares. 
+   These are used for HTTP caching.
 
 2. Page Caching: **PRAISE THE GODS** if you actually can use page
    caching in your application. Page caching is the holy grail. Save
@@ -17,28 +22,26 @@ caching. We'll start from 50,000ft and work our way down.
    back. Great for worthless applications without authentication and
    other highly dynamic aspects. This essentially works like HTTP
    caching, but the response will always contain the entire page. With
-   page caching the server is just skipping the work.
+   page caching the application is skipping the work.
 
 3. Action Caching: Essentially the same as page caching, except all
    the before filters are run allowing you to check authentication
-   and other stuff that may have prevented the request for rendering.
+   and other stuff that may have prevented the request form rendering.
 
 4. Fragment Caching: Store parts of views in the cache. Usually for
    caching partials or large bits of HTML that are independent from
    other parts. IE, a list of top stories or something like that. 
 
 5. Rails.cache: All cached content **except cached pages** are stored
-   in the Rails.cache. Cached pages are stored as HTML on disk. We'll
-   use the fact that all the cached action and fragment content are
-   simply stored in Rails.cache. You can cache arbitrary content in
-   the Rails cache. You may cache a large complicated query that you
-   don't want to wait to reinstantiate a ton of AR::Base objects.
-
+   in the Rails.cache.  We'll use this fact that later.
+   You can cache arbitrary content in the Rails cache. You may cache 
+   a large complicated query that you don't want to wait to 
+   reinstantiate a ton of `ActiveRecord::Base` objects.
 
 ## Under the Hood
 
 All the caching layers are built on top of the next one. Page caching
-and HTTP caching are different because they do not use Rails.cache
+and HTTP caching are different because they do not use `Rails.cache`
 The cache is essentially a key-value store. Different
 things can be persisted. Strings are most common (for HTML fragments).
 More complicated objects can be persisted as well. Let's go through some
@@ -47,16 +50,16 @@ memcached with dalli for all these examples. Dalli is the default
 memcached driver.
 
 ```
-# Rails.cache.write takes two value: key and a value
+# Rails.cache.write takes two values: key and a value
 > Rails.cache.write 'foo', 'bar'
 => true
 
-# We can read an object back with read
+# We can read an object back
 > Rails.cache.read 'foo'
 => "bar"
 
 # We can store a complicated object as well
-> hash = {:this => {:is => 'a hash'}}
+> hash = { :this => { :is => 'a hash' }}
 > Rails.cache.write 'complicated-object', object
 > Rails.cache.read 'complicated-object'
 => {:this=>{:is=>"a hash"}}
@@ -66,8 +69,9 @@ memcached driver.
 => nil
 
 # "Fetch" is the most common pattern. You give it a key and a block
-# to execute to store if the cache misses. The block is not executed
-# if there is a cache hit.
+# to execute to store if the cache misses. The blocks's return value is
+# then written to the cache. The block is not executed if there is a
+# hit.
 > Rails.cache.fetch 'huge-array' do
     huge_array = Array.new
     1000000.times { |i| huge_array << i }
@@ -82,14 +86,14 @@ memcached driver.
 => [true]
 ```
 
-Those are the basics of interacting withe the Rails cache. The rails
+Those are the basics of interacting with the Rails cache. The rails
 cache is a wrapper around whatever functionality is provided by the
 underlying storage system. Now we are ready to move up a layer.
 
 ## Understanding Fragment Caching
 
 Fragment caching is taking rendered HTML fragments and storing them in
-the cache. Rails provides a `cache` view helper for this. It's most
+the cache. Rails provides a `cache` view helper for this. Its most
 basic form takes no arguments besides a block. Whatever is rendered
 during the block will be written back to the cache. The basic principle
 behind fragment caching is that it takes much less time fetch
@@ -101,7 +105,6 @@ basic scaffold for a post:
 
 ```
 $ rails g scaffold post title:string content:text author:string
-# that will generate some views to play with
 ```
 
 Let's start with the most common use case: caching information specific
@@ -117,11 +120,6 @@ to one thing. IE: One post. Here is a show view:
 <p>
   <b>Content:</b>
   <%= @post.content %>
-</p>
-
-<p>
-  <b>Author:</b>
-  <%= @post.author %>
 </p>
 ```
 
@@ -139,17 +137,12 @@ Rails will do it.
     <b>Content:</b>
     <%= @post.content %>
   </p>
-
-  <p>
-    <b>Author:</b>
-    <%= @post.author %>
-  </p>
 <% end %>
 ```
 
 The first argument is the key for this fragment. The rendered HTML is
 stored with this key: `views/posts-1`. Wait what? Where did that 'views'
-come from? The `cache` view helper automatically prepends 'view' to all
+come from? The `cache` view helper automatically prepends 'views' to all
 keys. This is important later. When you first load the page you'll see
 this in the log:
 
@@ -159,7 +152,7 @@ Write fragment views/post-2 (0.9ms)
 ```
 
 You can see the key and the operations. Rails is checking to see if the
-specific key exists. It will fetch it or write it. In this case, it has
+specific key exists. It will fetch or write it. In this case, it has
 not been stored so it is written. When you reload the page, you'll see a
 cache hit:
 
@@ -187,7 +180,7 @@ stuff from the cache **or** figure out a way to get new content from the
 cache. Let's assume that our blog posts now have comments. What happens
 when a comment is created? How can handle this?
 
-This is a very simple problem. What if we could figured out a
+This is a very simple problem. What if we could figure out a
 solution to this problem: How can we create a cache miss when the
 associated object changes? We've already demonstrated how we can
 explicitly set a cache key. What if we made a key that's dependent on the
@@ -201,8 +194,8 @@ key to this:
 <% cache "post-#{@post.id}", @post.updated_at.to_i do %>
 ```
 
-Now we can see we have a new cache key that's dependent on the objects
-timestamps. Check out the rails log:
+Now we can see we have a new cache key that's dependent on the object's
+timestamp. Check out the rails log:
 
 ```
 Exist fragment? views/post-2/1304291241 (0.5ms)
@@ -219,7 +212,7 @@ end
 ```
 
 Now all comments will touch the post and change the `updated_at`
-time stamp. You can see this in action by `touch`'ing a post.
+timestamp. You can see this in action by `touch`'ing a post.
 
 ```
 Post.find(1).touch
@@ -230,14 +223,14 @@ Write fragment views/post-2/1304292445 (0.4ms)
 
 This concept is known as: **auto expiring cache keys.** You create a
 composite key with the normal key and a time stamp. This will create some
-memory build up as objects are updated and no longer create cache hits.
+memory build up as objects are updated and no longer fresh.
 Here's an example. You have that fragment. It is cached. Then someone updates
 the post. You now have two versions of the fragment cached. If there are
 10 updates, then there are 10 different versions. Luckily for you, this
 is not a problem for memcached! Memcached uses a LRU replacement policy.
 LRU stands for Least Recently Used. That means the key that hasn't been
-requested in the longest time will be replaced when new content needs to
-be stored. For example, assume your cache can only hold 10 posts. The
+requested in the longest time will be replaced by newer content when
+needed. For example, assume your cache can only hold 10 posts. The
 next update will create a new key and hence new content. Version 0 will
 be deleted and version 11 will be stored in the cache. The total amount
 of memory is cycled between things that are requested. There are two
@@ -255,7 +248,7 @@ one very handy method: `ActiveRecord::Base.cache_key`. This will
 generate a key like this: `posts/2-20110501232725`. **This is the
 exact same thing we did ourselves.** This method is very important
 because depending on what type of arguments you pass into the `cache`
-method it will be called on them. For the time being, this code is
+method, a different key is generated. For the time being, this code is
 functionally equal to our previous examples.
 
 ```erb
@@ -367,7 +360,7 @@ what happens.
     Completed 200 OK in 1ms
 
 Damn. 16ms vs 1ms. You can see the difference! You can also see Rails
-reading that cache key. **The cache key is generated off the url with
+reading that cache key. **The cache key is generated from the url with
 action caching.** Action caching is a combination of a before and around
 filter. The around filter is used to capture the output and the before
 filter is used to check to see if it's been cached. It works like this:
@@ -393,9 +386,9 @@ much different key than before:
     views/localhost:3000/posts/2?hash_of_things
 
 Rails generated a URL based key instead of the standard views key. This
-is because you may different servers and things like that. This ensures
+is because you may different servers. This ensures
 that each server has it's own cache key. IE, server one does not collide
-with server 2. We could generate our own url for this resource by doing
+with server two. We could generate our own url for this resource by doing
 something like this:
 
 ```ruby
@@ -406,7 +399,7 @@ This will generate this url:
 
     http://localhost:3000/posts/1?tag=234897123978
 
-Notice the '?tag=23481329847'. This is a hack that aims to stop browsers
+Notice the `?tag=23481329847`. This is a hack that aims to stop browsers
 from using HTTP caching on specific urls. If the URL has changed
 (timestamp changes) then the browser knows it must request a fresh copy.
 Rails 2 used to do this for assets like CSS and JS. Things have changed
@@ -426,7 +419,7 @@ caches_action :show, :cache_path => proc { |c|
   # Remember, what is returned from this block will be passed in as
   # extra parameters to the url_for method.
   post = Post.find c.params[:id]
-  {:tag => post.updated_at.to_i}
+  { :tag => post.updated_at.to_i }
 end
 ```
 
@@ -462,7 +455,6 @@ without any action caching:
     Started GET "/posts" for 127.0.0.1 at 2011-05-01 17:18:11 -0700
       Processing by PostsController#index as HTML
       Post Load (54.1ms)  SELECT "posts".* FROM "posts" ORDER BY updated_at DESC LIMIT 1
-    Dalli::Server#connect localhost:11212
     Read fragment views/localhost:3000/posts?tag=1304292445 (1.5ms)
     Rendered posts/index.html.erb within layouts/application (9532.3ms)
     Write fragment views/localhost:3000/posts?tag=1304292445 (36.7ms)
@@ -487,7 +479,7 @@ We'll come back to this situation later. This is a better way to do
 this. Points to the reader if they know the problem.
 
 These are simple examples designed to show you who can create auto
-expiring keys for different situations. At this point we have not add to
+expiring keys for different situations. At this point we have not had to
 expire any thing ourselves! The keys have done it all for us. However,
 there are some times when you want more precise control over how things
 exist in the cache. Enter Sweepers.
@@ -517,7 +509,7 @@ it may be easy to use sweepers or it may be impossible. It's easy to use
 sweepers with these examples. We only need to tie into the save
 event. For example, when a update or delete happens we need to expire
 the cache for that specific post. When a create, update, or delete
-happens we need to expire the index action. Here's what a the sweeper
+happens we need to expire the index action. Here's what the sweeper
 would look like:
 
 ```ruby
@@ -544,11 +536,11 @@ clumsy for complex applications. Let's say you have comments for posts.
 What do you do when a comment is created for a post? Well, you have to
 either create a comment sweeper or load the post sweeper into the
 comments controller. You can do either. However, depending on the
-complexity of your model layer, it may quickly infeasible to do cache
+complexity of your model layer, it may quickly become infeasible to do cache
 expiration with sweepers. For example, let say you have a Customer. A
 customer has 15 different types of associated things. Do you want to put
 the sweeper into 15 different controllers? You can, but you may forget
-to at some point. 
+to at some point.
 
 The real problem with sweepers is that they cannot be used once your
 application works outside of HTTP requests. They can also be clumsy. I
@@ -623,25 +615,25 @@ cases.
 HTTP caching works at the protocol level. It uses a combination of
 headers and response codes to indicate weather the user agent should
 make a request or use a locally stored copy instead. The invalidation
-or expiring is based on ETags and Last-Modified timestamps. ETag stands
-for "entity tag". It's a unique fingerprint for this request. It usually
+or expiring is based on `ETags` and `Last-Modified` timestamps. `ETag` stands
+for "entity tag". It's a unique fingerprint for this request. It's usually
 a checksum of the respnose body. Origin
 servers (computers sending the source content) can set either of these
-fields along with a Cache-Control header. The Cache-Control header tells
+fields along with a `Cache-Control` header. The `Cache-Control` header tells
 the user agent what it can do with this response. It answers questions
 like: how long can I cache this for and am I allowed to cache it? When
-the user agent needs to make a request again it sends the ETag and/or
-the Last-Modified date to the origin server. The origin server decides
-based on the ETag and/or Last-Modified date if the user agent can use
+the user agent needs to make a request again it sends the `ETag` and/or
+the `Last-Modified` date to the origin server. The origin server decides
+based on the `ETag` and/or `Last-Modified` date if the user agent can use
 the cached copy or if it should use new content. If the server says use
 the cached content it will return status 304: Not Modified (aka fresh). 
-If not it should return a 200 (cache is stale) with the new content
+If not it should return a 200 (cache is stale) and the new content
 which can be cached.
 
 Let's use curl to see how this works out:
 
 ```
-$ curl -I http://frontend.radiumcrm.com
+$ curl -I http://www.example.com
 HTTP/1.1 200 OK
 Cache-Control: max-age=0, private, must-revalidate
 Content-length: 822
@@ -650,7 +642,6 @@ Date: Mon, 09 Jul 2012 22:46:29 GMT
 Last-Modified: Mon, 09 Jul 2012 21:22:11 GMT
 Status: 200 OK
 Vary: Accept-Encoding
-X-Rack-Cache: miss
 Connection: keep-alive
 ```
 
@@ -667,16 +658,15 @@ and check with the server everytime before using it.
 We can trigger a cache hit by sending the apporiate headers with the
 next request. This response only has a `Last-Modified` date. We can send
 this date for the server to compare. Send this value in the
-`If-Modified-Since` header. If the content has changed since that date
+`If-Modified-Since` header. If the content hasn't changed since that date
 the server should return a 304. Here's an example using curl:
 
 ```
-$ curl -I -H "If-Modified-Since: Mon, 09 Jul 2012 21:22:11 GMT" http://frontend.radiumcrm.com
+$ curl -I -H "If-Modified-Since: Mon, 09 Jul 2012 21:22:11 GMT" http://www.example.com
 HTTP/1.1 304 Not Modified
 Cache-Control: max-age=0, private, must-revalidate
 Date: Mon, 09 Jul 2012 22:55:53 GMT
 Status: 304 Not Modified
-X-Rack-Cache: miss
 Connection: keep-alive
 ```
 
@@ -685,7 +675,7 @@ locally stored version. We could change the date and get a different
 response.
 
 ```
-$ curl -I -H "If-Modified-Since: Sun, 08 Jul 2012 21:22:11 GMT" http://frontend.radiumcrm.com
+$ curl -I -H "If-Modified-Since: Sun, 08 Jul 2012 21:22:11 GMT" http://www.example.com
 HTTP/1.1 200 OK
 Cache-Control: max-age=0, private, must-revalidate
 Content-length: 822
@@ -694,23 +684,23 @@ Date: Mon, 09 Jul 2012 22:57:19 GMT
 Last-Modified: Mon, 09 Jul 2012 21:22:11 GMT
 Status: 200 OK
 Vary: Accept-Encoding
-X-Rack-Cache: miss
 Connection: keep-alive
 ```
 
-Caches will determine freshness based on the `ETag` and/or
+Caches determine freshness based on the `If-None-Match` and/or
 `If-Modified-Since` date. Using our existing 304 response we can supply
 a random etag to trigger a cache miss:
 
-$ curl -I -H 'If-None-Match: "foo"' -H "If-Modified-Since: Mon, 09 Jul 2012 21:22:11 GMT" http://frontend.radiumcrm.com
+```
+$ curl -I -H 'If-None-Match: "foo"' -H "If-Modified-Since: Mon, 09 Jul 2012 21:22:11 GMT" http://www.example.com
 HTTP/1.1 304 Not Modified
 Cache-Control: max-age=0, private, must-revalidate
 Date: Mon, 09 Jul 2012 22:55:53 GMT
 Status: 304 Not Modified
-X-Rack-Cache: miss
 Connection: keep-alive
+```
 
-`Etag`s are sent using the `If-None-Match` header. Now that we undertand
+`Etag`s are sent using the `If-None-Match` header. Now that we understand
 the basics we can move onto higher level discussion.
 
 ### Rack::Cache
@@ -719,7 +709,7 @@ HTTP caching is implemented in the webserver itself or at the
 application level. It is implemented at the application level in Rails.
 `Rack::Cache` is a middleware that sits at the top of the stack and
 intercepts requests. It will pass requests down to your app and store
-their contents. Or will it call down to your app and see what ETag
+their contents. Or will it call down to your app and see what `ETag`
 and/or timestamps it returns for validation purposes. `Rack::Cache` acts
 as a proxy cache. This means it must respect caching rules described in
 the `Cache-Control` headers coming out of your app. This means it cannot
@@ -727,16 +717,16 @@ cache private content but it can cache public content. Cachable content
 is stored in memcached. Rails configures this automatically.
 
 I'll cover one use case to illustrate how code flows through middleware
-stack to the actual app code and back up. Let's use the private per use
+stack to the actual app code and back up. Let's use a private per user
 cache example. Here's the cache control header: `max-age-0, private,
-must-revalidate`. Let's pretend this is some JSON API.
+must-revalidate`. Pretend this is some JSON API.
 
 1. The client sends initial request to `/api/tweets.json`
 2. `Rack::Cache` sees the request and ignores it since there is no caching
    information along with it.
 3. Application code is called. It returns a 200 response with a date and
-   the same `Cache-Control` header.
-4. The Client makes another request to `/api/tweets.json` with an
+   the some `Cache-Control` header.
+4. The client makes another request to `/api/tweets.json` with an
    `If-Modified-Since` header matching the date from the previous
    request.
 5. `Rack::Cache` sees that his request has cache information associated
@@ -770,11 +760,11 @@ end
 ```
 
 Using `stale?` with an `ActiveRecord` object will automatically set the
-`ETag` and `Last-Modified` headers. The `Etag` to an MD5 hash of the
-objects `to_s` method. The `Last-Modified` date is set to the objects
+`ETag` and `Last-Modified` headers. The `Etag` is set to a MD5 hash of the
+objects `cache_key` method. The `Last-Modified` date is set to the object's
 `updated_at` method. The `Cache-Control` header is set to `max-age=0,
 private, must-revalidate` by default. All these values can be changed by
-passing in options to `stale?` or `fresh_when`. The methods take 3
+passing in options to `stale?` or `fresh_when`. The methods take three
 options: `:etag`, `:last_modified`, and `:public`. Here are some more
 examples:
 
