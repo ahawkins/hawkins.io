@@ -31,8 +31,10 @@ title: BroadcastingAdam - Blog
 </section>
 
 <section>
- <h2>Posts</h2>
+  <h2>Posts</h2>
   {% for post in site.categories.blog %}
-  <p><a href="{{ post.url }}" title="{{ post.title}}">{{ post.title }}</a> - {{ post.date | date: '%B %d, %Y' }}</p>
+    {% unless post.hide %}
+      <p><a href="{{ post.url }}" title="{{ post.title}}">{{ post.title }}</a> - {{ post.date | date: '%B %d, %Y' }}</p>
+    {% endunless %}
   {% endfor %}
 </section>

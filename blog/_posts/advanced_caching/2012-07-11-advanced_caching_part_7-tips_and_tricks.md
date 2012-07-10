@@ -1,7 +1,8 @@
 ---
 layout: post
-title: "Advanced Caching in Rails: Part 7 - Tips and Tricks"
+title: "Advanced Caching: Part 7 - Tips and Tricks"
 tags: [rails, tutorials]
+hide: true
 ---
 
 This section is for random tips and tricks that don't really belong in
@@ -94,3 +95,14 @@ end
 
 Then, when the page loads use a library like date.js to create
 more user friendly dates.
+
+## Index
+
+1. [Caching Strategies](/2012/07/advanced_caching_part_1-caching_strategies)
+2. [Using Strategies Effectively](/2012/07/advanced_caching_part_2-using_strategies)
+3. [Handling Static Assets](/2012/07/advanced_caching_part_3-static_assets)
+4. [Stepping Outside the HTTP Request](/2012/07/advanced_caching_part_4-stepping_outside_the_http_request)
+5. [Tag Based Caching](/2012/07/advanced_caching_part_5-tag_based_caching)
+6. [Fast JSON APIs](/2012/07/advanced_caching_part_6-fast_json_apis)
+7. [Tips and Tricks](/2012/07/advanced_caching_part_7-tips_and_tricks)
+8. [Conclusion](/2012/07/advanced_caching_part_8-conclusion)
