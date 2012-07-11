@@ -3,47 +3,40 @@ layout: default
 title: BroadcastingAdam - Open Source
 ---
 
-<h2><a href="https://github.com/twinturbo/cashier">Cashier</a></h2>
-<p>
+## [Cashier](https://github.com/twinturbo/cashier)
+
 Tag based caching for Rails. Associate cached keys with tags then expire based 
 on tags. Tags can be stored in Memcached or in Redis.
-</p>
 
-<h2><a href="https://github.com/threadedlabs/http_log">HTTP Log</a></h2>
-<p>
+## [HTTP Log](https://github.com/threadedlabs/http_log)
+
 Log all HTTP requests to MongoDB and provide remote access to them.
 This is very useful when developing API only backends. It's very useful
 for developers to see what is being sent to the server or for other
 debugging purposes.
-</p>
 
-<h2><a href="https://github.com/radiumsoftware/iridium">Iridium</a></h2>
-<p>
+## [Iridium](https://github.com/radiumsoftware/iridium)
+
 Asset compilation (SASS/LESS/Coffeescript), development mode and simple deployment for
 single page JS applications.
-</p>
 
-<h2><a href="https://github.com/threadedlabs/api_guides">API Guides</a></h2>
-<p>
+## [API Guides](https://github.com/threadedlabs/api_guides)
+
 A simple structure for creating large and complex public API documentation. Provides
 a framework for creating code with examples in multiple programming languages,
 reference implemenations, and general text. Write your documenation using
 a combination of XML and Markdown, then generate simple nice looking HTML files
 that can be served with any web server.
-</p>
 
-<h2><a href="https://github.com/threadedlabs/billing">Billing</a></h2>
-<p>
+## [Billing](https://github.com/threadedlabs/billing)
+
 An abstract implementation of credits, debits, and accounts. Implemenations
 for various payment services upcoming.
-</p>
 
-<h2>Various Other Work and Projects I Contribute To</h2>
+## Various Other Work and Projects I Contribute To
 
-<p>These are not my main projects, but I follow and actively contribute to.</p>
+These are not my main projects, but I follow and actively contribute to
 
-<ul>
-  <li><a href="https://github.com/lifo/docrails">Rails Guides</a></li>
-  <li><a href="https://github.com/josevalim/active_model_serializers">Active Model Serializers</a></li>
-  <li><a href="https://github.com/rails/strong_parameters">Strong Parameters</a></li>
-</ul>
+* [Rails Guides](https://github.com/lifo/docrails">Rails Guides)
+* [ActiveModel::Serializer](https://github.com/josevalim/active_model_serializers)
+* [Strong Parameters](https://github.com/rails/strong_parameters)
