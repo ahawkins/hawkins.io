@@ -52,7 +52,7 @@ App.cache.expire_tag @account
 
 The content could from anywhere, but all you know is that's stale.
 
-This is exactly where [Cashier](http://rubygems.org/gems/cashier) comes
+This is exactly where [Cashier](https://github.com/twinturbo/cashier) comes
 in. It (is my gem) that allows you associate actions and fragments with
 one or more tags, then expire based of tags. Of course you can expire
 the cache from anywhere in your code. Here are some examples:
@@ -72,7 +72,7 @@ Then you can expire like this:
 Cashier.expire 'account' # wipe all keys tagged 'account'
 ```
 
-I highly recommend you checkout [Cashier](http://rubygems.org/gems/cashier).
+I highly recommend you checkout [Cashier](https://github.com/twinturbo/cashier).
 It may be useful in your application especially if you have complicated
 relationships and high performance requirements.
 
