@@ -4,11 +4,13 @@ title: Advanced Caching in Rails
 tags: [rails, tutorials]
 ---
 
-**Readers Note**: This post has been [revised](/2012/07/advanced_caching_revised/).
+<p class="revision-warning">
+This post has been <a href="/2012/07/advanced_caching_revised/">revised</a>.
 I highly suggest you check out that version. This version is outdated
 but is left here for historical purposes. I've found some copy related
 errors in this post and fixed them in the newer version. Also, this post
-is written for **Rails 2**. The revised post focuses on **Rails 3.1+**.
+is written for <strong>Rails 2</strong>. The revised post focuses on <strong>Rails 3.1+</strong>
+</p>
 
 Caching in Rails is covered occasionally. It is covered in very basic
 detail in the caching [guide](http://guides.rubyonrails.org/caching_with_rails.html).
@@ -25,26 +27,26 @@ you how you can level up your caching with some new approaches.
 First, let's start with a brief overview of the different types of
 caching:
 
-  1. Page Caching: **PRAISE THE GODS** if you actually can use page
-     caching in your application. Page caching is the holy grail. Save
-     the entire thing. Don't hit the stack & give some prerendered stuff
-     back. Great for worthless applications without authentication and
-     other highly dynamic aspects.
+1. Page Caching: **PRAISE THE GODS** if you actually can use page
+   caching in your application. Page caching is the holy grail. Save
+   the entire thing. Don't hit the stack & give some prerendered stuff
+   back. Great for worthless applications without authentication and
+   other highly dynamic aspects.
 
-  2. Action Caching: Essentially the same as page caching, except all
-     the before filters are run allowing you to check authentication
-     and other stuff that may have prevented the request for rendering.
+2. Action Caching: Essentially the same as page caching, except all
+   the before filters are run allowing you to check authentication
+   and other stuff that may have prevented the request for rendering.
 
-  3. Fragment Caching: Store parts of views in the cache. Usually for
-     caching partials or large bits of HTML that are independent from
-     other parts. IE, a list of top stories or something like that. 
+3. Fragment Caching: Store parts of views in the cache. Usually for
+   caching partials or large bits of HTML that are independent from
+   other parts. IE, a list of top stories or something like that. 
 
-  4. Rails.cache: All cached content **except cached pages** are stored
-     in the Rails.cache. Cached pages are stored as HTML on disk. We'll
-     use the fact that all the cached action and fragment content are
-     simply stored in Rails.cache. You can cache arbitrary content in
-     the Rails cache. You may cache a large complicated query that you
-     don't want to wait to reinstantiate a ton of AR::Base objects.
+4. Rails.cache: All cached content **except cached pages** are stored
+   in the Rails.cache. Cached pages are stored as HTML on disk. We'll
+   use the fact that all the cached action and fragment content are
+   simply stored in Rails.cache. You can cache arbitrary content in
+   the Rails cache. You may cache a large complicated query that you
+   don't want to wait to reinstantiate a ton of AR::Base objects.
 
 ## Under the Hood
 

@@ -174,3 +174,7 @@ blockquote {
   padding: .75em;
   border: solid 1px #EDEEEF;
 }
+
+.revision-warning {
+  color: red;
+}
