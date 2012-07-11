@@ -88,6 +88,28 @@ class ApplicationSerializer < ActiveModel::Serializer
 end
 ```
 
+## Background Cache Warming
+
+We've consolidated all the JSON generation into individual classes.
+Since the API only returns JSON we can generate that JSON silently in
+the background to warm the caches. This won't do anything about HTTP
+caching but it will make initial requests faster since JSON will be
+cached. Here's a simple Sidekiq worker:
+
+```ruby
+class CacheWarmer
+  include Sidekiq::Worker
+
+  def perform
+    Post.find_each do |post|
+      serializer = post.active_model_serializer.new post
+      # This wil cache the JSON and the hash it's generated from
+      serializer.to_json
+    end
+  end
+end
+```
+
 And that's all there is too it folks! It's not complicated but it will
 make your API significantly faster.
 
