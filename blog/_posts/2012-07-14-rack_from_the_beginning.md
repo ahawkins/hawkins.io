@@ -1,13 +1,12 @@
 ---
 layout: post
-title: Rack Walkthough
+title: Rack from the Beginning
 tags: [rack, tutorials]
-wip: true
 ---
 
 Rack is the HTTP interface for Ruby. Rack defines a standard interface
 for interacting with HTTP and connecting web servers. Rack makes it easy
-to write HTTP facing applications in Ruby. Rack applications shockingly
+to write HTTP facing applications in Ruby. Rack applications are shockingly
 simple. There is the code that accepts a request and code serves the
 response. Rack defines the interface between the two.
 
@@ -26,11 +25,12 @@ end
 ```
 
 This class is not a Rack application. It demonstrates what a triplet
-looks like. The first elment is the HTTP resonse code. The second is a
-hash for the headers. The third is an enumerable object representing the
+looks like. The first element is the HTTP response code. The second is a
+hash of headers. The third is an enumerable object representing the
 body. We can use our hello world class to create a simple rack app. We
 know that we need to create an object that responds to call. `call`
-takes one argument: the rack environment. We'll come back to this later.
+takes one argument: the rack environment. We'll come back to the `env`
+later.
 
 ```ruby
 class HelloWorldApp
@@ -40,8 +40,8 @@ class HelloWorldApp
 end
 ```
 
-I've made a simple class that has a `call` method that returns the
-response from our previous `HelloWorld` class. Now we need to put this
+I've made a simple class that implements `call`. It returns the
+response from the `HelloWorld` class. Now we need to put this
 online. We have implemented one side of the wall. Now we need write the
 other side. Rack includes a `Server` class. This is the simplest way to
 serve rack applications. It includes daemonization and things like that.
@@ -80,17 +80,17 @@ $ ruby hello_world.rb
 Simply open `http://localhost:8080` and you'll see "Hello World" in the
 browser. It's not fancy but you just wrote your first rack app! We
 didn't write our own server and that's ok. Matter of fact, that's
-fanastic. Odds are you will never need to write your own server. There
+fantastic. Odds are you will never need to write your own server. There
 are plenty of servers to choose from: Thin, Unicorn, Rainbows, Goliath,
 Puma, and Passenger. You don't want to write those. You want to write
 applications. That's what we wrote.
 
-## Rack Env
+## Env
 
 I skipped over over what `env` is in the previous section. That's
 because we didn't need it yet. The `env` is a `Hash` that meets the rack
 spec. You can read the spec [here](http://rack.rubyforge.org/doc/SPEC.html). 
-It defines how **incoming** information is define. Outgoing data must be
+It defines **incoming** information. Outgoing data must be
 triplets. The `env` gives you access to incoming headers, host info,
 query string and other common information. The `env` is passed to the
 application which decides what to do. Our `HelloWorldApp` didn't care
@@ -112,13 +112,13 @@ Now visit `http://localhost:8080?message=foo` and you'll see
 this:
 
 ```ruby
-class HelloWorldApp
+class EnvInspector
   def self.call(env)
-    [200, {}, "Hello World. You said: #{env['QUERY_STRING']}"]
+    [200, {}, env.inspect]
   end
 end
 
-Rack::Server.start :app => HelloWorldApp
+Rack::Server.start :app => EnvInspector
 ```
 
 Here's the tl;dr of what basic `env` looks like. It's just a standard
@@ -160,18 +160,18 @@ Hash instance.
 }
 ```
 
-You may have noticed that the `env` doesn't do any fancy parasing. The
-query string wasn't a hash. It was the string. The `env` is like raw
+You may have noticed that the `env` doesn't do any fancy parsing. The
+query string wasn't a hash. It was the string. The `env` is raw
 data. I like this design principle a lot. Rack is very simple to
 understand and use. If you wanted you could only work with hashes and
-triplets. However that's just annoying. Complex applications need
+triplets. However that's just tedious. Complex applications need
 abstractions. Enter `Rack::Request` and `Rack::Response`. 
 
 ## Abstractions
 
 `Rack::Request` is an abstraction around the `env` hash. It provides
-access to thinks like cookies, POST params, and other common things. It
-takes the bolier plate code out. Here's an example.
+access to thinks like cookies, POST paramters, and other common things. It
+removes boiler plate code. Here's an example.
 
 ```ruby
 class HelloWorldApp
@@ -217,15 +217,15 @@ can learn more about them by reading the documentation.
 
 Now that we have some basic abstractions we can start to make more
 complex applications. It's hard to make an application when all the
-logic is contained in one class. We will need to compose the application
-out of different classes. Each class has a single responsiblity. This is
-the SRP (Single Responsiblity Principle). These discrete junks are
+logic is contained in one class. Applications are always composed of
+different classes. Each class has a single responsibility. This is
+the SRP (Single Responsibility Principle). These discrete chunks are
 called "middleware".
 
 ## Middleware
 
 Rack applications are simply objects that respond to `call`. We can do
-whatever we want inside `call`, for instane we can delegate to another
+whatever we want inside `call`, for instance we can delegate to another
 class. Here's an example:
 
 ```ruby
@@ -254,11 +254,11 @@ end
 
 I admit this example is quite contrived. You want not do this in
 practice. The point is to illustrate that you can manipulate env (or
-response) by doing what you need to do. You can create a middleware
+response). You can create a middleware
 stack as deep as you like. Each middleware simply calls the next one and
 returns its value. This is an example of the builder pattern. Composing
 Rack applications is so common (and required) that Rack includes a class
-to make this so easy. Before we move to the next step, let's define what
+to make this easy. Before we move to the next step, let's define what
 a middleware looks like:
 
 ```ruby
@@ -278,13 +278,13 @@ end
 
 ## Composing Rack Apps from Middleware
 
-`Rack::Builder` builds up a middleware chain for use. Each object calls
-the next one and returns its value. Rack contains a bunch of handy
-middlewares. They have ones for caching and encodings. Let's increase
+`Rack::Builder` creates up a middleware stack. Each object calls
+the next one and returns its return value. Rack contains a bunch of handy
+middlewares. They have one for caching and encodings. Let's increase
 the `HelloWorldApp`'s performance.
 
 ```ruby
-# this returns app that responds to call cascading down the list of 
+# this returns an app that responds to call cascading down the list of 
 # middlewares. Technically there is no difference between "use" and
 # "run". "run" is just there to illustrate that it's the end of the 
 # chain and it does the work.
@@ -310,7 +310,7 @@ Rack::Etag
 I'm not going to cover what those middlewares do because that's not
 important. This is an example of how you can build up functionality in
 applications. Middlewares are very powerful. You can add manipulate
-incoming data before hitting the next one or modifiy the response from
+incoming data before hitting the next one or modify the response from
 an existing one. Let's create some for practice.
 
 ```ruby
@@ -394,6 +394,77 @@ $ rackup
 
 Rackup will prefer better servers like Thin over WeBrick. There's
 nothing super fancy going on here. The code inside `config.ru` is
-evaluted and built using a `Rack::Builder` which generates an API
+evaluated and built using a `Rack::Builder` which generates an API
 compliant object. The object is passed to the rack server (Thin) in
-thise case. Thin puts the app online.
+this case. Thin puts the app online.
+
+## Rails & Rack
+
+Rails 3+ is a fully Rack compliant. A Rails 3 application is more
+complex Rack app. It has a complex middleware stack. The dispatcher
+is the final middlware. The dispatcher reads the routing table and
+calls the correct controller and method. Here's the stock middleware
+stack used in production:
+
+```
+use Rack::Cache
+use ActionDispatch::Static
+use Rack::Lock
+use #<ActiveSupport::Cache::Strategy::LocalCache::Middleware:0x007fce77f21690>
+use Rack::Runtime
+use Rack::MethodOverride
+use ActionDispatch::RequestId
+use Rails::Rack::Logger
+use ActionDispatch::ShowExceptions
+use ActionDispatch::DebugExceptions
+use ActionDispatch::RemoteIp
+use ActionDispatch::Callbacks
+use ActiveRecord::ConnectionAdapters::ConnectionManagement
+use ActiveRecord::QueryCache
+use ActionDispatch::Cookies
+use ActionDispatch::Session::CookieStore
+use ActionDispatch::Flash
+use ActionDispatch::ParamsParser
+use ActionDispatch::Head
+use Rack::ConditionalGet
+use Rack::ETag
+use ActionDispatch::BestStandardsSupport
+run YourApp::Application.routes
+```
+
+The middlewares are not declared explicitly in `config.ru`. Rails
+applications create their own middleware chains from different
+configuration files. The application instance delegates `call` to the
+middleware chain. Here's an example `config.ru` for a rails app:
+
+```ruby
+# This file is used by Rack-based servers to start the application.
+
+require ::File.expand_path('../config/environment',  __FILE__)
+run Example::Application
+```
+
+You know that `Example::Application` must have a `call` method.
+Here's the implementation of this method from 3.2 stable:
+
+```ruby
+# Rails::Application, Rails::Application < Rails::Engine
+def call(env)
+  env["ORIGINAL_FULLPATH"] = build_original_fullpath(env)
+  super(env)
+end
+
+# Rails::Engine
+# the super class method
+def call(env)
+  app.call(env.merge!(env_config))
+end
+
+# app method in the super class
+def app
+  @app ||= begin
+    config.middleware = config.middleware.merge_into(default_middleware_stack)
+    config.middleware.build(endpoint)
+  end
+end
+```
