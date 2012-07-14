@@ -28,8 +28,7 @@ This example assumes a few things:
 module ActiveRecord
   class Base
     def self.cache_key
-      timestamp = scoped.maximum(:updated_at) || Time.now
-      Digest::MD5.hexdigest "#{timestamp.to_i}-#{scoped.count}"
+      Digest::MD5.hexdigest "#{scoped.maximum(:updated_at).try(:to_i)}-#{scoped.count}"
     end
   end
 end

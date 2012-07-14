@@ -197,8 +197,7 @@ require 'digest/md5'
 
 class Post
   def cache_key
-    time_stamp = maximum :updated_at
-    Digest::MD5.hexdigest "#{timestamp.to_i}-#{count}"
+    Digest::MD5.hexdigest "#{maximum(:updated_at).try(:to_i)-#{count}"
   end
 end
 ```

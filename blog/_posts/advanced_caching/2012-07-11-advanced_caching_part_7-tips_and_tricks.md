@@ -32,8 +32,8 @@ related information that's never cached. That way, a cached action will
 load, then a separate request will be made for correct tokens. 
 
 You need to create a new controller that `responds_to` JavaScript and
-return some JS for the browser to evaluate. Make sure this controller
-authenticates the current user! Here's how you 
+return some JS for the browser to evaluate. **Make sure this request
+authenticates the current user!** Here's how you 
 can replace the information in the meta tag. You can also use this
 
 ```javascript
