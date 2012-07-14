@@ -400,7 +400,7 @@ this case. Thin puts the app online.
 
 ## Rails & Rack
 
-Rails 3+ is a fully Rack compliant. A Rails 3 application is more
+Rails 3+ is fully Rack compliant. A Rails 3 application is more
 complex Rack app. It has a complex middleware stack. The dispatcher
 is the final middlware. The dispatcher reads the routing table and
 calls the correct controller and method. Here's the stock middleware
