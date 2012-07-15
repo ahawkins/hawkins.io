@@ -5,24 +5,23 @@ layout: nil
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Broadcasting Adam</title>
-    <link>http://broadcastingadam.com/</link>
+    <link>http://www.broadcastingadam.com/</link>
     <atom:link href="http://broadcastingadam.com/rss.xml" rel="self" type="application/rss+xml" />
     <description>Thoughts on Modern Web Development</description>
     <language>en-us</language>
     <pubDate>{{ site.time | date: "%a, %d %b %Y %H:%M:%S %z" }}</pubDate>
     <lastBuildDate>{{ site.time | date: "%a, %d %b %Y %H:%M:%S %z" }}</lastBuildDate>
-
     {% for post in site.categories.blog %}
-    <item>
-      <title>{{ post.title | xml_escape }}</title>
-      <link>http://broadcastingadam.com{{ post.url }}</link>
-      <pubDate>{{ post.date | date: "%a, %d %b %Y %H:%M:%S %z" }}</pubDate>
-      <author>me@broadcastingadam.com (Adam Hawkins)</author>
-      <guid>http://broadcasting.com{{ post.id }}</guid>
-      <description>{{ post.content | xml_escape }}</description>
-    </item>
+      {% unless post.hide || post.wip %}
+        <item>
+          <title>{{ post.title | xml_escape }}</title>
+          <link>http://www.broadcastingadam.com{{ post.url }}</link>
+          <pubDate>{{ post.date | date: "%a, %d %b %Y %H:%M:%S %z" }}</pubDate>
+          <author>me@broadcastingadam.com (Adam Hawkins)</author>
+          <guid>http://www.broadcastingadam.com{{ post.id }}</guid>
+          <description>{{ post.content | xml_escape }}</description>
+        </item>
+      {% endunless %}
     {% endfor %}
-
   </channel> 
 </rss>
-
