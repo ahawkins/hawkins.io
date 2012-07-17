@@ -141,7 +141,8 @@ em {
   margin-bottom: 20px;
 }
 
-#about h2 {
+#about h2,
+#posts h2 {
   display: block;
   padding: 3px 0;
   background: none;
@@ -183,4 +184,8 @@ blockquote {
   background-color: #EDEEEF;
   margin: 20px 0;
   padding: 5px;
+}
+
+section { 
+  margin-bottom: 30px;
 }
