@@ -178,3 +178,9 @@ blockquote {
 .revision-warning {
   color: red;
 }
+
+#work-banner {
+  background-color: #EDEEEF;
+  margin: 20px 0;
+  padding: 5px;
+}
