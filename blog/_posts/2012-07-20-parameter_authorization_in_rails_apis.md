@@ -11,7 +11,7 @@ action they may have access to different things. There are two layers:
 can they use this action? Can they send these parameters? I describe how
 I solved this problem and how you can do the same.
 
-## Layer 1: Authorization Actions
+## Layer 1: Authorizating Actions
 
 I use [CanCan](https://github.com/ryanb/cancan/) to authorize users and
 actions. I **only** use cancan for high level permissions. Here's what I
