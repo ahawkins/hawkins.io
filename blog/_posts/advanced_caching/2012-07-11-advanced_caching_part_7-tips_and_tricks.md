@@ -37,12 +37,16 @@ authenticates the current user!** It's also very important to **not**
 use JavaScript for this! Cookies are sent with every request to JS which
 may allow attackers to exploit your site.
 
+Here's an abstract implemenation of the controller action
+
 ```ruby
 # controller
 def tokens
   authenticate! # do what you need to here
 end
 ```
+
+Now the view:
 
 ```ruby
 # tokens.json.erb
@@ -53,9 +57,11 @@ end
 }
 ```
 
+And the jQuery code:
+
 ```javascript
 $(function() {
-  $.getJSON('/tokens', function(response) {
+  $.getJSON('/tokens.json', function(response) {
     $("meta[name='csrf-token']").attr('content', response.token);
     $("meta[name='csrf-param']").attr('content', response.param);
   });
