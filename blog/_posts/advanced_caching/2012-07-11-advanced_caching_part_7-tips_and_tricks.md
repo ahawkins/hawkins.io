@@ -31,16 +31,38 @@ You'll need to create a controller to serve up some configuration
 related information that's never cached. That way, a cached action will
 load, then a separate request will be made for correct tokens. 
 
-You need to create a new controller that `responds_to` JavaScript and
-return some JS for the browser to evaluate. **Make sure this request
-authenticates the current user!** Here's how you 
-can replace the information in the meta tag. You can also use this
+You need to create a new controller that `responds_to` JSON and
+return some JSON to handle in a jQuery callack. **Make sure this request
+authenticates the current user!** It's also very important to **not**
+use JavaScript for this! Cookies are sent with every request to JS which
+may allow attackers to exploit your site.
+
+```ruby
+# controller
+def tokens
+  authenticate! # do what you need to here
+end
+```
+
+```ruby
+# tokens.json.erb
+
+{
+  "token": "<% Rack::Utils.escape_html(request_forgery_protection_token) %>",
+  "param": "<% Rack::Utils.escape_html(form_authenticity_token) %>"
+}
+```
 
 ```javascript
-// tokens.js.erb
-$("meta[name='csrf-token']").attr('content', '<% Rack::Utils.escape_html(request_forgery_protection_token) %>');
-$("meta[name='csrf-param']").attr('content', '<% Rack::Utils.escape_html(form_authenticity_token) %>');
+$(function() {
+  $.getJSON('/tokens', function(response) {
+    $("meta[name='csrf-token']").attr('content', response.token);
+    $("meta[name='csrf-param']").attr('content', response.param);
+  });
+})
 ```
+
+See exploit [here](https://github.com/aaronjensen/advanced-caching-vulnerability).
 
 ## Bringing Caching into the Model Layer
 
