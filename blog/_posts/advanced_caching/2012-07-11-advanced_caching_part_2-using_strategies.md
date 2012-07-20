@@ -109,13 +109,13 @@ of the view.
 
 ```erb
 <% div_for @post do %>
-  <% cache post, 'main-content' %>
+  <% cache [post, 'main-content'] %>
     <h1><%= post.title %></h1>
     <%= complex_format @post.body %>
     <% render :partial => 'signature', :locals => { :author => @post.author }} %>
   <% end %>
 
-  <% cache post, 'comments' do %>
+  <% cache [post, 'comments'] do %>
     <h2>Comments</h2>
     <% @post.comments.each do |comment| %>
       <p><%= comment %></p>
@@ -141,15 +141,15 @@ expire. The large chunk is composed of smaller cacheable chunks. What we
 can do now is wrap the views in one entire cache block.
 
 ```erb
-<% cache @post %>
+<% cache @posts %>
   <% div_for @post do %>
-    <% cache post, 'main-content' %>
+    <% cache [post, 'main-content'] %>
       <h1><%= post.title %></h1>
       <%= complex_format @post.body %>
       <% render :partial => 'signature', :locals => { :author => @post.author }} %>
     <% end %>
 
-    <% cache post, 'comments' do %>
+    <% cache [post, 'comments'] do %>
       <h2>Comments</h2>
       <% @post.comments.each do |comment| %>
         <p><%= comment %></p>
@@ -215,7 +215,7 @@ cache key. Now we can update the index view.
 ```erb
 <% cache @posts # this works now because @posts defines cache_key %>
   <% @posts.each do |post| %>
-    <% cache post, 'main-listing' %>
+    <% cache [post, 'main-listing'] %>
       <p>
         <%= link_to post.author, author_path(post.author) %>
         <%= link_to post.title, post_path(post) %><br \>
