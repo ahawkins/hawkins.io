@@ -43,7 +43,7 @@ PostsController < ApplicationController
   respond_to :html
 
   def index
-    @posts = Post.all
+    @posts = Post.scoped # this is important!
     respond_with @posts
   end
 
@@ -196,8 +196,8 @@ method on `Post` that does just that.
 require 'digest/md5'
 
 class Post
-  def cache_key
-    Digest::MD5.hexdigest "#{maximum(:updated_at).try(:to_i)-#{count}"
+  def self.cache_key
+    Digest::MD5.hexdigest "#{maximum(:updated_at)}.try(:to_i)-#{count}"
   end
 end
 ```
