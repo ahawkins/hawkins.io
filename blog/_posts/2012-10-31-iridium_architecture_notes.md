@@ -1,6 +1,6 @@
 ---
 layout: post
-title: The New Iridium: Architecture Notes
+title: "The New Iridium: Architecture Notes"
 tags: [javascript]
 ---
 
