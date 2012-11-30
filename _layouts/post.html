@@ -4,7 +4,8 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>BroadcastingAdam - {{ page.title }}</title>
 
-    {% include stylesheets.html %}
+    <link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.8.2r1/build/reset/reset-min.css">
+    <link rel="stylesheet" type="text/css" href="/stylesheets/post.css" />
 
     <link rel="stylesheet" href="http://yandex.st/highlightjs/5.16/styles/github.min.css">
 
@@ -21,15 +22,25 @@
   </head>
   <body>
     <div id="container">
-      {% include header.html %}
+      <header>
+        <h1>BroadcastingAdam</h1>
+        <nav>
+          <a href="/">Home</a>
+          <a href="/blog.html">Posts</a>
+          <a href="http://feeds.feedburner.com/BroadcastingAdam" id="rss">Subscribe</a>
+        </nav>
+      </header>
 
       <div id="content" class="post">
-        <header >
-          <h2>{{ page.title }}</h2>
-          <div class='meta'>
-            </p>{{ page.date | date: '%B %d, %Y' }} &nbsp; | &nbsp; {{page.tags | join: ' '}}</p>
-          </div>
-        </header>
+        {% unless page.post_listing %}
+          <header >
+            <h2>{{ page.title }}</h2>
+            <div class='meta'>
+              </p>{{ page.date | date: '%B %d, %Y' }} &nbsp; | &nbsp; {{page.tags | join: ' '}}</p>
+            </div>
+          </header>
+        {% endunless %}
+
         <article>
           {{ content }}
 

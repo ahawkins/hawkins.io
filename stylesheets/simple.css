@@ -1,0 +1,46 @@
+@font-face {
+  font-family: Vegur-Bold;
+  src: url('/fonts/vegur_bold.otf');
+}
+
+
+@font-face {
+  font-family: Vegur;
+  src: url('/fonts/vegur_regular.otf');
+}
+
+#content {
+  width: 40%;
+  margin: 0 auto;
+  padding: 4em 0;
+}
+
+p,li {
+  margin-bottom: 1.7em;
+  font-size: 1.3em;
+  line-height: 1.5em;
+  color: #333;
+  font-family: "Georgia", "62.5% palatino","times new roman",serif;
+  text-align: justify;
+}
+
+h1#name {
+  font-family: "Vegur-Bold", "Georgia", "62.5% palatino","times new roman",serif;;
+  font-size: 3em;
+  letter-spacing: -1px;
+  font-weight: normal;
+  line-height: 1em;
+  color: #333;
+  margin-bottom: 1em;
+}
+
+a, a.visited, a.hover, a.active {
+  color: #900;
+  text-decoration: none;
+}
+
+ul#links li {
+  font-size: 1.2em;
+  display: inline;
+  margin-right: 0.5em;
+}
