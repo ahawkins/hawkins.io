@@ -12,11 +12,14 @@
 #content {
   width: 40%;
   margin: 0 auto;
-  padding: 4em 0;
+  padding: 2em 0;
+}
+
+ul,p {
+  margin: 1.7em 0;
 }
 
 p,li {
-  margin-bottom: 1.7em;
   font-size: 1.3em;
   line-height: 1.5em;
   color: #333;
@@ -24,15 +27,24 @@ p,li {
   text-align: justify;
 }
 
-h1#name {
+h1,h2 {
   font-family: "Vegur-Bold", "Georgia", "62.5% palatino","times new roman",serif;;
-  font-size: 3em;
   letter-spacing: -1px;
   font-weight: normal;
-  line-height: 1em;
   color: #333;
   margin-bottom: 1em;
 }
+
+h1 {
+  font-size: 3em;
+  line-height: 1em;
+}
+
+h2 {
+  font-size: 2em;
+  line-height: 1em;
+}
+
 
 a, a.visited, a.hover, a.active {
   color: #900;
@@ -43,4 +55,5 @@ ul#links li {
   font-size: 1.2em;
   display: inline;
   margin-right: 0.5em;
+  text-transform: lowercase;
 }
