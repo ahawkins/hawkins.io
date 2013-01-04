@@ -187,10 +187,28 @@ blockquote {
 }
 
 #consulting-notice {
-  background-color: #EDEEEF;
-  margin: 20px 0;
-  padding: 5px;
+  color: #468847;
+  background-color: #DFF0D8;
+  padding: 8px 35px 8px 14px;
+  margin-bottom: 20px;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+  border: 1px solid #D6E9C6;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  line-height: 20px;
 }
+
+#consulting-notice a,
+#consulting-notice a:hover,
+#consulting-notice a:active,
+#consulting-notice a:visited {
+  color: black;
+  font-weight: bold;
+}
+
 
 section { 
   margin-bottom: 30px;
