@@ -5,6 +5,16 @@ tags: [rails, tutorials]
 hide: true
 ---
 
+<p id="consulting-notice">
+Are you experiencing performance problems in your application? Are you
+unsure of how to cache things in your app? Or do you simply
+have no clue where to start? I can solve these problems. <strong>I'll work one
+on one with you on your app for 1 hour for $200 and make all that
+uncertaintiy go away.</strong> <a href="mailto:me@broadcastingadam.com?subject=Caching%20Consultation">Contact me</a>
+if you're interested.
+</p>
+
+
 All I care about is fast JSON API's. That's all I work on and that's
 what I devote all my energy to. We can use all the principles here to
 create a simple example of a fast API. 

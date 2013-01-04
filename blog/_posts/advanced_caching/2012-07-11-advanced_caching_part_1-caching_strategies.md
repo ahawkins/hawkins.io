@@ -5,6 +5,15 @@ tags: [rails, tutorials]
 hide: true
 ---
 
+<p id="consulting-notice">
+Are you experiencing performance problems in your application? Are you
+unsure of how to cache things in your app? Or do you simply
+have no clue where to start? I can solve these problems. <strong>I'll work one
+on one with you on your app for 1 hour for $200 and make all that
+uncertaintiy go away.</strong> <a href="mailto:me@broadcastingadam.com?subject=Caching%20Consultation">Contact me</a>
+if you're interested.
+</p>
+
 First, let's start with a brief overview of the different types of
 caching. We'll start from 50,000ft and work our way down.
 

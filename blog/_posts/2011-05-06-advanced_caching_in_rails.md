@@ -4,6 +4,15 @@ title: Advanced Caching in Rails
 tags: [rails, tutorials]
 ---
 
+<p id="consulting-notice">
+Are you experiencing performance problems in your application? Are you
+unsure of how to cache things in your app? Or do you simply
+have no clue where to start? I can solve these problems. <strong>I'll work one
+on one with you on your app for 1 hour for $200 and make all that
+uncertaintiy go away.</strong> <a href="mailto:me@broadcastingadam.com?subject=Caching%20Consultation">Contact me</a>
+if you're interested.
+</p>
+
 <p class="revision-warning">
 This post has been <a href="/2012/07/advanced_caching_revised/">revised</a>.
 I highly suggest you check out that version. This version is outdated
