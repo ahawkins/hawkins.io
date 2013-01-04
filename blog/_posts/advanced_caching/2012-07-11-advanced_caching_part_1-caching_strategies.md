@@ -10,7 +10,7 @@ Are you experiencing performance problems in your application? Are you
 unsure of how to cache things in your app? Or do you simply
 have no clue where to start? I can solve these problems. <strong>I'll work one
 on one with you on your app for 1 hour for $200 and make all that
-uncertaintiy go away.</strong> <a href="mailto:me@broadcastingadam.com?subject=Caching%20Consultation">Contact me</a>
+uncertainty go away.</strong> <a href="mailto:me@broadcastingadam.com?subject=Caching%20Consultation">Contact me</a>
 if you're interested.
 </p>
 
