@@ -57,3 +57,8 @@ ul#links li {
   margin-right: 0.5em;
   text-transform: lowercase;
 }
+
+.donate {
+  margin-top: 50px;
+  text-align: center;
+}
