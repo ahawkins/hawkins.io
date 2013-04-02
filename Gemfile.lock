@@ -12,7 +12,7 @@ GIT
       pygments.rb (~> 0.2.12)
 
 GEM
-  remote: http://rubygems.org/
+  remote: https://rubygems.org/
   specs:
     RedCloth (4.2.9)
     blankslate (2.1.2.4)

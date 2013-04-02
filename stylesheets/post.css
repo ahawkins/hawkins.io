@@ -213,3 +213,7 @@ blockquote {
 section { 
   margin-bottom: 30px;
 }
+
+code {
+  overflow: scroll;
+}

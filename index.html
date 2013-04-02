@@ -30,6 +30,16 @@ title: BroadcastingAdam
   <li><a href="/2011/11/moving_on_from_rails/">Moving on from Rails</a></li>
 </ul>
 
+<h2>Ember Blogging</h2>
+<ul>
+{% for post in site.tags.ember %}
+  {% unless post.hide || post.wip %}
+  <li> {{ post.date | date: '%Y-%m-%d' }}  - <a href="{{ post.url }}" title="{{ post.title}}">{{post.title }}</a></li>
+  {% endunless %}
+{% endfor %}
+  <li><a href="/blog.html">All Posts</a></li>
+</ul>
+
 <h2>Speaking</h2>
 
 <ul>
