@@ -80,7 +80,7 @@ state for everything below it. You could consider it this url: `/djs`.
 entered if we go to `/djs/markus-schulz`, but `DjsRoute` will. We'll
 use `DjsIndexRoute` to display the prompt to select a DJ.
 
-`this.rource('dj')` inside the `djs` resource creates a nested setup.
+`this.route('dj')` inside the `djs` resource creates a nested setup.
 The `DjsDjRoute` refers to `/djs/markus-schulz`. This is our
 individual item view.
 
