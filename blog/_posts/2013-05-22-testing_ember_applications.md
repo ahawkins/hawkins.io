@@ -4,8 +4,6 @@ title: "The Art & Science of Integration Testing Ember Applications"
 tags: [ember, javascript]
 ---
 
-# The Art and Science of Integration Testing Ember Applications
-
 This post is all about integration testing Ember applications.
 Integration is also called "acceptance" testing. However you want to
 call them, this post focuses on testing your application from
