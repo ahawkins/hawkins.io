@@ -138,3 +138,10 @@ Ember.Application.initializer({
 
 You may also be interested in this [gist](https://gist.github.com/ivanvanderbyl/4560416)
 showing how to set `currentUser` on all the controllers.
+
+With all that being said:
+
+> God I want to push this mother out so bad
+> - Alex
+
+Yes. Me too. This will really put the icing on the 1.0.0 cake
