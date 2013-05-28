@@ -144,4 +144,6 @@ With all that being said:
 > God I want to push this mother out so bad
 > - Alex
 
-Yes. Me too. This will really put the icing on the 1.0.0 cake
+Yes. Me too. This will really put the icing on the 1.0.0 cake. Also,
+check this [gist](https://gist.github.com/machty/5647589) if you're
+interested in the changes.
