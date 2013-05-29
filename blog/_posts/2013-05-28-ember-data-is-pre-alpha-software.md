@@ -77,3 +77,5 @@ wait for the day when we can release Ember Data 1.0--hell even
 people, willing to accept the risks and responsiblities, to help us
 find bugs and improve the core concepts. We will get there. Give us
 time and we'll show you.
+
+Discuss on [Hacker News](https://news.ycombinator.com/item?id=5786212).
