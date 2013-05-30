@@ -51,7 +51,7 @@ App.ApplicationRoute = Ember.Route.extend({
 })
 ```
 
-This honestly worked liked a charm! I was quite suprised. It worked
+This honestly worked liked a charm! I was quite surprised. It worked
 when loading "/". It totally broke the second I need to use it in
 another route. Now, knowing that I had the `currentUser`, I could do
 what I needed in other routes. 
@@ -68,7 +68,7 @@ I opened up my application from the root. Then I clicked the link to
 "SomeSubRoute". It worked. I made a change to the code for an
 unrelated reason and refreshed the page. Now I had errors. There was
 no current user anymore. Why is that? `SomeSubRoute` does not have a
-model hook, so it is available syncronously. This means
+model hook, so it is available synchronously. This means
 `SomeSubRoute`'s `setupController` hook is called before
 `ApplicationRoute` (which is async). So when it's called the current
 user hasn't be loaded yet. Boo. You can't use the `redirect` hook
@@ -95,14 +95,14 @@ The PR mentioned above handles two core problems mentioned above:
 
 The PR is to the low level router API. I cannot speculate what the
 high level Ember API will look like. I do know this: everything will
-be asyncronous and the developer will have finegrained control over
-the the transitions it. This makes it possible to implement the common
+be asynchronous and the developer will have fine-grained control over
+the transitions it. This makes it possible to implement the common
 authentication use cases we all know and love.
 
 There is one work around in the mean time. The only way to avoid all
 the problems in this post and in the PR. You avoid initializing the
 application unless the user is logged in. This means all async and
-syncronous transitions can rely on the current user being there. This
+synchronous transitions can rely on the current user being there. This
 is actually quite easy to do. You can use an initializer and
 `advanceReadiness` along with `deferReadiness`. Here's an example:
 
