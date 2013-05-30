@@ -146,4 +146,5 @@ With all that being said:
 
 Yes. Me too. This will really put the icing on the 1.0.0 cake. Also,
 check this [gist](https://gist.github.com/machty/5647589) if you're
-interested in the changes.
+interested in the changes. You can also follow [this thread on Discourse](http://discuss.emberjs.com/t/upcoming-async-router-api/1339)
+for more discussion.
