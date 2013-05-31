@@ -90,7 +90,7 @@ h3 {
 }
 
 a {
-  color: #600;
+  color: #DD8414;
   text-decoration: none;
 }
 
@@ -119,7 +119,7 @@ em {
 .post > h2 > a {
   display: block;
   text-decoration: none;
-  color: inherit;
+  color: black;
   line-height: 1.1em;
 }
   
