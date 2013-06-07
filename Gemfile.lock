@@ -21,6 +21,7 @@ GEM
     directory_watcher (1.4.1)
     fast-stemmer (1.0.1)
     ffi (1.0.11)
+    iconv (1.0.3)
     kramdown (0.13.7)
     liquid (2.3.0)
     maruku (0.6.0)
@@ -38,5 +39,6 @@ PLATFORMS
 
 DEPENDENCIES
   RedCloth
+  iconv
   jekyll!
   redcarpet
