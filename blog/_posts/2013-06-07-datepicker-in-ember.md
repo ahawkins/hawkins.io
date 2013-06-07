@@ -47,4 +47,8 @@ Here's everything in a gist:
 
 <script src="https://gist.github.com/ahawkins/5729005.js"></script>
 
+And a demo in JSBin:
+
+<a class="jsbin-embed" href="http://jsbin.com/ehufox/2/embed?live">Date Picker Demo</a><script src="http://static.jsbin.com/js/embed.js"></script>
+
 Happy hacking!
