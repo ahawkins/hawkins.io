@@ -43,12 +43,12 @@ Here's the code for the date picker view:
 Then simply use it like a normal view but with `dateBinding` instead
 of `valueBinding`. This is very important! 
 
-Here's everything in a gist:
-
-<script src="https://gist.github.com/ahawkins/5729005.js"></script>
-
 And a demo in JSBin:
 
 <a class="jsbin-embed" href="http://jsbin.com/ehufox/2/embed?live">Date Picker Demo</a><script src="http://static.jsbin.com/js/embed.js"></script>
+
+Here's everything in a gist:
+
+<script src="https://gist.github.com/ahawkins/5729005.js"></script>
 
 Happy hacking!
