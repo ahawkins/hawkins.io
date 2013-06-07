@@ -77,7 +77,7 @@ App.DatePicker = Ember.TextField.extend
 Then simply use it like a normal view but with `dateBinding` instead
 of `valueBinding`. This is very important! Here's an example:
 
-```
+```handlebars
 {{view App.DatePicker dateBinding=publishDate}}
 ```
 
