@@ -99,18 +99,20 @@ objects in the graph. Now we can generate a cache key using the
 collections.
 
 ```ruby
+require 'digest/md5'
+
 class PostsGraph
   def initialize(collection)
     @collection = collection
   end
 
   def cache_key
-    [
+    Digest::MD5.hexdigest([
       cachify(@collection),
       cachify(posters),
       cachify(commentors),
       cachify(comments)
-    ]
+    ].join('/'))
   end
 
   # other methods
@@ -125,6 +127,8 @@ We simply generate a composite cache key from the set. Now make the
 class `ActiveModel::Serializers` ready
 
 ```ruby
+require 'digest/md5'
+
 class PostsGraph
   include Enumerable
 
@@ -145,12 +149,12 @@ class PostsGraph
   end
 
   def cache_key
-    [
+    Digest::MD5.hexdigest([
       cachify(collection),
       cachify(posters),
       cachify(commentors),
       cachify(comments)
-    ]
+    ].join('/'))
   end
 
   # Serializer with our serializer that knows how to
