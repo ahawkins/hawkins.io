@@ -4,6 +4,15 @@ title: "Caching Object Graphs with ActiveModel::Serializers"
 tags: [ember]
 ---
 
+<p id="consulting-notice">
+Are you experiencing performance problems in your application? Are you
+unsure of how to cache things in your app? Or do you simply
+have no clue where to start? I can solve these problems. <strong>I'll work one
+on one with you on your app for 1 hour for $200 and make all that
+uncertainty go away.</strong> <a href="mailto:me@broadcastingadam.com?subject=Caching%20Consultation">Contact me</a>
+if you're interested.
+</p>
+
 I've been doing caching consultations for a while. Everyone is using
 `ActiveModel::Serializers`. The most common question is: "how can I
 speed up my index routes?" The best answer is to cache the generation.
