@@ -14,9 +14,9 @@ response to `cache_key` and set `cached` then the magic will happen.
 
 All we have to do is generate a cache key. We need to know all the
 objects to generate a cache key. Given a collection of objects we can
-generate a simple cache key by using the maximu `updated_at` value.
-Knowing this, we simply have to generate all the collections of
-objects. Once we have all that a cache key can be generated.
+generate a simple cache key by using the maximum `updated_at` value.
+Knowing this, we simply have to generate the object collections.
+Once we have all that a cache key can be generated.
 
 Let's look at a blog example. We have users, posts, and comments. They
 are all related to each other in obvious ways. Here are the
@@ -93,8 +93,8 @@ class PostsGraph
 end
 ```
 
-There is some SQL going on there to get the reverse of the association
-given a collection. That class as methods responding to each set of
+There is some SQL going on there to get association inverse for a
+given collection. The class as methods responding to each set of
 objects in the graph. Now we can generate a cache key using the
 collections.
 
