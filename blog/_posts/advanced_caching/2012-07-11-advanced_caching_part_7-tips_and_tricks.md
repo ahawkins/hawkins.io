@@ -5,16 +5,6 @@ tags: [rails, tutorials]
 hide: true
 ---
 
-<p id="consulting-notice">
-Are you experiencing performance problems in your application? Are you
-unsure of how to cache things in your app? Or do you simply
-have no clue where to start? I can solve these problems. <strong>I'll work one
-on one with you on your app for 1 hour for $200 and make all that
-uncertainty go away.</strong> <a href="mailto:me@broadcastingadam.com?subject=Caching%20Consultation">Contact me</a>
-if you're interested.
-</p>
-
-
 This section is for random tips and tricks that don't really belong in
 any other parts. They are related to any caching method.
 

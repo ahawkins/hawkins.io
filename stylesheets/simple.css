@@ -62,3 +62,7 @@ ul#links li {
   margin-top: 50px;
   text-align: center;
 }
+
+strong {
+  font-weight: bold;
+}

@@ -5,16 +5,6 @@ tags: [rails, tutorials]
 hide: true
 ---
 
-<p id="consulting-notice">
-Are you experiencing performance problems in your application? Are you
-unsure of how to cache things in your app? Or do you simply
-have no clue where to start? I can solve these problems. <strong>I'll work one
-on one with you on your app for 1 hour for $200 and make all that
-uncertainty go away.</strong> <a href="mailto:me@broadcastingadam.com?subject=Caching%20Consultation">Contact me</a>
-if you're interested.
-</p>
-
-
 Tag based caching is a way to solve the second hard problem in computer
 science: cache invalidation. I was working on a complex application that
 generated a ton of HTML. It was very repetitive in nature but highly
