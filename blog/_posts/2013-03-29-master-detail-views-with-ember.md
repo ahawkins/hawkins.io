@@ -32,7 +32,7 @@ URLs because it's easier to understand.
 
 * `/` - The user opened the application
 * `/djs` - The master list (nothing is selected)
-* /djs/:name` - The detail view
+* `/djs/:name` - The detail view
 
 It's important to note that all these routes are nested. We can
 express the routes like this:

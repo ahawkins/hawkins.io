@@ -10,7 +10,7 @@
 }
 
 #content {
-  width: 50%;
+  width: 60%;
   margin: 0 auto;
 }
 
@@ -119,6 +119,7 @@ em {
 
 #ad {
   background-color: #e9f4f8;
+  border: solid 1px #9ab7c2;
   padding: 0.4em;
 }
 
