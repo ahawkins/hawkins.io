@@ -11,6 +11,7 @@ title: Adam Hawkins
   <li><a href="https://github.com/ahawkins">Github</a></li>
   <li><a href="http://speakerdeck.com/u/ahawkins">Talks</a></li>
   <li><a href="mailto:adam@hawkins.io">Contact</a></li>
+  <li><a href="http://feeds.feedburner.com/BroadcastingAdam">Subscribe</a></li>
 </ul>
 
 <p>
@@ -27,8 +28,10 @@ title: Adam Hawkins
 
 <h2>Popular Works</h2>
 
-<ul>
+<ul class="unstyled">
   <li><a href="https://github.com/radiumsoftware/iridium">Iridium</a></li>
+  <li><a href="https://tweetclock.io">TweetClock</a></li>
+  <li><a href="http://emberaddons.com">Ember Addons</a></li>
   <li><a href="https://github.com/ahawkins/cashier">Cashier</a></li>
   <li><a href="https://github.com/ahawkins/harness">Harness</a></li>
   <li><a href="/2013/05/ember-data-is-pre-alpha-software/">Ember Data is Pre-Alpha Software</a></li>
@@ -36,19 +39,18 @@ title: Adam Hawkins
   <li><a href="/2011/11/moving_on_from_rails/">Moving on from Rails</a></li>
 </ul>
 
-<h2>Ember Blogging</h2>
-<ul>
-{% for post in site.tags.ember %}
+<h2>Blog</h2>
+<ul class="unstyled">
+{% for post in site.categories.blog %}
   {% unless post.hide || post.wip %}
   <li> {{ post.date | date: '%Y-%m-%d' }}  - <a href="{{ post.url }}" title="{{ post.title}}">{{post.title }}</a></li>
   {% endunless %}
 {% endfor %}
-  <li><a href="/blog.html">All Posts</a></li>
 </ul>
 
 <h2>Speaking</h2>
 
-<ul>
+<ul class="unstyled">
   <li>2013 - <a href="http://www.meetup.com/hamburg-js/events/72892202/">HH.js</a> - Hamburg, DE - (<a href="http://lecture2go.uni-hamburg.de/veranstaltungen/-/v/14786">Video</a>)</li>
   <li>2013 - <a href="https://speakerdeck.com/ahawkins/dear-god-what-am-i-doing-parallel-and-concurrent-processing">Wroc_love.rb</a> - Wroclaw, PL -(<a href="http://www.youtube.com/watch?v=8pFJaEMMX6g&list=PLoGBNJiQoqRA-2pYwxRSNAxOte3x-C19W&index=6">Video</a>)</li>
   <li>2013 - <a href="https://speakerdeck.com/ahawkins/dear-god-what-am-i-doing-parallel-and-concurrent-processing">RubyConf</a> - Melbourne, AU - (<a href="http://vimeo.com/61342268">Video</a>)</li>

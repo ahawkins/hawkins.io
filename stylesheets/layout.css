@@ -1,0 +1,150 @@
+@font-face {
+  font-family: Vegur-Bold;
+  src: url('/fonts/vegur_bold.otf');
+}
+
+
+@font-face {
+  font-family: Vegur;
+  src: url('/fonts/vegur_regular.otf');
+}
+
+#content {
+  width: 50%;
+  margin: 0 auto;
+}
+
+#post-title {
+  text-align: center;
+}
+
+.bordered {
+  border-top: solid 1px #c2c2c2;
+  border-bottom: solid 1px #c2c2c2;
+  padding: 1em 0;
+}
+
+.meta {
+  text-align: center;
+}
+
+.muted {
+  color: #999999;
+}
+
+body {
+  padding: 2em 0;
+  color: #333;
+  font-family: "Georgia", "62.5% palatino","times new roman",serif;
+  font-size: 1em;
+}
+
+ol,ul,p,blockquote {
+  margin: 1.7em 0;
+}
+
+ol li {
+  list-style: decimal inside;
+}
+
+ul li {
+  list-style: disc inside;
+}
+
+ol.unstyled li, ul.unstyled li {
+  list-style: none;
+}
+
+p,li {
+  font-size: 1.3em;
+  line-height: 1.5em;
+}
+
+li ul, li ol {
+  margin: 0;
+  margin-left: 1.5em;
+}
+
+li ul li, li ol li{
+  font-size: inherit;
+}
+
+h1,h2,h3,h4,h5 {
+  font-family: "Vegur-Bold", "Georgia", "62.5% palatino","times new roman",serif;;
+  letter-spacing: -1px;
+  font-weight: normal;
+  color: #333;
+  margin-bottom: 1em;
+}
+
+h1 {
+  font-size: 3em;
+  line-height: 1em;
+}
+
+h2 {
+  font-size: 2em;
+  line-height: 1em;
+}
+
+h3 {
+  font-size: 1.5em;
+  line-height: 1em;
+}
+
+a, a.visited, a.hover, a.active {
+  color: #900;
+  text-decoration: none;
+}
+
+ul#links li {
+  font-size: 1.2em;
+  display: inline;
+  margin-right: 0.5em;
+  text-transform: lowercase;
+}
+
+.donate {
+  margin-top: 50px;
+  text-align: center;
+}
+
+strong {
+  font-weight: bold;
+}
+
+em {
+  font-style: italic;
+}
+
+#ad {
+  background-color: #e9f4f8;
+  padding: 0.4em;
+}
+
+.revision-warning {
+  color: red;
+}
+
+#contact {
+  text-align: center;
+}
+
+pre code {
+  display: block;
+  background-color: #f8f8ff;
+  padding: .8em;
+  overflow: scroll;
+  margin: 1.7em 0;
+}
+
+blockquote {
+  padding: 0 0 0 15px;
+  margin: 0 0 20px;
+  border-left: 5px solid #eeeeee;
+  font-size: smaller;
+}
+
+li p {
+  font-size: inherit;
+}
