@@ -21,14 +21,14 @@ If you are unsatisfied the result, I will give you 100% of your money back.
 
 We put our heads together for an hour:
 
-* I will review the code with you within the call
-* Show you where the problem areas
+* I will review the code with you during the call
+* Show you the problem areas
 * Provide a strategy to make your app faster
 
 This service is **$300**. [Email me](mailto:adam@hawkins.io&subject=Performance+Consultation) if this
 describes you.
 
-## The "I'll Make Your Problems Go Away" Package
+## Just Make it Faster
 
 * Testing your application for common problems
 * Implement simple fixes where applicable
@@ -39,14 +39,15 @@ describes you.
 This service is **$1000**. [Email me](mailto:adam@hawkins.io&subject=Performance+Consultation) if this
 describes you.
 
-## Coaching
+## Total Implementation
 
 I can also implement any strategies described in our consultations or
 on my blog. Fast applications matter. They play huge roll in user
 experience. Users love fast application. I can work 1 one 1 or with a
 team implementing a custom performance strategy for your application.
 This means you and I will work together so I can fully understand your
-application and what is important. This service **starts at $3000**. [Email
+application and what is important. Rates **starts at $3000** and vary
+by project and scope. [Email
 me](mailto:adam@hawkins.io&subject=Performance+Consultation) and let's
 talk if this describes you.
 
