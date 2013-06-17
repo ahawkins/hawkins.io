@@ -10,10 +10,10 @@ Not sure what to try next?
 
 I can solve your performance problems.
 
-I've helped many people so far. I've worked on traditional Rails
-applications and modern client side apps using Ember.js. I've helped
-people all across the spectrum make their apps faster and pass on
-knowledge. I've never had an unsatisified customer. **Too many I's.  Make it about THEM**
+I've worked on traditional Rails applications and modern client side
+apps using Ember.js. I've helped people all across the spectrum make
+their apps faster and pass on knowledge. I've never had an
+unsatisified customer.
 
 If you are unsatisfied the result, I will give you 100% of your money back.
 
@@ -21,43 +21,42 @@ If you are unsatisfied the result, I will give you 100% of your money back.
 
 We put our heads together for an hour:
 
-* I will review the code with you within the call.
-* Show you where the problem areas are and give you ideas to fix them.
+* I will review the code with you within the call
+* Show you where the problem areas
+* Provide a strategy to make your app faster
 
-This service is **$200**. [Email me](mailto:adam@hawkins.io&subject=Caching+Consultation) if this
+This service is **$300**. [Email me](mailto:adam@hawkins.io&subject=Performance+Consultation) if this
 describes you.
 
-** Keep it a really basic service.  $200 isn't much to arrange for the hassle of coordinating a meeting**
+## The "I'll Make Your Problems Go Away" Package
 
-## The "I'll make your problems go away" package
+* Testing your application for common problems
+* Implement simple fixes where applicable
+* Plan a comprehensive solution for you (or another contractor) to
+  implement.
+* Review findings and answer your questions in a call
 
-I will take 3 hours to:
-* Review the problems you have.
-* Diagnose the problems.
-* Fix the problems.
-* Give you a report.
-
-This service is **$800**. [Email me](mailto:adam@hawkins.io&subject=Caching+Consultation) if this
+This service is **$1000**. [Email me](mailto:adam@hawkins.io&subject=Performance+Consultation) if this
 describes you.
 
-## For coaching
+## Coaching
 
 I can also implement any strategies described in our consultations or
 on my blog. Fast applications matter. They play huge roll in user
 experience. Users love fast application. I can work 1 one 1 or with a
 team implementing a custom performance strategy for your application.
-This means you and I will work together so I can full understand your
-application and what is important. This service **starts at $2000**. [Email
-me](mailto:adam@hawkins.io&subject=Caching+Consultation) and let's
+This means you and I will work together so I can fully understand your
+application and what is important. This service **starts at $3000**. [Email
+me](mailto:adam@hawkins.io&subject=Performance+Consultation) and let's
 talk if this describes you.
 
-The general consultations happen over Google Hangouts since it can be
-recorded and shared with your coworkers. I'm currently living in
-Europe. Consultations are usually scheduled for one or two days after
-initial contact.
+The general consultations happen over Google Hangouts or Skype. Google
+Hangouts are better because they can be recorded and shared with your
+coworkers. Consultations are usually scheduled for one or two days
+after initial contact.
 
 If you are interested please [email
-me](mailto:adam@hawkins.io&subject=Caching+Consultation). I look
+me](mailto:adam@hawkins.io&subject=Performance+Consultation). I look
 forward to working with you.
 
 <script type="text/javascript">
