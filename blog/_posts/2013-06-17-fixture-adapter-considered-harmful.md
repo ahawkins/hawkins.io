@@ -30,6 +30,8 @@ There are a few core issues.
 1. ED is still [alpha software](/2013/05/ember-data-is-pre-alpha-software/)
 2. Adapter semantics are not consistent.
 3. Adapter has varying levels of functionality.
+4. Many bugs in ED are related to `DS.RESTAdapter` and doesn't exist
+   when using `DS.FixtureAdapter`.
 
 The semantics are a real issue. If the API embeds records, then you
 better make **damn sure** you embed them when using
