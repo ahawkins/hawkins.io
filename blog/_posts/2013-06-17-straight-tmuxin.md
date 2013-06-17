@@ -6,7 +6,7 @@ layout: post
 This is a break from the usual format. I'm going to talk about my
 tools and various other nerd config related things. This is because I
 love to see other people's setups.
-[r/battlestations](http://reddit.com/r/battlesations) is like porn to
+[r/battlestations](http://reddit.com/r/battlestations) is like porn to
 me. I don't have a cool desk. I just have some cheap thing from ikea
 with a cheap chair from ikea as well. Livin' the dream right? Instead
 I have a balling terminal.
