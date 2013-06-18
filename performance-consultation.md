@@ -16,7 +16,7 @@ their apps faster and pass on knowledge. I've never had an
 unsatisified customer.
 
 > Adam came prepared with suggestions on how we could improve our
-> app. He the deep knowledge of both Rails and Ember needed to
+> app. He has deep knowledge of both Rails and Ember needed to
 > troubleshoot key performance issues. Not only did he offer pieces of
 > example code – he even wrote an entire blog post for us!
 <cite> Nick Wientge, CTO <a href="http://crowdhall.com">Crowdhall</a></cite>
