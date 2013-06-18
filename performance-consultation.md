@@ -15,6 +15,12 @@ apps using Ember.js. I've helped people all across the spectrum make
 their apps faster and pass on knowledge. I've never had an
 unsatisified customer.
 
+> Adam came prepared with suggestions on how we could improve our
+> app. He the deep knowledge of both Rails and Ember needed to
+> troubleshoot key performance issues. Not only did he offer pieces of
+> example code – he even wrote an entire blog post for us!
+<cite> Nick Wientge, CTO <a href="http://crowdhall.com">Crowdhall</a></cite>
+
 If you are unsatisfied the result, I will give you 100% of your money back.
 
 ## "The brainstorm" Package

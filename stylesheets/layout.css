@@ -153,3 +153,12 @@ blockquote {
 li p {
   font-size: inherit;
 }
+
+blockquote cite {
+  margin-top: 6px;
+  display: block;
+  font-style: italic;
+}
+
+blockquote cite:before {
+  content: '—';
