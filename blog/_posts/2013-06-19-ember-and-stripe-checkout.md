@@ -29,5 +29,11 @@ the CC info.
 Here's the JSBin. Tomorrow I'll show you how to put a custom form
 togehter.
 
+_A word of warning._ This is not exactly how you should do this real
+world. You would not keep the secret key on the client. Instead, post
+to your server which knows the secret key and thusly makes the secure
+request to stripe. This code is like this to demo the entire flow.
+You've been warned!
+
 <a class="jsbin-embed" href="http://jsbin.com/alesuk/6/embed?live">Ember + Stripe </a>
 <script src="http://static.jsbin.com/js/embed.js"></script>
