@@ -1,11 +1,11 @@
 ---
-title: "Ember & Stripe Custom Forms: Time to get Paid Again"
+title: "Ember & Stripe Custom Forms: Getting Paid Again"
 layout: post
 ---
 
 Here's the follow up my previous post on Stripe and Ember. Stripe's
-checkout stuff nice and clean and works well for simple buttons. What
-do you do when you need your own form? 
+checkout stuff nice and clean for simple buttons. What do you do when
+you need your own form?
 
 Implementing this is pretty much the same as using checkout. There is
 a simple controller to manage the form. The form contains all the CC
