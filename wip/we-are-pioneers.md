@@ -1,39 +1,15 @@
-This is a post about how I feel. It is an emotional post because it
-focus on issues that are important like my career, open source, and
-the web as an application platform.
-
-I started to get a bad feeling about our code in Spring 2011. We had a
-monolothic Rails app. It was highly interactive and the UI state was
-maintained with a soup of jQuery an server side rendered javascript. I
-knew this would be a problem for us in the future. I started to
-investigate single page applications. This is what they were called at
-the time. I started to look into Sproutcore. I made some demo apps to
-get the feel for it. I liked the concepts. The framework was
-definitely powerful. I started attending the Sproutcore meetups in San
-Francisco. I was lucky enough to meet Tom Dale & Yehuda a few times.
-Tomhuda was working on Sproutcore 1.5 and big ideas for Sproutcore 2.
-I followed the development closely over the coming months because I
-knew we'd need them at some point. I made the best decision of my
-life. I quit school and moved to Helsinki Finland to hopefully finish
-and launch our product in the Summer.
-
-Unfortunately our prototype did not gain the traction we needed. We
-couldn't build an application that made us proud using our current
-technologies. I knew we needed to move a ton of logic to the client 
-to create a rich and super fast application. We decided to abandon our
-prototype and start from scratch with a single page application. The
-decision was made in **November 2011**.
-
-Sproutcore 2 has been developing. History shows it became Amber, then
-it became Ember.I have a ton of respect for Yehuda. He's worked on the
-biggest projects. I know Tom Dale also does great work. iCloud
-impressed at the time. The timing was perfect. Yehuda
-[announced](http://yehudakatz.com/2011/12/08/announcing-amber-js/)
-Amber on December 12, 2011. We decided to build our product using
-Ember given that I'd met Tom & Yehuda and seen their track record. It
-was with that, that I decided to stake our success on Tom and Yehuda's
-ideas. Ember was always billed as the future. It was the framework
-for ambitious web applications--and we're certainly ambitious.
+My company decided to move to a client side application in November 2011.
+We hit the limit of keeping the UI consistent across the application
+using jQuery and server side generated javascript. I'd been following
+Sproutcore 1.5/2/Amber/Ember's development for about 6 months before
+hand. I knew and respected Yehuda's work. I met Tom Dale at some
+Sproutcore meetups. Tomhuda had a proven track record of open source
+development. They wanted to build ambitious web applications. So did
+we.  Yehuda [announced](http://yehudakatz.com/2011/12/08/announcing-amber-js/)
+Amber on December 12, 2011. The timing was perfect. We made the
+decision. We would bet our product's success on Yehuda, Tom, and
+Ember.js. Little did we know we were entering a whole new world where
+nothing free with very little infrastructure.
 
 It has been an extremely rough and tiring road. We've ridden the
 endless release treadmill, dealt with breaking changes with every
