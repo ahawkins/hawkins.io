@@ -1,112 +1,94 @@
-My company decided to move to a client side application in November 2011.
-We hit the limit of keeping the UI consistent across the application
-using jQuery and server side generated javascript. I'd been following
-Sproutcore 1.5/2/Amber/Ember's development for about 6 months before
-hand. I knew and respected Yehuda's work. I met Tom Dale at some
-Sproutcore meetups. Tomhuda had a proven track record of open source
-development. They wanted to build ambitious web applications. So did
-we.  Yehuda [announced](http://yehudakatz.com/2011/12/08/announcing-amber-js/)
-Amber on December 12, 2011. The timing was perfect. We made the
-decision. We would bet our product's success on Yehuda, Tom, and
-Ember.js. Little did we know we were entering a whole new world where
-nothing free with very little infrastructure.
+There have been a few times in history where we've really pushed the
+boundaries. The 16th and 17th century are prefect examples. England
+began to colonize North America. Settlers were promised a better life,
+a fresh start, and the chance to start a new country. This was extremely
+tough work. Many of the earlier settlers died. They didn't have the
+luxuries they had back home. They had to built their own houses, their
+own roads, and entire cities from scratch. I think a lot of the very
+early colonists had a vision of a better place and many of them were
+willing to make that happen.
 
-It has been an extremely rough and tiring road. We've ridden the
+I started a Rails contract right at the start of 2010. Rails 2.3 was
+very comfortable at time. This was the way to build web applications
+and it worked well. There was nothing revolutionary at this point but
+it got the job done in a consistent fashion. There was nothing to
+argue about. That was the decision and we went with it. We wanted to
+build a rich user interface and we could do that using technology we
+had a time.
+
+Fast forward to Ocotober 2011. Jeremy Askenas releases the initial
+version of Backbone. A new wave of settles comes to the developing
+world of javascript applications in the browser. All of a sudden there
+are a ton of problems to solve from this brand new situation. The
+backbone community plants their flag and takes hold of an emerging
+market. They continued to settle this new world while we sat in our
+comfortable Rails environment.
+
+Fast forward to November 2011. Our product had not gained the traction
+we wanted. We'd reached the limits of what we could accomplish of
+using basic jQuery and server generated javascript. We knew that we
+needed to move to a dedicated full client side application. This was
+the only way we could solve our problems and make the product we
+wanted. Backbone was a thing at this point. It's capabilities where
+well know at this point. However it wasn't enough for us. We wanted
+data binding, data support, and a more complete solution. The Backbone community had
+pioneered what could be done at that level, but it was time for the
+next major wave of settlers.
+
+I'be been involved with Sproutcore's (also another early and successful
+pioneer in this space) development for a while. I knew that Tom Dale
+and Yehuda Katz were working on the next version. It really seemed
+they were working on future technology. They made big promises about
+developing ambitious web applications. We felt we had a very ambitious
+application. Yehuda [announced](http://yehudakatz.com/2011/12/08/announcing-amber-js/)
+Amber (which was renamed to Ember.js) on December 12, 2011.
+The timing was perfect. We made the decision. We would bet our
+product's success on Yehuda, Tom, and Ember.js. Little did we know we
+were entering a whole new world.
+
+We did not know what we were getting in to. I had no idea it would be
+as difficult as it was. I bet there were plenty early American
+settlers thought the exact same thing. Everything makes sense in
+hindsight, but we really no clue how much effort it would take.
+It has been an extremely rough and tiring. We've ridden the
 endless release treadmill, dealt with breaking changes with every
-other commit, and a host of other issues. I honestly had no idea what
-I was getting into. In school they teach us about the first colonists
-who came from England (err Vikings) and settled North America. That
-was some tough shit. There was nothing. There was no infrastructure.
-If you needed it, you build it. This is what it was like.
+other commit, and a host of other issues.
 
-I came from Rails. Rails was extremely mature even 2.5 years ago. Ruby
-itself is a wonderful and mature language. The tooling is fantastic.
-This is due largely, in my opinion, to rail's meteoric success and
-driving probably hundreds of thousands of people to ruby. Having that
-many users is going to create a very vibrant and powerful ecosystem.
-This was the developed world. Then I arrived on javascript island,
-fresh off the boat with anticipation, excitement, passion, and ton of
-other positive adjectives. I was ready for a new adventure. It was a
-whole new world.
+We faced the same issues any developing community experiences: lack of
+good developers and a very small ecosystem. We had a very hard time
+finding compotent engineers who could work in the new paradigm. There
+was also no plugins or other libraries to use. You downloaded the
+javascript file and built everything yourself. We are pioneers so this
+is what we had to do.
 
-We quickly hit the first road block. There was no one for the brand
-new job position of "javascript application developer". I say
-"javascript application developer" because there is a huge difference
-between someone who: understand design patterns, take testing
-seriously, and can architect complex applications vs someone strings
-together jQuery plugins for DOM manipulation. There was a significant
-talent drought at that point in time. Backbone had been out for about
-a year. I don't think the web development community was ready for a
-huge shift in javascript development. Javascript engineers are getting
-better every day. It takes time for communities to learn these things.
-Imagine Ruby 10 years ago. It's an entirely different beast then it is
-now. I started the development while we looked for people.
+I spent a good 4 months developing
+[Iridium](http://github.com/radiumsoftware/iridium) after many
+previous attempts. There was nothing to make the actual development
+experience bearable. You may be thinking: Adam, why didn't you just use
+Yeoman? Because this was almost a year ago. There was such thing as
+Yeoman then. We needed to work now, not at some unknown point in the
+future. This is life on the frontier. You have to take care of
+yourself. No one is going to do it for you. This was a prerequisite,
+we really douldn't buit anyhting serious until we had this. You gotta
+build a fire if you need to cook.
 
-This was a very difficult process. There was no documentation and
-there were virtually zero other users. I don't know how anyone learned
-how to use Ember at this stage. It still baffles me that people were
-able to ship code! Downright shocking and impressive in its own way.
-We struggled along until we hit the next major problem: the actual god
-damn act of programming the fucking thing.
-
-At the time of this writing there are multiple build tools. You may
-know Yeoman, Brunch, or even Iridium. There was a time before these
-things. Take a step back and thing of all the
-things you need to develop a decent app at scale:
-
-1. CSS preprocessing
-2. CoffeeScript. You may not like it but I love it.
-3. Module wrapping: it only make sense to keep code in separate files.
-4. Template handling
-5. Template precompilation. If you care about speed and 
-  mobile then you must precompile templates.
-6. Asset concatenation. No one is going to make 500 network requests
-  to load all the assets.
-7. Asset minification
-8. Different environment support. Things behave differently when
-  you're developing, testing, and in production.
-9. Some sort of test framework / runner / something. You need
-  something to ensure the damn thing actually works.
-10. A decently fast dev server. Reload and look at the app again. The
-  only acceptable way to develop a web application.
-
-There are some other nice things to have like: spriting, file
-generators, and icon font generation. Either way, the build tool must
-wrap all of those things one easy to use package. This space was
-relatively new at the time. Brunch's initial commit was 2011-01-19.
-Rake-Pipeline was 2011-10-06. Yeoman this year. There was no good tool
-right around the turn of 2012. I liked rake-pipeline. It did not do
-all of the things I needed but it did provide a very solid foundation
-for asset compilation and generation. Since this is a brave new world
-I did what any self respecting pioneer would do. I built it that shit.
-[Frontend Server](/asf) was announced on 2012-02-20. This was just
-enough get our team off the ground. 
-
-# NOTE: Revise this paragraph
-We ran into problems as time went on. FrontendServer didn't scale and
-their was no easy way to do tests. I took a long hard look at the
-problem. I built [Iridium](http://github.com/radiumsoftware/iridium).
-Iridium made it possible to actually sit in our editors and write the
-application. Iridium is without a doubt my favorite bit of code I've
-ever written. However there was another problem. I spent so much time
-and effort simply writing the tools we needed to take the next step. I
-took to road to try to share with people what was happening in this
-space. I blogged about it, spoke about it at user groups all over
-Europe, and conferences. Just trying to get the message out. Speaking
-at in Helsinki & Paris were my favorites. I spoke at Reject.js in
-Berlin about client side application testing. The messages was we
-have so much further to go but we can get there. I simply wanted
-people to know what it was like to be in the position--that it's
-really not so great but there are people pushing the boundaries. We
-are pioneers after all.
+Then there is the ecosystem problem. There is still not a large
+ecosystem around Ember. There is not vibrant set of plugins making
+everyone's life easier. Everyone need's data in their application. We
+chose to use Ember-Data. This was the only game in town in the
+beginning. This was a major pain point which has really been beaten to
+death across the internet. Maybe you're thinking, how come you didn't
+use ember model or straight ajax? For one, ember-model wasn't around
+at the beginning of 2012, or the middle, or the end. This is another
+case of build the best you can with the tools you have at the time.
 
 [Paul Cowan](http://twitter.com/dagda1) and I were finally ready to
-start heads down development starting in December 2012 after months of
-work on Iridium and other failed starts. This was just
-around Ember's official one year birthday. Then we hit the next wall. Iridium
-could run tests in the abstract, but we had no idea to actually test
-the ember application. Of course there was nothing. So we had to build it.
-There were I think 3 or 4 people active in this area. 
+start heads down development starting in December 2012. This was just
+around Ember's official one year birthday. Then we hit the next wall.
+No one had any damn idea on how to test these applications.
+Of course there was nothing. So we had to build it: test runners,
+testability into the framework, and everything else.
+There were I think 3 or 4 people active in this area.
 There was us, [Paul Chavard](/https://twitter.com/tchak13),
 [Jo Liss](/https://twitter.com/jo_liss) and [Erik Bryn](http://twitter.com/ebryn).
 We setup full integration/acceptance tests and unit
@@ -114,89 +96,58 @@ tests. We pushed very hard for a "reset" method and other things
 required to make ember more TDD friendly. We shared our working
 implementation and I think some of our ideas made it into the current
 ember-testing package. Ember-Testing was released in one of the RCs.
-It would not have been possible without the everyone's hard work
-around this time period. I'm not sure how much people take in their
-current development environment for granted. It's very hard to build
-up a new platform from scratch. It feels good to be on the edge
-pushing the boundaries but it's also very painful at times. This is
-life on the edge.
+I'm not sure how much people take in their current development
+environment for granted. It's very hard to build up a new platform
+from scratch. It feels good to be on the edge pushing the boundaries
+but it's also very painful at times.
 
-My team and myself have been using Ember since the dawn of time. We've
-somehow managed to survive all the various versions. There was version
-"0.9.8". It sounds so tantalizing close to 1--so tantalizingly close
-to being done. That is simply not the case. It was so far off on
-it's value promise. Then there was Ember-Data. If you thought Ember was
-bad for breaking changes and upgrading, then ember data would drive
-you insane. Try going from ED revision 4 to revision 10. There was simply no fucks
-given about ED. Ember has been developing quite rapidly and the
-concepts were clear. Ember Data was like code on a desinger's
-sketchpad. Things would get erased and moved around without an afterthought.
-Such is life. We were figuring out what needed to be. Then
-the prereleases came. Now the RC's are coming. We're on RC5 right
-now. I think we'll probably see RC 8, 9, or *even* 10 before serious
-considerations are made of 1.0. This seems wrong in hindsight. If you
-need multiple prereleases and a ton of release candidates, perhaps you
-should wait until the core offering as settled.
+I'm very reflective person by nature. Ember 1.0 is quickly
+approaching. I ask myself: what did we accomplish and what is there
+left to do? I used to think that having a 1.0 release would solve all
+our problems. The API's would settle and the framework would approach
+feature completeness. Now I think the 1.0 just means: we won't break
+stuff for a while. Sure the framework's API will settle but that does
+not solve the larger problem's were facing as a community.
 
-I'm sitting here looking back on where we came from and where we're
-going. 1.0 is coming up. It will come eventually. Unfortunately it's
-lacking some things. I find the lack of radio buttons to be undeniable
-hilarious. It's simply embarrassing. Ember is "a framework for ambitious
-web applications" as long as the ambitions don't include using radio
-buttons. I'm going to dedicate some time to making sure this doesn't
-happen. This week [Alex Matchneer](http://twitter.com/matchy)'s async router PR was merged.
-This was most critical merge I think we've had in a long time. The new
-router has been undergoing changes ever since it was merged. I think
-it's still taking a long time to reach feature parity with the old
-router. At least we can finally make authenticated apps on the client.
+I've seen these problems before. I started with Rails in 2006. It was
+difficult in the earlier years. It has only really matured in the past
+3 years imo. I think Rails 3.1 really embodies everything you need to
+make a certain class of web applications. Ember and it's ecosystem are
+so far off. I was speaking to [Trek Glowacki](http://twitter.com/trek)
+about all the issue's were facing. He described it perfectly.
 
-I guess the question is "What does 1.0 mean?" I don't know anymore.
-The version numbers mean nothing to me because we use master ember and
-master ember-data. I just recorded an episode of the [Ember
-Hotseat](http://emberhotseat.com). I mentioned that Ember was somewhat
-of a shining city on a hill. It was a bastion of hope. Ember was going
-to revolutionize client side development in the way Rails did
-thousands for PHP developers. I think 1.0 is our first real stab at
-building this city. Rome wasn't built in a day people. Rome sure as
-fuck wasn't built in 2 or 3 years either.
+> Ember is like Rails. Rails 0.51.
 
-There are lot of poeple migrating from backend to frontend. I was
-(wrongly) looking for a silver bullet. This was a major fail on my part.
-Hindsight is always 20/20. I know others are thinking the same thing.
-They think, I'll just switch to X and boom. Everything is fixed. [Trek
-Glowacki](https://twitter.com/trek) and I were having a conversation about the entire Ember and
-JS ecosystem. He described the situation perfectly. **Ember is like
-Rails. Rails 0.51**. Let that sink in for a minute. How many of you
-were around Rails in the early days? Shit was hard. How many years has
-it taken Rails to become what it is now. Rails is rock solid. I
-**badly** want this for Ember. I want that ecosystem. I want the framework
-to enjoy those levels of success. I want using Ember to make people
-happy and productive in building ambitious web applications.
+I was able to connect everything once he said that. I'd been there and
+lived that. I remembered what it was like. That's when I accepted that
+we were infants in a new world even though we'd been at this for over
+a year. It also made another thing painfully clear: **our mission is
+going to take years.**
 
-The fact of the matter is that I don't enjoy building these
-applications a lot of the times. It's god damn difficult. It's not
-entirely because of Ember. Ember works amazingly at its core. Then
-there is Javascript itself. I'm not talking about Node. I'm talking
-about browser javascript. Can a man get a package manager for fuck's
-sake? Browser javascript leaves so much to be desired. This is why we
-have things like Bower and other build tools--simply because we need
-to manage the JS and compile/concatenate it ourselves. These are
-workarounds. They are not solutions. I hope we can change this.
+What is our mission anyways? That's a damn good question. Initially
+for my team it was just to build an app. It's always been "change the
+way we make applications" for me. Ember is about big promises. It's a
+long bet. I just recorded an episode of the [Ember Hotseat](http://emberhotseat.com). 
+I mentioned that Ember was somewhat of a shining city on a hill. It
+was a bastion of hope. Ember was going to revolutionize client side
+development in the way Rails did thousands for PHP developers. I think
+1.0 is our first real stab at building this city. Rome wasn't built in
+a day people. Rome sure as fuck wasn't built in 2 or 3 years either.
 
 Ember's community is small but **intensily** passionate. I haven't
 seen this much dedication in a group of people before. I think that's
 because we share pioneering spirit and a common goal. We are all
 working together to do something that hasn't been done before. We are
-leveling up the web platform. I have this picture in my head. The
-Ember core team and other key contributors have just landed in
-motherfucking Jamestown, Virginia after being some of the first
-settlers to cross the Atlantic. We've been actively colonizing our
-small city building up on core concepts. We've been making everything
-we need to simply survive in this new world. We can handle URL's,
-update views, and manage data in remote sources. This is enough to
-build a foundation. More and more people are coming into Jamestown
-from other major places like .NET and Java. We're in a melting pot
-trying to making it all work. Yehuda has left the colony for the true
+leveling up the web platform. The Ember core team and other key
+contributors have just landed after crossing the Alantic. We're
+building our own colony using the work of previous people (like the
+Backbone community). We've been actively colonizing our small city
+building up on core concepts and abstractions. We've been making
+everything we need to simply survive in this new world. We can handle
+URL's, update views, and manage data in remote sources. This is enough
+to build a foundation. More and more people are coming over from other
+major places like .NET and Java. We're in a melting pot trying to
+making it all work. Yehuda has left the colony for the true
 wilderness: TC9 and future versions of Javascript. He's like Lewis and
 Clark. He's working on Web Components and other things that simply so
 far out in the future. Hopefully he'll come back with knowledge and
@@ -205,22 +156,19 @@ working hard--building up our Rome. Some of us actively working on
 Ember-Data (which I believe is single most important part of the whole
 thing since applications are nothing without data). Others will work
 on animations, validations, package managers, plugin ecosystems, and
-god knows what else. You need to build a foundation before you can
-build a mansion.
+god knows what else. Then hopefully at some point in the future we can
+all look back and simply say: we did it.
 
-There are a few things that scare me and excite me about this analogy.
-We knew what America came. It sure took a shit load to
-get there. How many people died during colonization? (Read get burned
-out, exhausted, or simply collapse under the difficulty). Then there
-was the civil war and other conflicts (Read internal
-disagreement about what to do / where we're going over our future).
-Then I think to myself look America became. There were people who
-believed in a vision of a new world and who had the pioneering spirit to build
-it. The community has years to go to get to achieve shining city on a
-hill status. I think America became so much more than the initial
-settlers thought it could be. This excites me. Perhaps we can change
-the web beyond our wildest dreams. After all, we are pioneers and can
-make it happen.
+I think back to the early American settlers and what American became.
+It's intenesly intimidating. Many people died settling the country. It
+took slaves to build up economies. There was a civil war, two world
+wars, and other wars. Are we going to have our own wars? How many good
+developers are simply going to burn out putting up with all the crap
+that comes from building up a new platform? Only time will tell. On
+the other hand I think we can agree the American spawned an amazing
+country. This is terribly exciting to me because it gives me hope and
+inspires me that, yes, we can change the web beyond our wildest
+dreams. After all, we are pioneers and can make it happen.
 
 I'd like to call out some people for all their hard work in settling
 the new world: Yehuda Katz, Tom Dale, Erik Bryn, Paul Chavard, Stefen
