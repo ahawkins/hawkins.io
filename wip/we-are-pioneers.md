@@ -119,11 +119,15 @@ about all the issues were facing. He described it perfectly.
 
 > Ember is like Rails. Rails 0.51.
 
-All the dots connected in my head. I'd been there and lived that. I
-remembered what it was like. That's when I accepted that we were
-infants in a new world even though we'd been at this for over a year.
-It also made something painfully clear: **our mission is going to
-take years.**
+This does not apply either project is bad. It implies a level of rapid
+change as the framework and ecosystems evolved. This is the first time
+in internet history that we're trying a fully browser application.
+We'll continue to learn more as we make mistakes and figure out what
+works. Everything learned in the early releases sets the stage for the
+later ones. Rail's REST support is a perfect example. It was not there
+in the beginning. Now it's there and you can't build a Rails app
+without REST. The comparison also made something painfully clear: 
+**our mission is probably going to take 3-4 years**.
 
 What is our mission anyways? That's a damn good question. Initially
 for my team it was just to build an app. It has always been "change the
