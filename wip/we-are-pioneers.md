@@ -170,7 +170,7 @@ that comes from building up a new platform? Only time will tell. On
 the other hand I think we can agree the American experiment spawned an amazing
 country. This is terribly exciting to me because it gives me hope and
 inspires me that, yes, we can change the web beyond our wildest
-dreams. After all, we are pioneers.
+dreams. We are pioneers after all.
 
 I'd like to call out some people for all their hard: Yehuda Katz, Tom
 Dale, Erik Bryn, Paul Chavard, Stefen Penner, Kris Selden, Luke Melia,
