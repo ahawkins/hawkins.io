@@ -1,6 +1,6 @@
 ---
 layout: simple
-title: Adam Hawkins - Application Performance Consultations
+title: Application Performance Consultations with Adam Hawkins
 ---
 
 # Performance Consultations
