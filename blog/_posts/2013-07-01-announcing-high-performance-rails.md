@@ -6,7 +6,7 @@ title: "Announcing High Performance Rails"
 I recently purchased Nathan Barry's
 [Authority](http://nathanbarry.com/authority/). The book motivated me
 to write my own book. I've done a lot of work on making Rails
-applications faster. My plog posts on [advanced
+applications faster. My blog posts on [advanced
 caching](/2012/07/advanced_caching_revised/) are the most read and
 linked to guides on the topic. I wrote the initial post in 2010. It
 was very well received. The post was rewritten and updated in 2012.
