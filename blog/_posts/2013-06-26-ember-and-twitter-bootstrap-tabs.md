@@ -1,6 +1,7 @@
 ---
 title: "Ember & Twitter Bootstrap Tabs"
 layout: post
+segment: ember
 ---
 
 Here's the next installment in my quick ember demo's posts. This one

@@ -2,6 +2,7 @@
 layout: post
 title: "Javascript Application Build Tools"
 tags: [ember, javascript]
+segment: ember
 ---
 
 Building Javascript applications is complicated. There are many tedious

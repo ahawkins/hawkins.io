@@ -2,6 +2,7 @@
 layout: post
 title: "Ember Data Is Pre-Alpha Software"
 tags: [ember, javascript]
+segment: ember
 ---
 
 I decided to commit to Ember Data because of it's value

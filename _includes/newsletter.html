@@ -1,6 +1,10 @@
 <div id="mc_embed_signup">
 <form action="http://hawkins.us7.list-manage.com/subscribe/post?u=4f494d7a23d855c889b802d89&amp;id=96eb7b523c" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate>
-	<input type="hidden" value="PRELAUNCH" name="ENTRY" class="" id="mce-ENTRY">
+  {% if page.segment %}
+    <input type="hidden" value="{{page.segment | upcase}}" name="ENTRY" class="" id="mce-ENTRY">
+  {% else %}
+    <input type="hidden" value="PRELAUNCH" name="ENTRY" class="" id="mce-ENTRY">
+  {% endif %}
 	
 <div class="mc-field-group">
 	<label for="mce-EMAIL">Email Address<span class="asterisk">*</span>

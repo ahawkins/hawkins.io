@@ -2,6 +2,7 @@
 layout: post
 title: "Ember Ecosystem Wishlist for Ambitious Web Applications"
 tags: [ember, javascript]
+segment: ember
 ---
 
 My startup has been dabbling in Ember for the past 6 or 7 months. That

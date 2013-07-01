@@ -2,6 +2,7 @@
 layout: post
 title: "Authentication With Ember Apps"
 tags: [ember, javascript]
+segment: ember
 ---
 
 Here's a scenario. You're backend and frontend live in separate

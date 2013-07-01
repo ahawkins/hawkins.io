@@ -1,6 +1,7 @@
 ---
 title: "Ember & Stripe Custom Forms: Getting Paid Again"
 layout: post
+segment: ember
 ---
 
 Here's the follow up my previous post on Stripe and Ember. Stripe's

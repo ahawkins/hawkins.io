@@ -1,6 +1,7 @@
 ---
 title: "Ember & Bootstrap Modals"
 layout: post
+segment: ember
 ---
 
 Modals & Ember are a tricky thing. They are tricky for a few reasons.

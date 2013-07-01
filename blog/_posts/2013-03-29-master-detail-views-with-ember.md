@@ -2,6 +2,7 @@
 layout: post
 title: "Master/Detail Views with Ember.js"
 tags: [ember]
+segment: ember
 ---
 
 This is a common pattern we are all familar with. There is a list of

@@ -2,6 +2,7 @@
 layout: post
 title: "Date Picker in Ember"
 tags: [ember]
+segment: ember
 ---
 
 This post is a simple tutorial of how to create a basic date picker

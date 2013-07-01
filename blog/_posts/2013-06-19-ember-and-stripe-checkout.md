@@ -1,6 +1,7 @@
 ---
 title: "Ember & Stripe Checkout: Time to Get Paid"
 layout: post
+segment: ember
 ---
 
 I don't think anyone has covered this topic before. [Stefan

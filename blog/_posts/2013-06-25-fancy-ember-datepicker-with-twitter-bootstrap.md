@@ -1,6 +1,7 @@
 ---
 title: "Fancy Ember Datepicker with Twitter Bootstrap"
 layout: post
+segment: ember
 ---
 
 I showed how to make a simple datepicker in my previous post using a

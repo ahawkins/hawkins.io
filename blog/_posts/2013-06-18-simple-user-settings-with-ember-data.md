@@ -1,6 +1,7 @@
 ---
 title: Simple User Settings with Ember Data
 layout: post
+segment: ember
 ---
 
 Your application needs user settings. You need to persist some sort of

@@ -1,6 +1,7 @@
 ---
 title: DS.Fixture Adapter Considered Harmful
 layout: post
+segment: ember
 ---
 
 We've been using Ember-Data for quite a long time on Radium. We've

@@ -2,6 +2,7 @@
 layout: post
 title: "The Art & Science of Integration Testing Ember Applications"
 tags: [ember, javascript]
+segment: ember
 ---
 
 This post is all about integration testing Ember applications.
