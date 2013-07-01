@@ -1,7 +1,6 @@
 ---
 layout: post
 title: "Announcing High Performance Rails"
-hide: yes
 ---
 
 I recently purchased Nathan Barry's
@@ -38,6 +37,5 @@ community members, such as **David Heinemeier Hansson** and developers from
 top consultancies from around the world, to tell you how they get it
 done day to day. All in all I'm planning on 15-20 interviews.
 
-The book is launching in August/September. Head over to
-[www.highperformancerails.com](http://www.highperformancerails) now to
-signup for the mailing list and get a freebie.
+The book is launching in the fall. Drop your name and email in the
+signup below to stay in the loop.
