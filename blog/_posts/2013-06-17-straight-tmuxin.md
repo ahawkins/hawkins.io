@@ -67,7 +67,7 @@ and it will scale infinitely.
 
 This is just one small change in my overall setup. I've been using
 Android since 2008 (wow!). I managed to lose my phone in Melbourne
-after a night out with [@aptonik](http://twitter.com/aptonik). I
+after a night out with [@apotonik](http://twitter.com/apotonik). I
 haven't had a smart phone since February. It's now the middle of
 June. Over the course of those 4 months or so, google has really
 started to piss me off. The hangouts thing has really pissed me off.
