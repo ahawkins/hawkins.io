@@ -39,4 +39,4 @@ top consultancies from around the world, to tell you how they get it
 done day to day. All in all I'm planning on 15-20 interviews.
 
 The book is launching in the fall. Drop your name and email in the
-signup below to stay in the loop.
+signup form below to stay in the loop.
