@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "We are Pioneers"
-hide: yes
+segment: ember
 ---
 
 There have been a few times in history where we've really pushed the
