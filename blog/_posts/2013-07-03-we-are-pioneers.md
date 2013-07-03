@@ -5,7 +5,7 @@ segment: ember
 ---
 
 There have been a few times in history where we've really pushed the
-boundaries. The 16th and 17th century are prefect examples. Europeans
+boundaries. The 16th and 17th century are perfect examples. Europeans
 began to colonize North America. Settlers were promised a better life,
 a fresh start, and the chance to start a new country. This was extremely
 tough work. Many earlier settlers died. They didn't have the
