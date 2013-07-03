@@ -181,3 +181,5 @@ Hempton, Dudley Flanders, Devin Torres, Ryan Florence, Andy Leeper,
 Brian Cardella, James Rosen, and everyone else who has submitted a PR
 to Ember or Ember Data. All of these people have contributed something
 and their efforts do not go unnoticed or unappreciated.
+
+Discuss on [Hacker News](https://news.ycombinator.com/item?id=5983987).
