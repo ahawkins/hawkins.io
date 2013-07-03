@@ -135,7 +135,7 @@ was a bastion of hope. Ember was going to revolutionize client side
 development in the way Rails did thousands for web developers. I think
 1.0 is our first real stab at building this city.
 
-Ember's community is small but **intensily** passionate. I haven't
+Ember's community is small but **intensely** passionate. I haven't
 seen this much dedication in a group of people before. I think that's
 because we share pioneering spirit and a common goal. All of us
 work together to do something that hasn't been done before. We are
@@ -172,7 +172,7 @@ country. This is terribly exciting to me because it gives me hope and
 inspires me that, yes, we can change the web beyond our wildest
 dreams. We are pioneers after all.
 
-I'd like to call out some people for all their hard: Yehuda Katz, Tom
+I'd like to call out some people for all their hard work: Yehuda Katz, Tom
 Dale, Erik Bryn, Paul Chavard, Stefen Penner, Kris Selden, Luke Melia,
 Peter Wagenet, Kasper Tidlemann, Jakub Arnold, Trek Glowacki, Joachim
 Haagen Skeie, Igor Tezic, Robin Ward, Sami Asikainen, Jeff Atwood,
