@@ -17,9 +17,10 @@ The `ColumnItemController` defines properties for `sortedAsc` and
 `sortedDesc`. It uses the parent controller's `sortedColumn`, itself,
 and `sortAscending` to calculate them. A different icon is displayed
 for ascending and descending sorting. Clicking a column header that is
-not sorted sorts that column in ascending mode. Clicking a header
-that is sorted toggles the sort mode. This completes the common
-interaction found in most applications.
+not sorted sorts that column in ascending mode. Clicking a header that
+is sorted toggles the sort mode. Helpers are used format the dates and
+currencies. This completes the common interaction found in most
+applications.
 
 <a class="jsbin-embed"
 href="http://jsbin.com/omagiq/4/embed?live">Simple Sorting
