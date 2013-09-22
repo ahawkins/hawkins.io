@@ -131,7 +131,7 @@ AMQP.start do |connection|
 
   EM.add_periodic_timer 1 do
     msg = "Message #{counter}"
-    buffer.publish msg
+    buffer.publish msg, persistent: true
     counter = counter + 1
   end
 
