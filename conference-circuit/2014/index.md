@@ -14,7 +14,7 @@ This talk is about something important in the community. The ruby
 community is missing something fundamentally important. We don't know
 how to architect applications. We've grown accustomed to using
 frameworks for everything and we've lost our way. We no longer talk
-about making applications, we speak about applications build _in_
+about making applications, we speak about applications built _in_
 frameworks. Example: oh hey man, did you hear NewApp123 is built _in_
 rails? I take offense to that. The application is not built in rails,
 it's built in _ruby_ than rails is _used_ to put it online. This
