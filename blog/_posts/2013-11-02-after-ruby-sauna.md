@@ -7,7 +7,7 @@ I just got back from the [ruby sauna](http://rubysauna.org). It was an
 awesome local event in Oulu, Finland. The event was geared at getting
 more people in the area interested in Ruby. The area used to be
 heavily Nokia biased and contains plenty of talented developers.
-[Florian Blank](http://twitter.com/polarblau) invited me speak.
+[Florian Plank](http://twitter.com/polarblau) invited me speak.
 I gave a soft talk on the [ruby ecosystem](https://speakerdeck.com/ahawkins/ruby-a-wonderfully-diverse-ecosystem).
 It was the most fun I had a ruby event in a long time. It was
 wonderful to give a soft talk on the ruby community and the people.
