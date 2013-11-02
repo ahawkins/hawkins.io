@@ -37,4 +37,4 @@ to more parts of Finland. I think it would be a great way to get more
 people interested in our community. The format would work well in
 other countries as well. So if you happen to see Florian or Tuomas in
 Finland, please say "Kiitos" because the event was awesome. If you're
-every by a ruby sauna, you should certainly go.
+ever by a ruby sauna, you should certainly go.
