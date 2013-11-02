@@ -16,7 +16,7 @@ wonderful to give a soft talk on the ruby community and the people.
 
 > The "co" in ecosystem might as well stand for community. Refreshing
 > to hear a talk on technology so people-centric by @adman65
-> #rubysauna
+> \#rubysauna
 
 That tweet lifted my spirits and put a smile on my face. Apparently it
 put a smile on his too. Ville tweeted later:
