@@ -19,7 +19,9 @@ appreciate your feedback on these things specifically:
 * What do you think should be removed?
 * How can I make this more professional?
 * And whatever else you can think of :)
-* Leave all your comments in the PR. This way I can address them and
+* Leave all your comments in the
+  [PR](https://github.com/ahawkins/hawkins.io/pull/7). 
+  This way I can address them and
   everyone can see the changes.
 
 --------------------------------------------------------------------
