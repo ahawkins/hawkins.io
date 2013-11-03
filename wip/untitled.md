@@ -3,29 +3,6 @@ title: Untitled
 layout: post
 ---
 
-**Instructions for Reviewers**: First of all, thanks so much for doing
-this!  I’m really proud of this paper and want it to be my best work
-yet. This means that I’m approaching this from all angles. I’d
-appreciate your feedback on these things specifically:
-
-* Do you agree with the technical assertions in this paper?
-* How are the transitions between each paragraph and sections (aka how
-  does it read?)
-* How does the perspective come off? I’ve specifically tried to avoid
-  using the word “I”. I don’t want the paper to come off as an opinion
-  piece but a presentation of technical knowledge gained by
-  experience.
-* Do the code and test examples flow?
-* What do you think should be removed?
-* How can I make this more professional?
-* And whatever else you can think of :)
-* Leave all your comments in the
-  [PR](https://github.com/ahawkins/hawkins.io/pull/7). 
-  This way I can address them and
-  everyone can see the changes.
-
---------------------------------------------------------------------
-
 **Abstract**: This paper describes an application architecture that
 maximizes long term maintainability and feature deliverability for a
 certain class of applications. It covers effective use of boundaries,
