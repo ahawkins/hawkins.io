@@ -20,63 +20,67 @@ design patterns. Maintainable systems have boundaries in the right
 places. Design patterns organize code in predictable and
 understandable ways. Both strategies actively defend against technical
 debt and encourage technical investment. It is common knowledge that
-you must invest to achieve long term success. You must invest in an
-application's architecture to maximize its long term success, feature
+smart investments lead to long term success. Software engineering is
+the same way.  Investments must be made in an application's
+architecture to maximize its long term success, feature
 deliverability, and scalability. It is time to apply the same long
 term financial planning to software applications.
 
-Technical debt is the cost of previous technical decisions.
-Engineering work can be done in a quick and dirty way; doing exactly
-what is needed for today in a way that may not work in the future. It
-is about making a choice: quick and messy, or slower and cleaner.
-Every programmer has made to make this decision "oh, I'll just hack
-this in” then written FIXME directly above it." Then probably thought
-to themselves how to actually implement it correctly.  Applications
-often collapse under their technical debt. Applications become
-impossible to maintain. The only way to pay back the debt is to start
-over.  This is an unfortunate situation but it is avoidable. This
+Technical debt is the cost of previous engineering decisions.
+Implemenations can be quick and dirty way or executed to meet current
+needs and also setup the next iteration.sThis illustrates the choice:
+quick and messy, or slower and cleaner.sEvery programmer has made
+this decision "oh, I'll just hack this in” then written FIXME directly
+above it." Then probably thought to themselves how to implement it
+correctly. Applications often collapse under their technical debt.
+Applications become impossible to maintain. Iterations become longer,
+deliverability estimates are incorrect, and developer happiness
+plummets. In the worst case, starting over is the only way to repay
+the debt.sThis is an unfortunate but avodiable situation. This
 situation happens when engineering teams (for whatever reason) decide
 to accumulate more technical debt. The decision usually comes from
 business requirements and short delivery dates. Teams must actively
 decide to pay back their debt in terms of technical investments.
-Projects incur most technical debt in the early stages.  This is the
+Projects incur most technical debt in the early stages. This is the
 most delicate time in an application's life time. Just like real life
-childhood, the decisions (good, bad, awesome, horrible) made in the
-formative years have a strong last impact. The signs of excellent
-parenting live on people grow into well adjusted individuals. Horrible
-or abusive parenting often leave scars for life which are difficult or
+childhood, the decisions (good, bad, and ugly) made in the formative
+years have a strong lasting impact. The signs of excellent parenting
+live on and people grow into well adjusted individuals. Horrible or
+abusive parenting often leave scars for life which are difficult or
 impossible to heal without serious effort. This paper is about making
-technical investment from t0 to raise a happy, mature, and
-maintainable program. Children need proper nourishment from the
-beginning. Applications require proper separation of concerns,
-boundaries, objects roles, and design patterns.
+technical investment in application architecture from t0 to raise a
+happy, mature, and maintainable programs. Children need proper
+nourishment from the beginning. Applications require proper separation
+of concerns, boundaries, objects roles, and design patterns.
 
-Architecting applications means construction boundaries, defining
-interactions, decoupling, and arranging objects in an extendable way.
-Applications are usually tightly coupled to their delivery mechanism.
-This is a big pain and makes it hard to extend existing code bases.
-Arranging objects is the most difficult part. Possible Sandi Metz
-quote. This paper demonstrates an object arrangement that exemplifies
-all the important characteristics of a maintainable and extendable
-application. Creating good software requires heavy focus on its core
-functionality. These things are use cases.
+Architecting applications means constructing boundaries, defining
+interactions, decoupling, and arranging objects in extendable ways.
+Applications are often tightly coupled to their delivery mechanism.
+This is a pain point since it is hard to extend existing code bases.
+It also affects testability and blurs the line between core business
+and presentation logic. Arranging objects is the most difficult part.
+*Possible Sandi Metz quote*. This paper demonstrates an object
+arrangement that exemplifies all the important characteristics of a
+maintainable and extendable application. Creating good software
+requires heavy focus on its core functionality. We call know them as
+use cases.
 
 ## Use Cases: Heart of the System
 
 A use case describes something a system does. It is a unit of work. A
 CRM (Customer Relationship Management) system has use cases like
-“create contact”, “invoice customer”, or “contact customer.” A
+“create customer”, “invoice customer”, or “contact customer.” A
 classifieds site like Craigslist has uses cases such as “post ad” or
-“contact seller.” Use cases are things users can do. They should be at
-the system’s core. Use cases have alternate flows and are often
-composed into more complex flows. A CRM may want to add a customer
-than contact them. This is possible when implemented correctly and
-down right painful when it is not. Use cases are usually not straight
-forward.  They must interact with many other entities in the system.
-They are conductors orchestrating the interaction between all the
-other entities in the system. A use cases takes in some form of input
-and takes appropriate action. The input is examined and some records
-are created or modifies. Perhaps some external state is modified (like
+“contact seller.” Use cases are things users can do. They are a
+systems's core. Use cases have alternate flows and are often composed
+into more complex flows. A CRM may want to add a customer then contact
+them. This is possible when implemented correctly and down right
+painful when not. Use cases are usually not straight forward. They
+must interact with many other entities in the system. They are
+conductors orchestrating the interaction between all the other
+entities in the system. A use cases takes in some form of input and
+takes appropriate action. The input is examined and some records are
+created or modifies. Perhaps some external state is modified (like
 talking to an external service). Eventually the user is presented with
 some interface showing the result of this interaction. This is how
 software fundamentally it works. It all starts with handling user
@@ -263,75 +267,31 @@ code.
 
 ## Test Driven Implemenation
 
-This part of the paper illustrates step by step how to properly
-construct and test a system like the on previously described. The
-example comes directly from real life. All aforementioned concepts are
-present. However it may not make sense in the small. Every
-architecture has it’s own scaling problems. Some have problems scaling
-up and down. This architecture works in the small but is really target
-at larger applications. Bear this in mind while reading the example.
+The paper focused on abstract concepts until this point. It is time to
+deal in concrete implementations. This section describes a general
+code structure and implementation. All roles and boundaries are
+covered. The code examples are **not** directly executable. The
+examples are a push into the right direction. The example requirements
+have been specifically choosen to illustrate concepts and basic
+implementations.
 
-This example deals with todos. A todo has two key items: a thing to do
-and when it must be done. Todos may be assigned to different users.
-User’s should receive a notification when a todo is assigned to them.
-A notification is sent via email, but also transmitted over email (or
-new delivery mechanisms in the future). User’s should be able to
-retrieve their notifications.
+This use case is taken directly from a CRM. The example revolves
+around creating todos. A todo is a description and a due date. Todos
+may optionally be assigned to users. Descrition and due date are
+required. Adding todos also sends notifications. The system should
+send a notification when a user adds a todo for someone else. The
+system should also send a notification when an existing todo is
+assigned to a different user. New todos should be assinged to the
+current user by default.
 
-All applications deal with data. We call these “models.” Use case
-build use facing functionality ontop of models and their
-relationships. There are three models in the described system. We have
-a todo, notification, and user. It is natural to write these objects
-first. Models are simple ruby classes. They declare `attr_accessors`
-and define methods. There are data only. Keeping models data only has
-a few key benefits. They are easy to instantiate and pass around.
-Since they are easy to pass around, this makes them more reusable. It
-also makes them easier to cache when object retrieval time becomes
-problematic.
+The previous paragraph describes a two use cases. Users can add new
+todos. They can also update existing todos. There are other models
+besides todos. There is a user and notification model. Each will have
+its own class.
 
-Defining the models is easy—simply create three new class.
-
-    class User
-      attr_accessor :name, :email
-    end
-
-    class Todo
-      attr_accessor :due_date, :description, :assigned_to
-    end
-
-    class Notification
-      attr_accessor :tag, :item, :user
-    end
-
-This approach may be unsettling for some. Some may be thinking: where
-is the actual functionality? Where is the super class? What about
-validations? Is this even OK? This is OK without a doubt. The
-functionality comes from use cases which are written later. Why do is
-a super class needed? Ruby provides everything needed out of the box
-to define struct like classes. Input validation happens in another
-place which is also covered later. If you are uncomfortable with these
-points, please read on.
-
-Take a look at those classes. What methods do they have? What do they
-do? What tests should exist? The testing question is the most
-interesting. These classes do not need tests as they currently are.
-What value could a test provide? Any test for this class would provide
-little to no value. The test would simply assert that an object had an
-accessor for each property and the class was properly named. Big
-whoop. Integration tests would pick up missing attributes and
-incorrect names straight away. There is a rule of thumb to extract:
-test code between `def` and `end` blocks. This can be pared down to
-only write tests for code you write. Why could your test possibly be
-better than the `attr_accessor` tests inside ruby itself. Think of it
-another way: do you test methods on Ruby’s core objects or from the
-standard library? The answer should be no.
-
-Time to focus on the first (and only) use case. The requirements state
-that users should be able to create new todos and receive
-notifications. This interaction should be encapsulated as a single
-class. The interaction can be fleshed out with tests. This also
-exposes some interesting object interfaces.  Start by describing the
-use case in a tests.
+The use case tests can be driven outside in. This focuses on testing
+high level functionality. Unit tests handle more specific
+interactions. The test process begins with a failing use case test.
 
     class CreateTodoTest < MiniTest::Unit::TestCase
       def test_should_save_the_new_todo
@@ -347,18 +307,78 @@ use case in a tests.
       end
     end
 
-Writing the first use case requires the most work. The first test
-states the todo should be saved (persisted). This means we must do
-something with persistence. TDD puts a premium on fast tests. This
-test (and all future ones) will be fast because all operations happen
-in memory. The repository should be used, but it still need to be
-written. The use case also needs a form object for user input.
+The test fails and rightfully so. The tests are coded to fail and the
+required objects are not defined yet. What is the next step? The first
+test must be filled in. What would the test look like?
 
-The from object represents and sanitizes user input. This object needs
-to collect three bits of information: the user, description, and due
-date.  Description is a String. Due date is a Time. The class has
-these readers.  Custom writers are used to handle sanitization and
-conversion. The class can be driven test first.
+All programs follow the same general procedure: 1) collect input, 2)
+sanitize & validate input, 3) perform logic, 4) return the result.
+The test reveals itself using that as a guide. It requires a form (to
+collect input), a use case to process it, then assertions on the
+result.
+
+    def test_should_save_the_new_todo
+      user = User.new 'bob'
+      form = TodoForm.new description: 'finish this paper', due_date: Time.now
+    end
+
+The test fails because there is no `User` class. The use case requires
+todos assigned to users. This is the first requirement. It is a model
+class and natural starting place.
+
+Models encapsulate data. Use cases manipulate and coordinate their
+interactions. This means the models do not contain any related
+behavior. A model only knows about itself and it's data. Expressing
+models is easy in Ruby. Delcare a class and add the proper accessors.
+
+    class User
+      attr_reader :name
+
+      def initialize(name)
+        @name = name
+      end
+    end
+
+Examine the class for a moment. What does it do? The class
+encapsulates the user concept. It simply provides access to the data.
+What it does not do is more important. It has no persistance logic. It
+does not have any validation logic either. Models are data and they
+must be kept that way. The code is very simple. It is arguable that
+the code requires tests at all. The example focuses on todos and
+not users. The test would provide no value. The use case test 
+would catch an error in the `User` class. Therefore a test for the
+`User` class can be skipped. The use case test now fails because
+`TodoForm` is not defined. Time to focus on the input boundary.
+
+`TodoForm` is a border guard. It's responsibility to
+ensure all data is acceptable and reject anything that's not.
+Implementing the class is straight forward. The class has accessors
+for all the data it must collect.
+
+    class TodoForm
+      attr_accessor :description, :due_date, :assigned_to
+    end
+
+This is not enough to make the test pass. The initializer takes a hash
+of values. This is easy to implement.
+
+    class TodoForm
+      attr_accessor :description, :due_date, :assigned_to
+
+      def initialize(values = {})
+        values.each_pair do |key, value|
+          send "#{key}=", value
+        end
+      end
+    end
+
+Is this correct though? The previous code works well when the input
+values are controlled. However this class is exposed to the outside
+world where input is not controller. What if `assigned_to` was a
+`Time` instance and `due_date` was a `User` instance? If that happens
+the class would fail it's single responsibility. The form must gaurd
+against such conditions. A test is perfect for describing
+responsibilities.
 
     class NewTodoFormTest < MiniTest::Unit::TestCase
       def test_parses_a_time_from_a_string
@@ -374,8 +394,10 @@ conversion. The class can be driven test first.
       end
     end
 
-The tests reveal the class’ purpose. The tests are also easy to write.
-Start to fill them in.
+The tests illustrate sanitization. The test ensures the form provides
+the correct objects. Forms must provide the correct data types.
+Writing tests is easy. Instantiate a form, assign the value, then
+assert on the result.
 
     require ‘time’
 
@@ -405,21 +427,12 @@ Start to fill them in.
       end
     end
 
-Next start with the class itself.
-
-    class NewTodoForm
-      attr_reader :user, :description, :due_date
-    end
-
-The tests fail at this point. `due_date=` is not implemented. Astute
-readers will notice `NewTodoForm` has not be required so the test
-fails for that reason as well. This detail is not relevant to the
-example. If you’d like to make this an executable example then decide
-on your own file structure. Implementing `due_date=` is simple.
+The test fails because the coercion logic is missing. Defining the
+proper `due_date=` method on `TodoForm` makes the test pass.
 
     require ‘time'
 
-    class NewTodoForm
+    class TodoForm
       def due_date=(value)
         @due_date = case value
                     when String then Time.parse(value)
@@ -430,155 +443,140 @@ on your own file structure. Implementing `due_date=` is simple.
     end
 
 This may seem like an anti-pattern. It is a bit unsettling, but very
-useful.  The form itself can be reused in different context. It can
-parse Time instances from strings, or integers. Strings will come from
-web forms and handled correctly. Second notation may come from some
-random library. The point is to illustrate input conversion and
-collection. The class currently must do individual assignment. The
-form accept a Hash of initial values. This enables each delivery
+useful.  The form itself can be reused in different context.s It can
+parse `Time` instances from strings, or integers. Strings will come
+from web forms and assign correctly. Seconds may come from some random
+library. The point is to illustrate input conversion and collection.
+The form accept a `Hash` of initial values. This enables each delivery
 mechanism to capture grouped parameters in their own way dump them
-into the correct object.
+into a form object.
 
-    class NewTodoFormTest < MiniTest::Unit::TestCase
-      def test_can_be_initialized_with_a_hash
-        time = Time.now
-        form = NewTodoForm.new due_date: Time.now
-        assert_equal time, form.due_date
+The border is not strong enough. It does not handle error scenarios.
+There are two notable problems. The initializer does not handle
+unknown values. Secondly, `due_date=` does not handle uncoercible
+values. These are failure conditions and should be treated as such.
+The border must be protected. The code should raise an exception in
+these cases. This is very useful in integration tests and when
+implementing delivery mechanisms. The delivery mechanisms can rescue
+the error and react accordingly. Raise an error in the first case
+asserts invalid data never makes into the wider system.
+
+    def test_raise_an_error_when_initializing_with_unknown_attribute
+      assert_raises TodoForm::UnknownAttributeError do
+        TodoForm.new foo: :bar
       end
     end
 
-    class NewTodoForm
+    def test_raises_an_error_when_cannot_handle_due_date
+      assert_raises TodoForm::UncoercibleValueError do
+        form.due_date = :bar
+      end
+    end
+
+Raising an error in the correct place ensures the test passes.
+
+    class TodoForm
+      UncoercibleValueError = Class.new ArgumentError
+      UnknownAttributeError = Class.new ArgumentError
+
       def initialize(values = {})
-        values.each_pair do |name, value|
-          send “#{name}=“, value
+        values.each_pair do |key, value|
+          if respond_to? "#{key}="
+            send "#{key}=", value
+          else
+            raise UnknownAttributeError, key
+          end
         end
       end
-    end
-
-Now it makes sense to get all the values out of the object.
-
-    class NewTodoFormTest < MiniTest::Unit::TestCase
-      def test_values_returns_all_values
-        form = NewTodoForm.new due_date: Time.now
-        assert_equal time, form.values.fetch(:due_date)
-      end
-    end
-
-    class NewTodoForm
-      def values
-        { due_date: due_date, assigned_to: assigned_to, description: description }
-      end
-    end
-
-Time for a small diversion. This is not required to complete the
-example, but well worth it when constructing larger systems. Form
-objects should be vocal about failures. From objects should raise
-errors when they cannot handle input.  They should also raise a unique
-error class to the caller can handle failures incorrectly. Here are
-two examples. A web server could capture the error and return a 400
-Bad Request response. A terminal could prompt the user to renter
-values. Throwing an error forces the caller to handle a known error
-condition.  The error will most likely happen when initializing the
-object with a Hash.  Sending an unknown key would raise an
-`UnknownMethodError`. It is easy to raise a dedicated error class.
-
-    class NewTodoFormTest < MiniTest::Unit::TestCase
-      def test_raises_an_error_when_given_unknown_fields
-        assert_raises NewTodoForm::UnknownFieldError do
-          NewTodoForm.new foo: ‘bar’
-        end
-      end
-    end
-
-    class NewTodoForm
-      class UnknownFieldError < StandardError
-        def initialize(field)
-          @field = field
-        end
-
-
-        def to_s
-          “You tried to set #{@field}, but it does not exist”
-        end
-      end
-    end
-
-This covers the first scenario. The second scenario involves type
-coercion. The scenario also ensures application boundaries. The first
-code implemented `due_date=`. The form should raise an error if the
-given value cannot be coerced into a Time object. This ensures only
-correct values make it past the border and the domain code always
-works the classes it expects.
-
-    class NewTodoFormTest < MiniTest::Unit::TestCase
-      def test_raises_an_error_if_value_cannot_be_coerced_into_declared_type
-        assert_raises NewTodoForm::UncoercibleValueError
-          form.due_date = :foo_bar
-        end
-      end
-    end
-
-    class NewTodoForm
-      class UncoercibleValueError < StandarError
-        def initialize(value)
-          @value = falue
-        end
-      end
-
 
       def due_date=(value)
         @due_date = case value
                     when String then Time.parse(value)
                     when Fixnum then Time.at(value)
                     when Time then value
-                    else raise UncoercibleValueError, value
+                    else
+                      raies UncoercibleValueError, value
                     end
       end
     end
 
-Now NewTodoForm is fully functional. Time to revisit the integration
-test. The test required at least four objects: the form, model,
-repository and use case.  The repository is easy to implement. Here is
-an example. Further references to repository classes reference that
-article. Also, the implementation is not important for this example.
-Real applications need custom adapters and this outside this paper’s
-scope. This paper only needs a working public interface.
+Now the border is strong. That completes the basic implemenation
+showing the concepts. An `assigned_to=` method will need
+implementation at some point. Unfortunately the method requires
+persistence to work so punt on that. The input boundary is finished.
+Time to return to the failing use case test.
 
-A test can be written with those things in mind. Consider the first
-test. It only deals with the persistence. This requires the form,
-model, use case, and repo. The test passes a filled out form to the
-use case, runs the use case, then asserts the repository contains the
-given object.
+The form and user model are ready. Now the use case's implementation
+reveals itself. The use case uses the form to create a todo.
 
     class CreateTodoTest < MiniTest::Unit::TestCase
-      def setup
-        Repo.backend = Repo::InMemoryAdapter.new
+      def test_should_save_the_new_todo
+        user = User.new 'bob'
+        current_user = User.new 'adam'
+
+        form = TodoForm.new description: 'finish this paper', due_date: Time.now
+        use_case = CreateTodo.new form, current_user
+
+        use_case.run!
       end
+    end
 
-      def teardown
-        Repo.clear
-      end
+The test documents the interface. A use case takes two arguments: the
+form and the current user. `CreateTodo#run!` executes the use case.
+The test does not include any assertions on the use case's output.
+This is problem because the test does not provide real value in its
+current form. The test's naem is `test_should_save_the_new_todo`. This
+implies persistance.
 
-      def test_parses_a_time_from_a_string
-        form = NewTodoForm.new do |f|
-          f.due_date = Time.now
-          f.description = ‘Finish this paper’
-        end
+The repository pattern handle's persistance. The repistory separates
+data access and persistence. It provides the models as if they were a
+simple collection. The boundary means implementations are swappable.
+The tests can use a simple in memory store and other code something
+moer specific to it's needs. This ensures the tests stay fast because
+no external resources are used. Since the implemenations are swappable
+it is also possible to run the same test suite using a different
+adapter in a continous integration environment. Implementing the
+repository is outside this example's scope. The code assumes a simple
+interface based on this *implementation (insert link)*. Once again,
+the code examples are not to show 100% of the implementation. The
+examples demonstrates how to write tests and the interface btween
+objects. Therefore the internal implemenation is not important. Now
+that the reposistory is ready add persistence assertsions to the test.
 
-        use_case = CreateTodo.new form
+    class CreateTodoTest < MiniTest::Unit::TestCase
+      def test_should_save_the_new_todo
+        bob = User.new 'bob'
+        current_user = User.new 'adam'
+
+        form = TodoForm.new({
+          description: 'finish this paper',
+          due_date: Time.now,
+          assigned_to: bob
+        })
+
+        use_case = CreateTodo.new form, current_user
+
         todo = use_case.run!
 
         assert_equal 1, TodoRepo.count
         db = TodoRepo.first
 
-        assert_equal form.due_date, db.due_date
-        assert_equal form.description, db.description
+        assert_equal todo.due_date, db.due_date
+        assert_equal todo.description, db.description
+        assert_equal todo.assigned_to, db.assigned_to
       end
     end
 
+The test fails because `CreateTodo` is not defined. Implementing use
+cases is straight forward. Define a new class that takes in two
+arguments: a form and the current user. The `run!` method does all the
+required logic. The use case returns the newly created todo.
+
     class CreateTodo
-      def initialize(form)
-         @form = form
+      attr_reader :form, :current_user
+
+      def initialize(form, current_user)
+        @form, @current_user = form, current_user
       end
 
       def run!
@@ -586,279 +584,197 @@ given object.
 
         todo.due_date = form.due_date
         todo.description = form.description
+        todo.assigned_to = form.assigned_to
 
         TodoRepo.save todo
 
         todo
       end
+    end
 
-      private
-      def form
-        @form
+The test passes at this point. However the tests only cover the most
+baisc scenario. Only the happy path is covered. The use case does not
+send any notifications yet either. The test still contains failing
+tests. Focus on these before implementing the next level
+functionality. Go for low hanging fruit first. The third test is
+easier. The test ensures the use case assigns the todo to the current
+user by default. Writing the test is easy. Omit `assigned_to` from the
+form then assert the todo is assigned to the `current_user`.
+
+      def test_should_assign_the_todo_to_the_current_user_by_default
+        bob = User.new 'bob'
+        current_user = User.new 'adam'
+
+        form = TodoForm.new({
+          description: 'finish this paper',
+          due_date: Time.now
+        })
+
+        use_case = CreateTodo.new form, current_user
+
+        todo = use_case.run!
+
+        assert_equal 1, TodoRepo.count
+        db = TodoRepo.first
+
+        assert_equal current_user, todo.assigned_to
+      end
+
+The test fails because the use case does not handle the case yet. This
+is a trivial fix with the `||=` operator.
+
+    class CreateTodo
+      attr_reader :form, :current_user
+
+      def initialize(form, current_user)
+        @form, @current_user = form, current_user
+      end
+
+      def run!
+        form.assigned_to ||= current_user
+
+        todo = Todo.new
+
+        todo.due_date = form.due_date
+        todo.description = form.description
+        todo.assigned_to = form.assigned_to
+
+        TodoRepo.save todo
+
+        todo
       end
     end
 
-Somethings require a short description. The setup and teardown methods
-wipe all data. Since all data is stored in memory this operation is
-o(1) and causes no performance impact. CreateTodo implements all logic
-inside `run!`. It also assumes the happy path. Errors represent
-failure conditions. `TodoRepo.save` will raise an error if the adapter
-cannot persist the record. The caller must handle the error.
-Unfortunately an error that far down in the stack is probably not
-rescueable. It never be ignored though. This is better than having
-methods that may raise errors (example: save vs save! in
-ActiveRecord). This is a design decision more than anything else.
-Methods should only have one outcome: success. They should raise an
-error otherwise.
+A simple one line change makes the test pass. The use case is
+approaching feature completeness. However, the implementation leaves a
+few things to be desired. Assigning individual values (`due_date`,
+`description`, and `assigned_to`) will certainly become annoying when
+the model has more attributes. It may make sense to define an
+`attributes=` method on the model and `values` on the form for setting
+multiple fields at once. This works when there is a direct connection
+between fields in the form and fields in the model. Eventually the
+connection goes away and the form contains use case specific
+information (do you want this or that?) then
+`form.values.without(:some_key)` happen. This might cause a problem.
+Keep this in mind going forward.
 
-The implementation leaves a few things to be desired. Assigning
-individual values (due_date, and description) will certainly become
-annoying when the model has more attributes. It may make sense to
-define an `attributes=` method for setting multiple fields at once.
-This works when there is a direct connection between fields in the
-form and fields in the model. Eventually the connection goes away and
-the form contains use case specific information (do you want this or
-that?) then `values.without(:some_key)` happen. This may be a problem
-for you. You must decide which approach works for you.
-
-`TodoRepo.save` is also unneeded. The repo implementation explains how
-to create a TodoRepo and have the Todo class talk to the TodoRepo.
-`TodoRepo.save` is here to make it obvious the repo is persisting data
-and not the model itself. Once that’s clear it is more aesthetically
-pleasing to use the Repo::Delegation module described in the
-implementation. Then `TodoRepo.save` may be replaced with `todo.save`.
-`todo.save` is preferable because it hides some of the implementation.
-
-The code fulfills the simplest use case: a todo can be created and
-persisted in the system. The code does not handle nonhappy-path
-scenarios. What happen’s when the user does not fill out the form? The
-form must be validated before the use case can continue. Implementing
-validation logic is a surprisingly complex.  The implementation
-depends on how responsibilities are defined and how input is
-collected.
-
-Naturally there are many different ways to implement input validation.
-The logic could be implemented in a few places. The form class could
-handle its own validations. This may violate the single responsibility
-principle depending on how the form’s responsibilities are defined.
-Should the form handle input collection, sanitization, and input
-validation? This is a good question. There is not a definite answer.
-Assume this violates the single responsibility principle, the next
-step is creating a validator class. Validating input is its single
-responsibility. This implementation will create duplication. There are
-fields in the model, form, and validator class. On the other hand, a
-validator instance can be passed around and reused in the entire
-system context free.  Perhaps this seems weird. Isn’t this a
-responsibility for the model itself.  Surely that is the only object
-that truly knows what data it can have so it would makes sense to
-implement validation in the model. However is this not violation of
-the single responsibility principle for the same reason implementing
-it on the form was? A case can be made either way. The situation
-becomes more complicated when non model data requires validation.
-Consider this scenario. A use case in the system optionally sends an
-email notification based on a flag. The data is not persisted but
-simply used in a one time off way, thusly there is no need for a model
-object. This validation logic must be implemented on the form because
-that’s the only object that knows it’s purpose and context. If this
-use case happens is it a good idea if the logic had previously been
-implemented on the model or in a separate class? This is another good
-question. Answers to all these questions also depend on how the input
-is collected. Should forms always be filled out completely or are
-partial forms allowed? This depends on how create and update use cases
-are handled. All data is required to create a record. Updates are
-different. Do updates require the full data set or are partial updates
-allowed? If the form implements validations then how does that work in
-the partial update use case? That set up doesn’t work. It would work
-fine if updates required all the data, but is that a useful
-requirement? If the model implements validations then create, partial
-update, and complete update work because the validation subject has
-all the correct attribute values. Then we’re right back to the same
-question, is this good design?
-
-Implementing a correct validation architecture means answering many
-questions.  The correct implementation depends on the application and
-it’s use cases. This paper cannot answer all of those questions. It
-does provide examples and hopefully make decision making easier. This
-paper’s example is a focused use case and uses a validation strategy
-that works for this specific use case.
-
-This example implements validations on the form objects. The form
-objects are the boundary between the application and the horrible
-world outside. Once data makes it passed the form it should not be
-checked anywhere in the system. This does not violate the single
-responsibility principle. Implementing validation on the form is
-preferable for other reasons. It does not duplicate code like using a
-validator object would. It also scales up to future users where their
-is form/use case specific data that must be validated. The
-implementation also keeps the model data only. However the form must
-be 100% complete otherwise validation will fail. This is an acceptable
-tradeoff.
-
-Writing a test drives out the functionality easily. The test calls the
-use case with a form containing invalid data and assert on some
-result. What is the result? This opens up another discussion on what
-use case objects should return. `CreateTodo#run!` returns the todo
-object. This is an sensible approach in the happy path case. What
-about a validation failure? This is scenario is very likely. How many
-times have you submitted an incorrect form? Probably plenty of times
-for it frustrate you. Since the scenario is likely and also important
-to the overall application there must be a sensible approach. A well
-designed application will handle the scenario and present the user
-with some options to continue the interaction. It is sensible that the
-code itself enforces this principle. Raising an exception does all the
-things. Raising an exception requires the caller handle it otherwise
-the application will crash.  Sensible programs will handle the
-exception and react accordingly. This also has a few other side
-effects. The code interacting with the use cases (the delivery
-mechanism) reads easily because it is focuses on the happy path. It
-also makes the caller prepare for error conditions (not just
-validation failures) and implement the proper handling mechanism. It
-also makes code vocal and stronger in a sense.
-
-The use case requires two methods: one to check if the form is valid,
-and one to return the errors. Now that all the requirements are known
-the test can be created.
+There is one test remaining. The test ensures a notification is sent
+to the user. A notification has three attributes: the user who sent
+it, the receiving user, and what the notification is about. The test
+follows the same structure. Instead of asserting on todo presence,
+assert on notification presence.
 
     class CreateTodoTest < MiniTest::Unit::TestCase
-      def test_raises_an_error_when_given_invalid_data
-        # create a blank form
-        form = NewTodoForm.new
+      def test_should_send_a_notification
+        bob = User.new 'bob'
+        current_user = User.new 'adam'
 
-        use_case = CreateTodo.new form
+        form = TodoForm.new({
+          description: 'finish this paper',
+          due_date: Time.now,
+          assigned_to: bob
+        })
 
-        assert_raises ValidationError do
-          use_case.run!
-        end
+        use_case = CreateTodo.new form, current_user
+
+        todo = use_case.run!
+
+        assert_equal 1, NotificationRepo.count
+        db = Notification.first
+
+        assert_equal bob, notification.to
+        assert_equal current_user, notification.from
+        assert_equal todo, notification.about
       end
     end
 
-Then the use case itself.
+The test fails because `Notification` is not defined. This is another
+model class. It's defined in the same way as `User` or `Todo`.
 
-    class CreateTodo
-      def initialize(form)
-         @form = form
-      end
-
-      def run!
-        raise ValidationError, form.errors unless form.valid?
-
-        todo = Todo.new
-
-        todo.due_date = form.due_date
-        todo.description = form.description
-
-        TodoRepo.save todo
-
-        todo
-      end
-
-      private
-      def form
-        @form
-      end
+    class Notification
+      attr_accessor :to, :from, :about
     end
 
-The tests fails now for two reasons: the form does not implement the
-validation interface and ValidationError is not defined. Time to
-implement validation in the form.
+The test fails because a notification is never created. The failing
+assertions means it is time to write some code. This test is not as
+straight forward as the other. It requires some thought upfront.
 
-    class NewTodoForm
-      def valid?
-        description && due_date
-      end
+This reuqirement exposes interesting design decisions and other
+boundaries. The notification code must know who did it
+(the current user) and who to send it to. It is not good design to
+assign current user on stateless objects. The current user represents
+state and it must kept as close to the boundary as possible. It cannot
+leak down into other objects.
 
-
-      def errors
-        “description or due date missing”
-      end
-    end
-
-This is a simple implementation. The both methods are hard coded to
-two specific fields. It would not scale up to more fields or more
-validation rules.  This is not relevant to the example. The example
-only requires a validation interface. It doesn’t matter what happens
-behind the interface. This code would never make it into production as
-well. A library would be used in the real world. Now the example
-handles input validation. It is becoming more robust one step at a
-time.
-
-The system must also send a notification. Let’s expand the example to
-cover more concepts. The original requirement was to send a
-notification when a new task was added. That’s changing. The system
-should send a notification whenever a new task is created or an
-existing task is reassigned. The notification should contain who added
-the task or who reassigned it. This creates an interesting
-requirement. The notification code must know who did it (the current
-user) and who to send it to. It is not good design to assign current
-user on stateless objects. The current user represents state and it
-must kept as close to the boundary as possible. It cannot leak down
-into other objects.  So should we implement this? The
-publish/subscribe patterns works well here.  The model itself is only
-object that knows if it has been reassigned. The model publishes an
-event when that happens. The use case can attach an observer along
-with state and pass it along. The observer pattern works well here.
+How should this be implemented? The publish/subscribe pattern works
+well here. The model is only object that knows if it has been
+reassigned. The model publishes an event when that happens. The use
+case can attach an observer along with state and pass it along.
 
 Creating the observer is easy. Simply create a class and implement a
-method.  The method takes all the arguments required to send the
+method. The method takes all the arguments required to send a
 notification.
 
-    class TodoObserver
+    class ExampleObserver
       def assigned(todo, assigned_to, current_user)
         # Do stuff here
       end
     end
 
-Now to tackle the model. The model needs a method that does logic and
-publishes events. It also needs an interface to attach observers. The
-model already implements a save method. The event logic goes here. The
-ruby standard library provides the Observable module. There is also
-some miscallenous methods needed to make this all work. The example
-assumes some methods exist, however their implementation is outside
-the example’s scope. A test is provided as an example, but it would
-work without implementing the missing code. Here is the test.
+The model needs a method that does logic and publishes events. It also
+needs an interface to attach observers. The ruby standard library
+provides the `Observable` module. There is also some miscallenous
+methods needed to make this all work. The example assumes some methods
+exist, however their implementation is outside the example’s scope. A
+test is provided as an example, but it would work without implementing
+the missing code.
 
-    def test_emits_an_when_a_new_record_is_created
-       observer, assigned_to = mock, mock
+    class TodoTest < MiniTest::Unit::TestCase
+      def test_emits_an_when_a_new_record_is_created
+        observer, assigned_to = mock, mock
 
-       todo = Todo.new description: ‘Test’, due_date: Time.now, assigned_to: assigned_to
-       todo.add_observer observer
+        todo = Todo.new description: ‘Test’, due_date: Time.now, assigned_to: assigned_to
+        todo.add_observer observer
 
-       observer.should_receive(:assigned).with(todo, assigned_to)
+        observer.should_receive(:assigned).with(todo, assigned_to)
 
-       todo.save
+        todo.save
+      end
+
+      def test_emits_an_event_when_an_existing_todo_is_reassigned
+        observer, previously_assigned_to, currently_assigned_to = mock, mock, mock
+
+        todo = Todo.new({
+          description: ‘Test’,
+          due_date: Time.now,
+          assigned_to: previously_assigned_to
+        })
+
+        todo.add_observer observer
+
+        todo.save
+
+        observer.should_receive(:assigned).with(todo, currently_assigned_to)
+
+        todo.assigned_to = currently_assigned_to
+
+        todo.save
+      end
     end
 
-
-    def test_emits_an_event_when_an_existing_todo_is_reassigned
-       observer, previously_assigned_to, currently_assigned_to = mock, mock, mock
-
-       todo = Todo.new description: ‘Test’, due_date: Time.now, assigned_to: previously_assigned_to 
-       todo.save
-
-       todo.add_observer observer
-
-       observer.should_receive(:assigned).with(todo, currently_assigned_to)
-
-       todo.assigned_to = currently_assigned_to
-
-       todo.save
-    end
-
-Now the model implementation
+Next for the model.
 
     class Todo
       include Observable
-
 
       def new_record?
         !!id
       end
 
-
       def save
         was_new_record = new_record?
 
-        super
+        TodoRepo.save self
 
         if was_new_record || (!was_new_record && assigned_to_changed?)
           changed
@@ -874,51 +790,27 @@ Now the model implementation
     end
 
 Astute readers will notice that implementation is stateless. The use
-case is the only object that contains state. It connects the stageful
+case is the only object that contains state. It connects the stateful
 and stateless parts of the application. In order for this to the work,
-the use case takes in who the current user is and passes it along to
-objects that need it. Once that’s there it’s easy to write a test and
-complete the implementation.
-
-    class CreateTodoTest < MiniTest::Unit::TestCase
-      def test_sends_a_notification
-        bob = User.create name: ‘Bob’
-        tom = User.create name: ‘Tom'
-
-        form = NewTodoForm.new do |f|
-          f.due_date = Time.now
-          f.description = ‘Finish this paper’
-          f.assigned_to = bob
-        end
-
-        use_case = CreateTodo.new form, tom
-        todo = use_case.run!
-
-        assert_equal 1, NotificationRepo.count
-        db = NotificationRepo.first
-
-        assert_equal todo, db.todo
-        assert_equal tom, db.from
-        assert_equal bob, db.user
-      end
-    end
-
-Now the use case.
+the use case takes in the current user is and passes it along to
+objects that need it. The use case is still failing at this point.
+`CreateTodo` must be modified to complete it.
 
     class CreateTodo
-      attr_reader :current_user
+      attr_reader :current_user, :form
 
       def initialize(form, current_user)
          @form, @current_user = form, current_user
       end
 
       def run!
-        raise ValidationError, form.errors unless form.valid?
+        form.assigned_to ||= current_user
 
         todo = Todo.new
 
         todo.due_date = form.due_date
         todo.description = form.description
+        todo.assigned_to = form.assigned_to
 
         todo.add_observer self
 
@@ -928,22 +820,157 @@ Now the use case.
       end
 
       def assigned(todo, assigned_to)
-        NotificationSevice.send_todo_notification todo, assigned_to, current_user
-      end
-
-      private
-      def form
-        @form
+        notification = Notification.new
+        notification.about = todo
+        notification.to = assigned_to
+        notification.from = current_user
+        NotificationRepo.save notification
       end
     end
 
-That’s all there is to it! The NotificationService must implement the
-notification creation logic, but that is trivial. This example is not
-about implementing all the code, but illustrating the interface
-between different objects and their roles. The observer pattern is a
-perfect way to publish domain events. Objects can listen to them and
-propagate their meaning throughout the system. This implementation
-also ensures the models follow the SRP. The models do not implement
-any behavior, but make it possible for others.  The use case takes in
-state and passes it around. It ensures that all the objects perform in
-concert.
+Now the test passes. The same implementation also applies when
+updating existing todos. This illustrates the separation of event
+propagation and event handling. The observer pattern is a powerful way
+to publish domain events. Use cases capture the events and delegate
+them to other entities in the system. This keeps models singularly
+focused on data.
+
+Now the code fulfills all the happy path requirements. What happen’s
+when the user does not fill out the form? The form must be validated
+before the use case can continue. Implementing validation logic is
+surprisingly complex. The implementation depends on how
+responsibilities are defined and how input is collected.
+
+Naturally there are many different ways to implement validation.  The
+logic may be implemented in a few places. The form could handle its
+own validations. This may violate the single responsibility principle
+depending on how the form’s responsibilities are defined.  Should the
+form handle input collection, sanitization, and input validation? This
+is a good question. There is not a definite answer.  Assuming this
+violates the single responsibility principle and therefore should be
+avoided, the next step is creating a validator class. Validating input
+is a single responsibility. This implementation will create
+duplication. There are fields in the model, form, and validator class.
+On the other hand, a validator instance can be passed around and
+reused in the entire system context free. Perhaps this is weird. Is it
+not the model's responsibility? Surely that is the only object that
+truly knows what data it can have so it would makes sense to implement
+validation there. However is this not violation of the single
+responsibility principle for the same reason implementing it on the
+form was? This is debatable. The situation becomes more complicated
+when non model data requires validation.  Consider this scenario. A
+use case optionally sends an email notification based on a flag. The
+data is not connected to a modle but simply used in a one off way.
+The form must implement validation because only it knows the purpose
+and context. If this use case occurs, is it a good idea if the logic
+had previously been implemented on the model or in a separate class?
+This is another good question. Answers to all these questions also
+depend on how the input is collected. Should forms always be filled
+out completely or are partial forms allowed? This depends on how
+create and update use cases are handled. All data is required to
+create a record. Updates are different. Do updates require the full
+data set or are partial updates allowed? If the form implements
+validations then how does that work in the partial update use case?
+That set up doesn’t work. It would work fine if updates required all
+the data, but is that a useful requirement? If the model implements
+validations then create, partial update, and complete update work
+because the validation subject has all the correct attribute values.
+Then we’re right back to the same question, is this good design?
+
+Implementing validation architecture correctly requires answering all
+these questions. The correct implementation depends on the application and
+its use cases. This paper cannot answer all of those questions. It
+does provide examples and hopefully makes a decision easier. This
+paper’s example is a focused use case and uses a validation strategy
+that works for this specific use case.
+
+This example implements validations on the form objects. The form
+objects are the boundary between the application and the horrible
+world outside. Once data makes it past the form it should not be
+checked anywhere in the system. This does not violate the single
+responsibility principle. Implementing validation on the form is
+preferable for other reasons. It does not duplicate code like using a
+validator object would. It also scales up to future uses where there
+is form/use case specific data that must be validated. The
+implementation also keeps the model data only. However the form must
+be 100% complete otherwise validation will fail. This is an acceptable
+tradeoff.
+
+Writing a test drives out the functionality easily. The test calls the
+use case with a form containing invalid data and asserts on some
+result. What is the result? This opens up another discussion on what
+use case objects should return. `CreateTodo#run!` returns the todo
+object. This is an sensible approach in the happy path case. What
+about a validation failure? This is a common scenario. How many
+times have you submitted an incorrect form? Probably enough times
+for it frustrate you. Since the scenario is likely and also important
+to the overall application there must be a sensible approach. A well
+designed application will handle the scenario and present the user
+with some options to continue the interaction. It is sensible that the
+code itself enforces this principle. Raising an exception does all the
+things. Raising an exception requires the caller handle it otherwise
+the application will crash. Sensible programs will handle the
+exception and react accordingly. This also has a few other side
+effects. The code interacting with the use cases (the delivery
+mechanism) reads easily because it is focuses on the happy path. It
+also makes the caller prepare for error conditions (not just
+validation failures) and implement the proper handling mechanism. It
+also makes code vocal and more confident.
+
+The use case requires two methods: one to check validity and one to
+return the errors. Now that all the requirements are known the test
+can be created.
+
+    class CreateTodoTest < MiniTest::Unit::TestCase
+      def test_raises_an_error_when_given_invalid_data
+        # create a blank form
+        form = TodoForm.new
+        use_case = CreateTodo.new form
+
+        assert_raises ValidationError do
+          use_case.run!
+        end
+      end
+    end
+
+Implementing the use case is straightforward.
+
+    class CreateTodo
+      def run!
+        form.assigned_to ||= current_user
+
+        raise ValidationError, form.errors unless form.valid?
+
+        # existing code ...
+      end
+    end
+
+The tests fails for two reasons: the form does not implement the
+validation interface and ValidationError is not defined. Time to
+implement validation in the form.
+
+    class NewTodoForm
+      def valid?
+        description && due_date && assigned_to
+      end
+
+      def errors
+        "description, due_date, and assigned_to are required"
+      end
+    end
+
+This is a simple implementation. The both methods are hard coded to
+two specific fields. It would not scale up to more fields or more
+validation rules. This is not relevant to the example. The example
+only requires a validation interface. It doesn’t matter what happens
+behind the interface. This code would never make it into production as
+well. A library would be used in the real world. Now the example
+handles input validation. It is becoming more robust one step at a
+time.
+
+The application is now roboust enough to handle a real user. How does
+the user access the application? The code does not collect input from
+standard input or any other source. So how does anything actually
+happen? This is the delivery mechanism's responsibility.
+
+## Implementing a Delivery Mechanism
