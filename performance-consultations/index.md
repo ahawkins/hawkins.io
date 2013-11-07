@@ -31,7 +31,7 @@ We put our heads together for an hour:
 * Show you the problem areas
 * Provide a strategy to make your app faster
 
-This service is **$300**. [Email me](mailto:adam@hawkins.io&subject=Performance+Consultation) if this
+This service is **$300**. [Email me](mailto:adam@hawkins.io?subject=Performance+Consultation) if this
 describes you.
 
 ## Just Make it Faster
@@ -42,19 +42,19 @@ describes you.
   implement.
 * Review findings and answer your questions in a call
 
-This service is **$1000**. [Email me](mailto:adam@hawkins.io&subject=Performance+Consultation) if this
+This service is **$1000**. [Email me](mailto:adam@hawkins.io?subject=Performance+Consultation) if this
 describes you.
 
 ## Total Implementation
 
 I can also implement any strategies described in our consultations or
 on my blog. Fast applications matter. They play huge roll in user
-experience. Users love fast application. I can work 1 one 1 or with a
+experience. Users love fast applications. I can work 1 one 1 or with a
 team implementing a custom performance strategy for your application.
 This means you and I will work together so I can fully understand your
 application and what is important. Rates **starts at $3000** and vary
 by project and scope. [Email
-me](mailto:adam@hawkins.io&subject=Performance+Consultation) and let's
+me](mailto:adam@hawkins.io?subject=Performance+Consultation) and let's
 talk if this describes you.
 
 The general consultations happen over Google Hangouts or Skype. Google
@@ -63,5 +63,5 @@ coworkers. Consultations are usually scheduled for one or two days
 after initial contact.
 
 If you are interested please [email
-me](mailto:adam@hawkins.io&subject=Performance+Consultation). I look
+me](mailto:adam@hawkins.io?subject=Performance+Consultation). I look
 forward to working with you.
