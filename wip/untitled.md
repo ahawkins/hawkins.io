@@ -974,3 +974,288 @@ standard input or any other source. So how does anything actually
 happen? This is the delivery mechanism's responsibility.
 
 ## Implementing a Delivery Mechanism
+
+The delivery mechanism handles all the user and context specific
+requirements. Condiser two different HTTP delivery mechanisms, one
+that deals with HTML and one with JSON. The JSON version will
+communicate errors via HTTP status code. The HTML version will display
+forms and have a different user experience. This is possible because
+the core application logic is independant from the delivery mechanism.
+
+This examples creates an JSON API delivery mechanism using Sinatra.
+The code is straight forward and the concepts shine through. It also
+easier to test since there is no user facing behavior.
+
+The delivery mechansim is simple. It accepts an HTTP POST with the
+required paramaters and creates a todo. The server returns a todo in
+JSON for consumption.
+
+The first test covers the happy path scenario.
+
+    class WebServiceTest < MiniTest::Unit::TestCase
+      include Rack::Test::Methods
+
+      def app
+        WebService
+      end
+
+      def test_returns_json_when_the_todo_is_created
+        flunk
+      end
+    end
+
+Now the question is: what actually goes into this test? The test is
+similar to the one in `CreateTodoTest`. The test needs to create at
+least one user, post some data, and assert on the response. The
+application also needs some way to know who the current user is. The
+current user must be configurable in the tests. In the real world
+their would be real authentication. It is safe to assume that some
+other piece of code will take care of that an provide the current
+user. Therefore the tests can implement a fake authentication scheme.
+The rest is straight foward.
+
+    class WebServiceTest < MiniTest::Unit::TestCase
+      include Rack::Test::Methods
+
+      def app
+        WebService
+      end
+
+      def test_returns_json_when_the_todo_is_created
+        adam, peter = User.create('Adam'), User.create('peter')
+
+        post("/todos", {
+          todo: {
+            description: 'Finish this test',
+            due_date: Time.now.iso8601,
+            assigned_to: 'peter'
+          }
+        }, { 'current_user' => adam })
+
+        assert 201, last_response.status
+        assert_equal 'application/json', last_response.content_type
+      end
+    end
+
+This is enough to get started. The test fails right off the bat
+because `WebService` does not exist.
+
+
+    require_relative 'todo_form'
+    require_relative 'create_todo'
+
+    require 'sinatra'
+
+    class WebService < Sinatra::Application
+    end
+
+Notice the class requires the form and use case. The delivery
+mechansim must load its required classes. In practice the may live in
+a separate gem or repository. Now the test fails because "/todos" does
+not exist.
+
+    class WebService < Sinatra::Application
+      post "/todos" do
+
+      end
+    end
+
+Running the test again shows the first failing assertion. The test
+fails because the response code incorrect. Time to fill in the route
+handler with actual code.
+
+    class WebService < Sinatra::Application
+      post "/todos" do
+        form = TodoForm.new params['todo']
+        use_case = CreateTodo.new form, current_user
+
+        todo = use_case.run!
+      end
+    end
+
+The test is still failing. There are still more things to fill in. The
+application does not defined the `current_user` method.
+
+    class WebService < Sinatra::Application
+      helpers do
+        def current_user
+          env.fetch 'current_user'
+        end
+      end
+    end
+
+That takes care of that failure. Setting the current user through the
+`env` hash makes it easy to test. Running the test again does not
+produce an error but an assertion failure. The delivery mechanism does
+not return JSON.
+
+    require 'json'
+
+    class WebService < Sinatra::Application
+      post "/todos" do
+        form = TodoForm.new params['todo']
+        use_case = CreateTodo.new form, current_user
+
+        todo = use_case.run!
+
+        content_type 'application/json'
+
+        JSON.dump({
+          todo: {
+            id: todo.id,
+            description: todo.description,
+            due_date: todo.due_date.iso8601
+          }
+        })
+      end
+    end
+
+Now the test passes, but it does not have meaningful assertions.
+
+    def test_returns_json_when_the_todo_is_created
+      adam, peter = User.create('Adam'), User.create('peter')
+
+      post("/todos", {
+        todo: {
+          description: 'Finish this test',
+          due_date: Time.now.iso8601,
+          assigned_to: peter.id
+        }
+      }, { 'current_user' => adam })
+
+      assert 201, last_response.status
+      assert_equal 'application/json', last_response.content_type
+      json = JSON.load(last_response.body).fetch 'todo'
+
+      assert json.key?('id'), "JSON should contain the todo id"
+      assert json.key?('due_date'), "JSON should contain the due date"
+      assert json.key?('description'), "JSON should contain the description"
+      assert json.key?('assigned_to'), "JSON should contain who the todo is assigned to"
+    end
+
+Now the test fails on the final assertion. The form does not know how
+to lookup a user. It is not possible to send `User` instances over
+HTTP. The request can only reference an identifier (such as a unique
+id). The application sends the user's name. The form must implement
+this behavior. The form already contains an example of how to parse
+times. Astute readers will not that the time is sent in ISO8601
+format. This format is easy to ready by humans and Ruby parses it
+correctly out of the box. This way the form provides a `Time` object
+to all its collabators. The form can do the same thing for
+`assigned_to`.
+
+    class TodoForm
+      def assigned_to=(value)
+        case value
+        when User then value
+        when String then UserRepo.find(value.to_i)
+        else nil
+        end
+      end
+    end
+
+Now the delivery mechanism can be updated as well.
+
+    class WebService < Sinatra::Application
+      post "/todos" do
+        form = TodoForm.new params['todo']
+        use_case = CreateTodo.new form, current_user
+
+        todo = use_case.run!
+
+        content_type 'application/json'
+
+        JSON.dump({
+          todo: {
+            id: todo.id,
+            description: todo.description,
+            due_date: todo.due_date.iso8601,
+            assigned_to: todo.assigned_to.id
+          }
+        })
+      end
+    end
+
+Now the test passes and it is time to move on to the non-happypath
+scenarios.
+
+    class WebServiceTest < MiniTest::Unit::TestCase
+      def test_returns_json_when_the_todo_is_created
+        # ...
+      end
+
+      def test_returns_a_400_when_todo_param_is_missing
+        flunk
+      end
+
+      def test_returns_a_400_when_unknown_todo_params_are_given
+        flunk
+      end
+
+      def test_returns_a_422_when_invalid_data_is_given
+        flunk
+      end
+    end
+
+It is easy to write the tests and much more interesting to make them
+pass.
+
+    def test_returns_a_400_when_todo_param_is_missing
+      post "/todos"
+      assert_equal 400, last_response.status
+    end
+
+    def test_returns_a_400_when_unknown_todo_params_are_given
+      post "/todos", todo: { foo: 'bar' }
+      assert_equal 400, last_response.status
+    end
+
+    def test_returns_a_422_when_invalid_data_is_given
+      adam, peter = User.create('Adam'), User.create('peter')
+      post "/todos", { todo: { foo: 'bar' } }, { 'current_user' => adam }
+      assert_equal 422, last_response.status
+    end
+
+All the tests fail given the current code. Each tests because an error
+is raised. The delivery mechanism can capture errors from the domain
+classes and react accordingly. This strategy works for the last two.
+
+    class WebService < Sinatra::Application
+      error ValidationError do
+        halt 422, { 'Content-Type' => 'application/json' }, JSON.dump({
+          errors: env['sinatra.error']
+        }
+      end
+
+      error UnknownField do
+        halt 400, { 'Content-Type' => 'application/json' }, JSON.dump({
+          errors: env['sinatra.error']
+        }
+      end
+    end
+
+The last two test pass. The first must be implemented inside the route
+handler.
+
+    class WebService < Sinatra::Application
+      post "/todos" do
+        todo_params = params.fetch 'todo' do
+          halt 400
+        end
+        form = TodoForm.new todo_params
+
+        # existing code
+      end
+    end
+
+Now all the tests pass and the delivery mechanism implements all the
+required functionality. Unfortunately there are a few things left to
+be desired. It does not scale to generate JSON inside the route
+handlers. In there real world there would be classes for this. This is
+outside the example's scope, but is something to bear in mind. The
+first test's implementation could be extracted into a helper. It does
+not make sense to write that code in every single route handler. JSON
+generation should also be generated using the `sinatra-contrib` gem.
+The application does not parse JSON bodies out of the box. There is a
+middleware in `sinatra-contrib` for that. This example presents a
+barebones implemenation as a working example.
