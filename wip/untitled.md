@@ -1537,3 +1537,297 @@ data persisted in tests (for when you need it). Rack::Test for testing the HTTP
 delivery mechanism. Capybara + poltergeist if you need to test JavaScript.
 
 Final Recommendation: MiniTest. Bow before MiniTest.
+
+--------------------------------------------
+
+## Problems with Rails
+
+This paper's introduction focused on technical debt vs technical
+investment. Applications may acquire a large amount of technical debt
+in the beginning. This is very dangerous debt because it will live on
+forever. The first choices are the most important. They must be though
+out and encourage a good architecture. If you think starting an
+application means running `rails new` then you've already lost the
+game.
+
+Rails is a web application framework. It's been around for almost 10
+years now. It came around to make creating a certain kind of
+applications insanely fast. Most applications were more or less CRUD
+apps for managing database tables. The ActiveRecord pattern made sense
+here. Scaffolding was perfect because that's what we wanted in most
+cases. Rails was created to optimize this specific use case.
+Applications became more complex. The JSON API arose. Now it's common
+to have a backend in insert language here then a pile of JS code
+creating the user interface. Rails best practices no longer scale up.
+Most Rails applications turn into gigantic balls of mud because
+coupling is encouraged. Don't think for a second Rails style MVC means
+decoupled. Rails itself does not respect the described boundary
+principles. In fact it does not encourage boundaries at all. This
+section is a technical critique of each core component and how it's
+encouraged use is detrimental in every use case and how you're
+encouraged to build an app in Rails and not on top of it.
+
+### ActiveRecord
+
+ActiveRecord was Rail's biggest selling point in the beginning. It was
+made going from schema to Ruby objects extremely fast and easy.
+Overall it's a good implementation of the ActiveRecord pattern. Most
+of ActiveRecord's problem come from the fact that it is the
+ActiveRecord pattern. The ActiveRecord pattern is the exact opposite
+of the more abstract data access and persistence patterns. The active
+record patterns means the model is the database. This flips the
+Repoistory pattern on it's head. The repository pattern provides
+access to domain objects and hides that underlying implementation.
+Extensive active record use usually means the database semantics
+propagate through the entire application. It's not uncommon to have
+random objects making where clauses and knowing about table structure.
+This is an unfortunate side effect from the entire query api being
+public. How many people have seen controllers constructing gigantic
+where or query clauses? I ask why is that even possible? What benefit
+does pushing the database into all layers provide? It does not provide
+any long term value. It adds coupling and makes change more brittle.
+Since ActiveRecord models are database rows it's impossible to run
+tests without the database. There have been attempts to mock
+ActiveRecord's db interactions to varying success. These efforts arise
+from testing being too slow (because every thing hits the database).
+If a repository or data mapper was used the boundary could be
+leveraged. ActiveRecord will come back to bite you when your
+application reaches a certain size. It's use must be highly regulated
+in applications otherwise it will infect everything. Rails encourages
+you to think in database tables and not in domain objects. This is a
+fundamentally bad decision for people interested in technical
+investment and not technical debt. 
+
+There are numerous other flaws as well. ActiveRecord callbacks are the
+most abused thing in Rails applications. The "fat model, skinny
+controller" movement has been going for a long time. The logic is
+generally sound. It is correct that controller's should not have so
+much logic. They are supposed to manage the UI in MVC (remember MVC
+was originally designed for desktop applications). In practice the
+models are ActiveRecord objects. They usually expand to contain use
+case specific information. Sending a notification is a good example.
+How many applications contain an `after_save` callback to send an
+email?  How about a callback to send the model to another data store
+(example: Elastic Search)? Why is such behavior encouraged? Gems piggy
+back on the ActiveRecord callbacks to add their own logic. This is not
+the gem's fault. This is how you do things in the Rails world.
+Callbacks cause so much pain in large apps. How do you tests
+callbacks? How can I disable this callback in this context? These are
+two common questions. The answer is: don't use callbacks. They
+encourage bad design. Their implementation is shoddy at best. I
+haven't seen a proper callback use case before. They are entirely more
+trouble than they're worth. 
+
+ActiveRecord::Observer is a callback on steroids. It's a global object
+that listens for model callbacks. Rails automatically instantiates
+observer instances and connects them to ActiveRecord instances. Every
+ActiveRecord callback is exposed to the observer. This is not a good
+idea because the model itself cannot control which events other
+objects can listen on. Observers have all the same problems callbacks
+do. The biggest is that observers are attached to all objects during
+tests. How many tests have failed because an observer was attached?
+The listeners should not be attached at all. The observer pattern is
+wonderful. Rail's observer implementation relies on global state which
+is arguably the worst thing you can do in a program.
+
+ActiveRecord instances are a junk draw. They collect methods for use
+in other layers. `ActiveModel::Naming` contains all sorts of methods
+that are not used by the model itself. They are primarily used in
+controllers to generate URLs and for generating HTML forms. There is
+even `partial_path` on the model. This is use for automatic partial
+lookup. The number of public instance methods on ActiveRecord::Base is
+astonishing. ActiveRecord::Base instances do not follow the single
+responsibility principle at all. They implement concerns for all
+layers leading to coupling and leaky abstractions.
+
+Nested attributes if a famous leaky abstraction and cross cutting
+concern. This particular issue has caused strife in the community.
+`accepts_nested_attributes` is for creating complex objects. A
+Customer can `accept_nested_attributes_for` its associated Addresses.
+An `address_attributes=` method is defined. It takes an array of Hash
+instances. The hash may contain a magic `_delete` key indicating that
+the given record should be removed from the collection. If an `id` key
+is present, it’s treated as an update or wise a new instance is
+created. There are many things happening in these methods.
+`accepts_nested_attributes_for` addresses a view problem. The problem
+is: how to present an HTML form that represents a hierarchy of Ruby
+objects? This one such way. Form objects are a better solution. The
+form object knows how to instantiate the objects. Then passes along
+domain objects to the model. `accepts_nested_attributes` is another
+example of ActiveRecord instance becoming a junk drawer.
+
+Mass assignment exemplifies bad design. This has partially been
+addressed in Rails 4, but is still an awkward solution. More on this
+in the ActionController section. Mass assignment protection was
+required by ActiveRecord’s encouraged use. An HTML form is generated.
+The controller takes the gigantic params hash and simply dumps it onto
+the model. The model dutifully sets it’s values from keys and values
+in the hash. Then changes are written to the database. This approach
+is problematic because all data was trusted. This was the default
+behavior up until Rails 4. Here’s a high profile example that arguably
+finally convinced the rails core team to address this serious design
+issue. Github suffered a major security breach related to SSH keys.
+Igor Hakmovkov was abel to exploit the rails organization and commit
+directly to the master branch. He crafted a custom form including is
+SSH key inside a nested attributes hash. The ssh keys association was
+not protected by mass assignment and his ssh key was connected to
+another account. This gave him full control of their entire repo.
+Remember, this was the default behavior in rails for years. This
+situation could’ve been completely avoided by using strong boundary
+principles. ActiveRecord does not respect the boundaries between
+different layers as usual. 
+
+Unfortunately the problems with mass assignment don’t end there. Mass
+assignment can also be made state aware. Here is an example. An admin
+can set the permissions, but a normal user cannot. Now ActiveRecord
+has crossed access control boundary! These things do not belong on a
+database backed object. They belong in policy objects or in the use
+case. It is astounded these thing were part of the core and their use
+was encouraged up until recently.
+
+There’s one last example. JSON generation has become an important
+responsibility. Rails currently exposes two methods to make this
+happen. JSON can be generated using JBuilder templates or by calling
+`to_json` on pretty much anything. Jbuilder is an acceptable approach.
+`to_json` is not. `to_json` is easily abused like all parts of Rails.
+`to_json` takes a grab bag option hash. `to_json` exposes all data by
+default. The grab bag options are there to remove sensitive bits or
+include method and associations. The options hash can be nested to
+pass options down to other objects ‘to_json` method. This is bad
+practice. Machine readable data should be treated just like user
+facing views. There should be a model and a template. Template is
+loosely defined in this case. Jbuilder uses templates.
+ActiveModel::Serializers uses an object that’s know how to generate a
+serializable object. Both are superior to calling `to_json` whilly
+nilly. This is another example of ActiveRecord not respecting the
+single responsibility principle and how it’s a junk drawer that
+encourages technical debt.
+
+Most of ActiveRecord's problems are because it is the active record
+pattern. The "junk drawer" aspect comes form a bad implementation of
+MVC. Rails MVC implementation is another topic that's discussed later.
+The fact is that ActiveRecord does not respect key architectural
+boundaries. ActiveRecord's flaws can be controlled with cautious use,
+but it has to be quarantined from the very start. You cannot have fast
+tests with ActiveRecord because the database is the model and the
+model is the database. ActiveRecord abstractions will leak into more
+parts of the application and make it difficult to maintain over time.
+It will be very fast in the beginning but the pattern completely falls
+over once complexity reaches a certain level. The active record
+pattern simply does not fit with architecture in this paper.
+
+Did you also know ActiveRecord's error message translation is tied to i18n localizations? ---3---
+
+### ActionView
+
+ActionView is another component optimized for quick ramp up times. Set
+instance variables in the controller, call some helpers inside the
+template and things start to happen. More instance variables get added
+to the controller and templates become more complex. Logic eventually
+enters the templates. Helpers are added to manipulate instance
+variables inside controllers. ERB templates make query calls on
+ActiveRecord objects. Eventually the application spills into templates
+and things become an untenable mess. ActionView gives you just enough
+rope to hang yourself. Complexity and leaky abstractions must be
+quarantined and managed with extreme prejudice. Developer's usually
+don't have the stomach for this.
+
+ActionView suffers from two fundamental problems. ERB is the first.
+ERB stands for Embedded RuBy. You can write an entire application
+inside an ERB template. This is a major flaw. It can be avoid, but
+it's not in 99% of cases. Using a logic less template is the only
+correct way to write templates. ERB allows you to put logic in
+templates so it eventually happens. If you cannot put logic into the
+template it must go somewhere else. This is correct way to do things.
+The templates must be the stupidest part of the entire application.
+There is a serious problem if they are not. Using a logic less
+language (such as Mustache) forces you to revaluate your entire
+approach to the presentation layer. It forces a boundary and single
+handily eliminates all common problems inside Rails templates.
+
+The second problem exacerbates the first. Templates are executed in
+the controller's action's binding. This means they have access to the
+local and global scope. Want to call out to another class, you can.
+This ability always leads to logic in templates and increased
+complexity. Templates should have one view model that exposes
+everything they need. Nothing more and nothing else. Using a logic
+less template language forces this implementation.
+
+ActionView’s helpers are used to offload logic from the template into
+a Ruby module. This is not enough. All helper modules are available
+globally, you cannot decide which templates use which helper modules.
+This encourages a mishmash of methods where it’s hard to locate where
+things actually happen and what methods are available. Eventually
+helpers depend on instance variables set in other places and things
+become an untenable mess.
+
+ActionView and ERB is a dangerous combination. It's almost designed to
+acquire technical debt. A View Model and logic less template setup
+could (and has been implemented for ActionView. However it's easier to
+just forgo the entire thing if needs to be fundamentally changed.
+Architectures and libraries that encourage technical debt should be
+avoided. I will say this: those helpers are damn nice. I'm looking at
+you `distance_of_time_in_words`. 
+
+### ActionController
+
+ActionController is the best part of Rails. It does a wonderful job of
+handling incoming HTTP requests and returning HTTP responses. It
+handles responding in multiple formats nicely and the routing works
+very well. It's easy to do protocol level things as well. Controllers
+can set HTTP cache headers and handle stale responses with ease.
+There'd be no problem this small subset of functionality was used.
+ActionController has problems just like the other components. The
+problems come from what happens inside the methods. 
+
+The controller's job is to make things happen. There are two schools
+of thought: fat model/skinny controller or fat controller/dumb model.
+The former leads to the problems described in the ActiveRecord
+section. The latter means putting application specific logic inside
+the controller, thus coupling your application to an HTTP delivery
+mechanism violating a fundamental boundary. Fat model/skinny
+controller usually leads to brittle tests with a ton of mocking and
+stubbing. They usually end up matching the code line by line and
+provide no value. Putting logic into the controllers means the tests
+must go through HTTP.
+
+*insert something about filters (aka callbacks in controllers)*
+
+*insert something about strong_parameters*
+
+These are not problems with ActionController itself. It has everything to do
+with how it's used. Unfortunately getting ActionDispatch working outside of
+Rails is a major task. It's not worth the hassle if only HTTP interactions are
+required.
+
+### ActiveModel
+
+I was so happy when I heard that Rails 3 was extracting out all the stuff from
+ActiveRecord into ActiveModel. It was finally going to be easy to use
+validations in other classes. ActiveModel::Validations is really the only
+useful module from a reusability perspective. How many people are using
+ActiveModel in a project just for the validation module? I'm one of those
+people. ActiveModel seems to exist for a few reasons: provide validations,
+allow objects to pollute themselves with callbacks, and naming (that module
+that makes objects work with forms). ActiveModel is in this weird place. It
+extracts behavior from ActiveRecord so other libraries can integrate with the
+framework, but it doesn't provide a solid reusability story completely outside
+of rails.
+
+### Rails as a Framework
+
+All the core component's problems are connected to Rail's implementation of
+MVC. The models are ActiveRecord instances. Controllers dump everything off to
+the model, then the controller's scope is used to render an ERB template.
+ActiveRecord semantics propagate through all layers. Views start taking to
+models, controllers render views and talk to models. Everything is talking to
+everything and there are no boundaries. Rails design does not encourage
+technical investment. It encourages technical debt and in most cases actually
+encourages it. Rails does not being enough to the table to be accepted as an
+approbate delivery mechanism. It's components are semi reusable but don't offer
+enough flexibility. Some components must fundamentally change to work in this
+context. Requiring rails will also make things slower. Rails boot times have
+never been fast. Rail's position is build your app in Rails. This is wrong
+because it violates the delivery mechanism boundary. Build the application then
+create a delivery mechanism. The application is not the delivery mechanism.
+This is why it will never work.
