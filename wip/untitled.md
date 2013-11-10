@@ -1264,279 +1264,329 @@ barebones implemenation as a working example.
 
 ## The Ideal Stack
 
-This paper has espoused the correct arrangement of objects and their roles. Now
-it’s time to look around the ecosystem and see which projects exemplify the
-best traits. We need a delivery mechanism, a way to render to templates,
-serialize objects, sanitize and format user input, persist data, query and
-manage data access, send outgoing HTTP requests, handle caching, and
-application level metrics. This covers a large swofft of responsibility. It
-would be unwise to look to a single project to implement everything. Ruby’s
-ecosystem’s provides many choices in all areas.
+So far this paper has espoused boundaries and proper responsibility
+separation. Design patterns are used to arrange code the best way. The
+example does not any gems (besides Sinatra). This is an explicit
+choice. The technical examples shows it is possible to write
+applications without using any frameworks. Domain objects are plain
+old ruby objects. Functionality is added by writing basic Ruby code.
+
+This works fine in the small but does not scale up. Every real world 
+programmer uses libraries to multiply their productivity. The best
+libraries solve common problems in reusable ways. They are better than
+what one programmer could accomplish and have been tested in many
+contexts by many different programmers. All libraries are not created
+equally. Some are miles ahead of others in their structure and
+resusability.
+
+The Ruby ecosystem presents a unique challenge. Rubygems.org hosts 
+65,667 different gems. It is extremely difficult to separate the wheat
+from the chaffe. There are hundreds of different gems for the same use
+case. Each has their own versinoning scheme, maintenance level, and of
+course functionality. More importantly, deciding what gems an
+application uses has a very strong impact on its long term
+maintainbility. Some gems have 5 or 6 dependencies, then each may have
+its own multiple dependencies. It is easy to see how projects devolve
+into gem dependency hell.
+
+Each library must be heavily scrtunizied before use in an application.
+The upcoming section presents a curated set of gems that cover most
+responsibilities in a modern application. They've been evaluated on
+their dependencies, functionality, respect for boundaries, and design.
+This is the ideal stack in terms of extesnsiblity, testing, and long
+term maintainability. There is a gem (or multiple gems) that make
+implementing each layer each allowing focus on the task at hand and
+not common problems.
+
+The example covers these basic layers: persistance, input
+sanitization, HTTP access, and testing. Real application do much more
+than this. A gem is presented for each core responsibility and other
+common use cases.
 
 ### Persistence & Repository Implementation
 
-The ecosystem is weak here but developing strong. Rails & ActiveRecord have
-dominated for so long that the community has primarily focused around that
-implementation. Luckily this is changing. The ROM (Ruby Object Mapper) is the
-most promising gem in the community today. ROM is formally DataMapper 2.
-DataMapper one was a quasi data mapper. ROM is a full object mapper. There is a
-complete separation between objects, persisted implementation, and access.
-Unfortunately ROM is not ready for production use yet. I’m eagerly waiting for
-when it is. There are a few other choices in the mean time. The repository
-pattern is simple to implement. Then you must write your own adapter. I
-recommend Sequel for working with an RDMS. It’s query capabilities are the best
-Ruby as to offer. It does not hide SQL from you, which is something you want
-when writing a repository adapter. It includes `Sequel::Model` if you want an
-active record feel. It has adapters for all major SQL implementations as well. 
+The ecosystem is weak here but developing strongly. Rails &
+ActiveRecord have dominated for so long that the community has
+(unfortuantely) focused around expanding their functionality. Luckily
+this is changing. The ROM (Ruby Object Mapper) is the most promising
+gem in the community today. ROM is formally DataMapper 2. DataMapper
+one was a quasi data mapper. ROM is a full object mapper. There is a
+complete separation between objects, persisted implementation, and
+access. Unfortunately ROM is not ready for production use.  There are
+a few other choices until then. The repository pattern itself is
+simple to implement. The adapter can be written using any of the
+native interface gems. Sequel for working with an RDMS. Its query
+capabilities are the best Ruby as to offer. It does not hide SQL which
+is especially important since adatpers must be as close to the metal
+as possible. Sequel has adapters for all major databases as well.
+Redis, Moped, and others can used if a RDMS is not an requirement.
 
-Final Recommendation: Wait for ROM. Implement the repository yourself. Use the
-low level libraries (such as Sequel, MongoDB, Redis) to implement the adapter.
+Unforunately the ecosystem does not have a complete solution to the
+persistance story presented in this paper. The ecocystem does provide
+the primitives needed to write adapters. This will change as ROM
+matures.
 
 ### Input Collection & Sanitization
 
-It’s important that you get this right. That’s why it’s important you use
-Virtus. Virtus is an extraction of the ROM property interface. It includes
-coercion (strings to numbers). It provides a simple and elegant for describing
-what attributes a class should have. You can refine writer methods to implement
-application specific functionality (using an the repo to look up an object by
-id) so working with the domain objects is trivial. It gained popularity as a
-“Form Object” inside rails applications because it’s so useful for parsing
-input. Virtus also encourage reusability. It’s a module so it can include it
-any class. Subclassing is not an requirement.
+This area is the border between the application and the horrible world
+outside. The solution must be robust, battled tested, and easy to
+extend to handle weird input scenarios. Virtus embodies all these
+qualities. `TodoForm`'s implementation could be replaced completely
+by Virtus.
 
-Final Recommendation: Virtus
+Virtus is an extraction of the ROM property interface. It provides a
+simple and elegant for describing what attributes a class should have.
+It also provides conversions and coericions (such as strings to
+numbers, or strings to a time).  Writer methods can be redefined for
+application specific functionality (using an the repo to look up an
+object by id)i. It gained popularity as a “Form Object” inside rails
+applications because it is so useful for parsing input. Virtus also
+encourage reusability. Classes include a module.  Virtus can also
+build multiple modules for maximum composability.
 
 ### Serialization
 
-Generating machine readable formats is becoming more important than ever.
-That’s why they must be OOP and easily testable. There are generally two
-approaches in this area. Objects that know how to generate a serializable hash
-or a builder object. The former makes more sense. Instantiate the object with
-the attribute and ask for its serialized representation. This approach is also
-more composeable. This makes object graph serialization easier. Graph
-serialization can be a complicated problem. The problem stems from serializing
-a root object then its specified associations and down the tree. It can be
-recursive as well. ActiveModel::Serializers excels here because it was designed
-for use with Ember Data. Ember Data is a data mapper for the Ember Javascript
-framework. Ember Data makes working with RESTful JSON API’s easy by relying on
-convention. You get a few correct conventions for free. All JSON objects have a
-root. This makes its easier for clients to parse responses into objects. Here’s
-an example. The JSON object has two root keys: “customers”, and “tasks”.
-Consumers know that these keys map to corresponding domain objects and parse
-accordingly. It’s also easier to add meta data to response because everything
-is namespaced. ActiveModel::Serializers also has strong association
-conventions. Associated objects can be sideloaded or embedded. Here’s an
-another example with customers and tasks. The application may want to present a
-customer with their tasks. The backend can sideload full objects. This means
-the “tasks” key at the root contain’s a full JSON representation of each task.
-Each customer object will include a `task_ids` key linking back to the object.
-The library can generate IDs only if the full object is not needed. This cuts
-down on response size. Associated objects can also be embedded directly.
-Association handling can be configured with a global default then customized on
-a case by case basis. ActiveModel::Serializers makes crafting JSON responses
-easy. I haven’t seen a builder based library with this functionality.
-ActiveModel::Serializers provides a solid base for Javascript applications or
-simple API consumers. Insert note about libraries focused on both way
-serialization instead of one way.
+Generating machine readable formats is becoming more important than
+ever. This is why their implemenation must be designed with object
+orientated principles and testability in mind. There are generally
+two different approaches but work the same under the hood. Some code
+builds up a hash instance which can be serialized into any JSON, XML,
+YAML, or MessagePack. The public interface differinates them.
 
-Final Recommendation: ActiveModel::Serializers
+JBuilder uses a builder style DSL. It uses a builder and template
+language like concepts to build JSON objects. ActiveModel::Serializers
+uses standard ruby classes that generate serializable hashes.
+ActiveModel::Serializable is better because it has a simple public
+interface that makes testing easier. It also makes generating complex
+object graphs easy.
+
+There are a few other things that make ActiveModel::Serializers a
+better choice. ActiveModel::Serializers was designed around JSON API.
+JSON API is a standard for communicating objects and their
+relationships over HTTP. This makes it easier to write API consumers
+because their are standards and conventions. The same cannot be said
+about JBuilder.
+
+ActiveModel::Serializers also provides a clear use story. There will
+be a time when an application needs to serialize an object from a
+"random" place. Think a background job that sends changes using server
+sent events. In this case simply instantiate the serializer with the
+serializable object and call `serializable_hash`. The same interface
+is used when writing tests.
+
+Each serializer is a subclass of `ActiveModel::Serializer`. It
+declares which keys and associations should be included in the final
+output. Jbuilder feels like a very complicated template language where
+JSON responses are treated as views instead of first class objects.
+
+ActiveModel::Serializers is the superior choice for serialization
+responsibilities.
 
 ### Making HTTP Requests
 
-Working with HTTP API’s is a modern application requirement. Application
+Working with HTTP is a modern application requirement. Application
 usually interact with 2 or 3 API’s, some much more. Choosing a good HTTP
-library will impacts the application long term. The Ruby ecosystem is
-overwhelming me web centered so naturally there are a bajillion libraries.
-Let’s look at the big players.
+library impacts the application long term. The Ruby ecosystem is
+overwhelming web centered so naturally there are a cornicophia of
+choices.
 
-The standard library includes an HTTP client. It’s less than a joy to use. The
-interface is the most complicated out of the group. It’s a struggle to make
-requests beyond simple GET and POST’s. Setting body content and content type is
-convoluted. It does not excel at posting JSON documents. Configuring HTTP auth
-is different in every single use case. HTTPS must be configured explicitly as
-well. The library does not work with URL strings. Instead you must create a URI
-and pass that around—sometimes. The API is consistent here. Simple GET requests
-can be made with a String but pretty much everything else requires a URI.
-Net::HTTP falls short at the “just make this request with this data” use case.
-If you only need simple requests it may not be worth it bring in a dependency.
-However most applications interacting with HTTP API must work with semantic
-different in each making it very difficult to use Net::HTTP. 
+Ruby bundles an HTTP client in the standard library. Unfortunately it
+less than a joy to use. The interface complicated and inconsistent.
+It is a struggle to make requests beyond simple GET and
+POST’s. Setting body content and content type is convoluted. It does
+not excel at posting JSON documents. Configuring HTTP auth is
+different in every single use case. HTTPS must be configured
+explicitly as well. The library does not work with URL strings.
+Instead you must create a URI and pass that around—sometimes. The API
+is consistent here. Simple GET requests can be made with a String but
+pretty much everything else requires a URI. It is considered one of
+the worst APIs for these reasons.
 
-Then there are a bunch of libraries that function roughly the same way. There
-is HTTParty, RESTClient, and Excon to name a few. They are all better than
-Net::HTTP and tailored to specific use cases. HTTParty is quick and dirty. It
-parses JSON responses into OpenStruct like objects. It’s not bound a particular
-URL structure either. It excels at the “Just make this request use case”.
-RESTClient is undoubtedly optimized towards RESTful interfaces. It has the
-general functionality as well. RESTClient and HTTParty both use class methods
-(RESTClient.post) which does not encourage reuse. Excon is a more advanced
-general client with similar functionality.
+Net::HTTP falls short at the “just make this request with this data”
+use case. If you only need simple requests it may not be worth it
+bring in another dependency. However most applications interacting
+with HTTP must work with multiple server and their semantics.
+Net::HTTP does not make this easy.
 
-Faraday stands above the rest. It has a friendly interface, uses the builder
-pattern, and adapter pattern. Faraday is the HTTP library to rule them all.
-Faraday can use different HTTP implementations making it very portable. Faraday
-works Net::HTTP out of the box. This means hides all the Net::HTTP’s ugliness
-and doesn’t require another dependency. The builder pattern makes customizing
-HTTP clients easy. This important when working with HTTP API because they all
-their own semantics. A FooBarClient can be created with middleware to add
-authorization headers or parse response bodies. Clients can also be created for
-one off requests. Faraday excels at the “just make this request” use case. The
-interface is familiar to `Rack::Test` where you can specify urls, params, and
-headers. The faraday_middleware projects solves a lot of common cases as well.
-Faraday also works perfectly with WebMock which makes testing HTTP requests a
-breeze. You cannot go wrong with Faraday.
+There are a bunch of gems that attempt to solve Net::HTTP's problems.
+There are HTTParty, RESTClient, Tyepheous, and Excon to name a few.
+They are all better than Net::HTTP and tailored to specific use cases.
+HTTParty is quick and dirty. It parses JSON or XML responses into
+OpenStruct like objects. It is not bound a particular URL structure
+either. It excels at the “Just make this request use case”.
+RESTClient is undoubtedly optimized towards RESTful interfaces. It has
+the general functionality as well. RESTClient and HTTParty both use
+class methods (RESTClient.post) which does not encourage reuse. Excon
+is a more advanced general client with similar functionality. It is
+not worth delving in these projects in depth because there is another
+project that makes them irrelevant.
 
-Final Recommendation: Faraday
+Faraday stands above the rest. It has a friendly interface and is easy
+to extend and reuse. It uses the builder pattern to construct clients
+and the adapter pattern to make requests. Faraday is the HTTP library
+to rule them all. Faraday can use different HTTP clients making it
+very portable. Faraday works Net::HTTP out of the box. All
+Net::HTTP’s ugliness is hidden and does not require an additional
+dependencies.
+
+The builder pattern makes customizing HTTP clients easy.
+This is important when working with HTTP API because each has unique
+semantics. A FooBarClient can be created with middleware to add
+authorization headers or parse response bodies. Clients can also be
+created for one off requests. Faraday excels at the “just make this
+request” use case. The interface is familiar to `Rack::Test` where you
+can specify urls, params, and headers. The `faraday_middleware` project
+provides middleware for common use cases. Faraday also works perfectly
+with WebMock which makes testing HTTP requests a breeze. Faraday also
+has a test adapter which can provide response stubs as well.
+
+Faraday embodies all the qualities of good design. It its easy to
+customize and is not implementation specific.
 
 ### Caching
 
-A good architecture makes it easy to defer important decisions. This means
-creating boundaries and sticking to interfaces and not specific
-implementations. What does that mean? Assume the application need to Memcached.
-It is incorrect to access Memcached directly. Instead access the cache which
-uses a specific implementation. This is essentially the adapter pattern. The
-adapter pattern makes it possible to use a real implementation in production
-and another implementation in development or tests. This allows you defer
-important decisions until you know them, but still design with caching
-regardless of the final datastore. ActiveSupport::Cache follows these
-principles. It’s a shame rails does not utilize them. Rails encourages a
-separate code path (disable_caching = true) instead of using a null object when
-a null implementation is bundled! This can create errors when in production
-because there is no tests over how the cache serializes objects. This is why
-ActiveSupport::Cache is such a joy to work with.
+A good architecture makes it easy to defer important decisions. This
+means creating boundaries and sticking to interfaces and not specific
+implementations. What does that mean? Assume the application needs
+Memcached. It is not smart to access Memcached directly. This will
+pepper the codebase with calls to an external service as well as
+couple it a specific implementation.
 
-ActiveSupport::Cache provides two key implementations: InMemoryStore and
-NullStore. This means you can develop and test under sane conditions.
-ActiveSupport::Cache also provides a very friendly interface. It’s easy to get
-and set values, even though fetch is all you need from my experience. It’s also
-supports a TTL option in all stores. The library also emits performance metrics
-so can track cache timings and hit rate. Logging is configurable as well. Dalli
-is the best memcached driver. Dalli includes an ActiveSupport::Cache
-implementation as well. 
+Instead create a boundary via a public interface. Then the
+production implementation descision can be deferred and the
+implementation can be swapped in different use cases. This is the
+adapter pattern.
 
-Final Recommendation: ActiveSupport::Cache + Dalli
+Rails uses ActiveSupport::Cache but does not leverage it effectively.
+Rails has a global enable caching flag. This is dangerous because it
+creates a separate code path when enabled. Objects that implement the
+cache interface will not be tested correctly. This it the wrong
+solution. The correct solution is to always "enable" caching and swap
+implementation for a null object one.
+
+ActiveSupport::Cache provides two key implementations: InMemoryStore
+and NullStore. This means you can develop and test under sane
+conditions. ActiveSupport::Cache also provides a very friendly
+interface. It easy to get and set values, even though fetch is the
+most common. It also supports a TTL option in all stores. The library
+also emits performance metrics so can track cache timings and hit
+rate. Logging is configurable as well. There are implementations for
+memcached and redis. ActiveSupport::Cache should cover all the bases.
 
 ### Performance Metrics
 
-Application performance is always important. User’s love fast applications.
-It’s our responsibility to keep them that way. We need the data to do that.
-There are a few ways to go about this. NewRelic is probably the first thing
-that comes to mind. StatsD, Metriks, and ActiveSupport::Notifications are other
-choices. NewRelic is OK at what it does. I think it’s too heavy. It’s unclear
-how to instrument your own code without loading NewRelic in every environment.
-This is not good design. ActiveSupport::Notifications works as well. It’s more
-of a pubsub library than an instrumentation library. The events include timing
-information so they can be connected to a tracking tool.
+Application performance is always important. Users love fast
+applications. It is the developer's responsibility to keep them that
+way. They need data to do that. There are a few ways to go about
+this. NewRelic is probably the first thing that comes to mind. StatsD,
+Metriks, and ActiveSupport::Notifications are other choices. 
 
-ActiveSupport::Notifications is slow though which is why I gave it up. Statsd
-and Metriks are similar. Metricks runs inside the ruby process aggregating
-stats. It has counters, gauges, and meters. Statsd is similar except it talks
-to server over UDP. It provides counters, timers, and gauges. I’ve found StatsD
-the most effective. StatsD is battled tested. It integrates with graphite out
-of the box. Say what you want about graphite’s GUI, but it really is a powerful
-tool. If you don’t like Graphite that’s not a problem. There are plenty of
-other backends for Statsd. There is a Librato if that’s your fancy. I’ve found
-StatsD’s interface easy to use and understand. You get rates per second and
-total volume out of the box. Most people only want these numbers anyway.
+NewRelic is OK at what it does. However is not clear how to instrument
+custom code. The data is also bound to NewRelic. It is not easy to
+handle performance data in a new way. NewRelic is a big library with a
+performance fooprint. Some projects have stopped using NewRelic
+because of this. It also tried to do many things; the jack of all
+trades, master of none.
 
-StatsD is easy to get started with. Unfortunately most people want to count
-stats everywhere. This leads to a global StatsD object. This is bad practice.
-Also why do you want to instrument in development and test environments? You
-don’t. Instrumentation calls are not free either. Each call sends a UDP packet.
-This can cause problems at scale. I created Harness to make using StatsD a
-little nicer. It exposes the exact same interface with some tweaks. It uses a
-null statsd object out of the box. Metrics are also reported in a separate
-thread. This way your application thread does not pay any cost for performance
-metrics. There are also Harness libraries for all popular gems such as sidekiq,
-sequel, redis, and memcached. Harness provides everything needed in an
-obtrusive way.
+The other choices are better but ultimate fall short of StatsD. Statsd
+is the best choice because it provides a straight forward interface
+with understandable primitives. Performance metrics are sent to a
+statsd process over UDP. The application knows the "what" part and the
+server knows "how". The statsd process can log measurements to
+multiple sources through the adapter pattern. Statsd supports graphite
+out of the box. Graphite is extremely powerful since data can be
+composed in an imagineable way. There is a Librato adapter as well.
 
-Final Recommendation: I’m tooting my own horn and going with Harness. More about Harness here.
+Stats is perferable choice because rate per secon and totals can be
+added with a single line of code. It also provides a clear boundary
+between data collection and handling. It provides a solid base for
+projects like Harness to build on in an extensible and maintinable
+way.
 
 ### Views & Templates
 
-Using a logicless template language is the only correct way to do templates. A
-logicless template language forces you create objects that provide data. It is
-impossible for application specific logic to enter templates. Logic enters
-templates faster than any other place in an application. This is usually
-because it’s so easy. Time to put a stop to that. There are so many templating
-languages and projects targeting this space. Luckily you only need one.
-Mustache is the best option here. It is completely logicless. It has looping
-and if support which is everything you need. It does not have helpers. This is
-a good thing. It also provides a secondary benefit. There are implementations
-in many languages most importantly JavaScript. This means you can share
-templates on the client and server. It is possible to render HTML on the server
-then use a JavaScript framework in the client. You just need to provide the
-view model.
+The view layer is a potential minefield in every delivery mechanism.
+It is easy for logic to enter templates. Over time templates become
+the biggest technical debt source in the application. This must be
+actively fought against. Logic enters templates faster than any other
+place in an application. This is usually because it’s so easy. Time to
+put a stop to that. 
 
-What is a view model and what do I use it for? This term is synonymous with
-“presenter.” There are tons of presenter libraries out there. You don’t need
-any of them. I haven’t seen any that provide any real value. Most are simple
-proxies. This is a bad idea because they expose the whole object but in a
-decorated state. The view model should be exactly what the template
-needs—nothing more and nothing else. If you only need a proxy than use the
-standard library. There’s no good reason to pull in another dependency. A
-simple class with defined methods is everything you need.
+Logicless views are the **only** correct way to handle templates. A
+logicless template language forces you create objects that provide
+data. It is impossible for application specific logic to enter
+templates. There are so many templating languages and projects
+targeting this space. Luckily one stands head and shoulders above the
+rest.
 
-If this structure scares you, check out Handlebars. It allows helpers and a
-little logic in templates. There is always a compromise.
+Mustache is the tool of choice. It is completely logicless. It has
+looping and if support which is everything you need. It does not have
+helpers. This is a good thing. It also provides a secondary benefit.
+There are implementations in many languages, most importantly
+JavaScript. It is possible share templates on the client and
+server. It is possible to render HTML on the server then use a
+JavaScript framework in the client--just need to provide the view
+model.
 
-Final Recommendation: Mustache + PORO (Plain Old Ruby Objects) for view models.
+What is a view model and what do I use it for? This term is synonymous
+with “presenter.” There are tons of presenter libraries out there.
+There are not needed. Most are proxies. This is a bad idea because
+they expose the whole object but in a decorated state. The view model
+should be exactly what the template needs—nothing more and nothing
+else. It should be impossible for the template to access anything
+other an public methods on the view model.
+
+If this structure scares you, check out Handlebars. It allows helpers
+and a little logic in templates. There is always a compromise.
 
 ### HTTP Delivery Mechanism
 
-Sinatra wins hands down. Sinatra is one of my favorite Ruby projects. It’s well
-maintained and exemplifies a good project. I love Sinatra because it is Rack at
-heart. Rack is simple and has a powerful middleware abstraction. It is
-surprising how much you can build with a few middlewares and a rack server.
-Sinatra is the perfect HTTP delivery mechanism because it handles all the
-protocol stuff and gives you just enough power to handle the other things. The
-bulk of Sinatra’s code fits into a single file. It has session support,
-caching, template rendering that really make it a joy to work with. The
-‘sinatra-contrib’ gem includes plenty of helpful middleware as well. Rack,
-Sinatra, and sinatra_contrib give you everything you need to deliver an
-application over HTTP. Sinatra is not a framework and that’s awesome. It gives
-you the tools you need to solve your problems and stays out of the way.
+Sinatra wins hands down. Sinatra is one the best Ruby gems in the
+entire ecosystem. It is well maintained and exemplifies a good
+project. Sinatra is Rack at its heart. Rack is simple and has a
+powerful middleware abstraction. It is surprising how much a few
+middleware can accomplish.
 
-Sinatra is very modular. You can compose larger web services out of multiple
-sinatra applications. Sinatra applications can also be used as middleware in
-Rack or other   sinatra applications. Here’s an example from my last project.
-The API part was stateless. Sessions has been disabled and I didn’t want to
-pollute the app with user authentication and signup. I created a SignUpService,
-enabled sessions and installed omniauth. Then I mounted that use Rack::URLMap
-in config.ru. I could continue to test the applications independently but serve
-them together.
+Sinatra is the perfect HTTP delivery mechanism because it handles all
+the protocol stuff and provides a simple API for declaring request and
+response handling. The bulk of Sinatra’s code fits into a single
+file. It has session support, caching, template rendering that really
+make it a joy to work with. The ‘sinatra-contrib’ gem includes plenty
+of helpful middleware as well. Rack, Sinatra, and sinatra\_contrib
+provide everything needed to deliver an application over HTTP. Sinatra
+is not a framework. That makes it more powerful than any framework
+since the developer is in control.
 
-Testing Sinatra applications is easy as well. Rack::Test makes testing a
-breeze. Capybara works as well. Tests happen fast. There is no start up time
-with Sinatra because it’s so lean. It only has 3 dependencies: rack,
-rack-protection, and tilt (for rendering templates of every nature).
+Sinatra is very modular. Larger web services can be composed of
+multiple Sinatra applications. Sinatra applications can also be used
+as middleware in Rack or other Sinatra applications.
+example from my last project.
 
-Final Recommendation: Sinatra without a doubt.
+Testing Sinatra applications is easy as well. Rack::Test makes testing
+a breeze. Capybara works as well. Tests happen fast. There is no boot
+time either since it has few dependenices. It only has 3 dependencies:
+rack, rack-protection, and tilt (for rendering templates of every
+nature).
 
 ### Test Framework
 
-Time for a holy war. The Ruby community is divided into RSpec users and
-MiniTest/TestUnit. There is the whole BDD vs TDD thing. This really is all
-hogwash. It does not make a difference at the end of the day. It comes down to
-personal preference at the end of the day. I used to be an avid RSpec user.
-Then I tried MIniTest. Now I use MiniTest for a few reasons. The main reason is
-that it’s in the standard library. Don’t bring a dependency into a project if
-there is a good reason. MiniTest is wonderful and makes writing tests easy.
-MiniTest is small and fast. You can read the entire code in one sitting. You
-cannot do that with RSpec. It’s very difficult to define custom matchers in
-RSpec. I’ve written a few and can never remember it. Want to write your own
-assertions in using MIniTest, simply define a method! Every refactoring and
-code structure technique for Ruby classes applies to test classes. MiniTest
-also provides rspec like syntax with “describe” and “it” as well. MiniTest can
-also run tests in parallel out the box. Simply require ‘minitest/hell’. 
+The Ruby community focused heavily on tests. Naturally there are many
+testing libraries and helper projects. Luckily the best option is part
+of the standard library.
 
-There are more things to a test suite besides the framework. Use mocha for
-moching/stubbing. Use webmock for faking HTTP. Use DatabaseCleaner to empty out
-data persisted in tests (for when you need it). Rack::Test for testing the HTTP
-delivery mechanism. Capybara + poltergeist if you need to test JavaScript.
+MiniTest is the best test framework for a few reasons. Firstly it is
+part of the standard library. There are no dependencies. The
+implementation is readable and one sitting. It also includes a
+parrallel test runner. MiniTest also includes the RSpec style syntax
+if prefered. MiniTest also makes it easy to define shared tests and
+custom assertions.
 
-Final Recommendation: MiniTest. Bow before MiniTest.
+There are more things to a test suite besides the framework. Use mocha
+for moching/stubbing. Use webmock for faking HTTP. Use DatabaseCleaner
+to empty out data persisted in tests (for when you need it).
+Rack::Test for testing the HTTP delivery mechanism. Capybara +
+poltergeist if you need to test JavaScript. Each of these integrate
+very nicely with MiniTest.
 
 --------------------------------------------
 
