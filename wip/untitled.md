@@ -1922,3 +1922,55 @@ responsibility separation. This is why the paper focuses on strong
 separation between layers and object responsibilities. Each boundary
 is there to remove pain points that common in most current
 applications.
+
+----------------
+
+## Case Study: RadiumCRM
+
+RadiumCRM (henceforth known as Radium) chronicles the evolution of
+most Rails applications. It started life being directly built in Rails
+2, then as an API in Rails 3, then abondoning Rails in favor of
+architecture in this paper. Radium is currently beta software. The
+backend is written using Sinatra for HTTP and parts of the ideal stack
+for everything else. Radium is unique because it is one first
+applications to adopt Ember.js for a full and separate Javascript
+frontend.
+
+The business rules are quite complicated. There are roughly twenty
+main models. Some have internal state machines. Models in different
+states interact differently depending on their states. There are
+complicated data access policies. Users can access content based on
+ownership or social permissions. User's data is also imported from
+various third party services and synced backed to one or multiple
+third party services. The model count is not very high, but managing
+domain object interacts is the most complicated part. This was the
+driving force behind the architecture change.
+
+The entire application existed as a single Rails application for
+roughly two years. The test suite took around one hour and fourty five
+minutes. The tests were this slow for a multitude of reasons. Firstly,
+the majority of the tests used Cucumber with Capybara. Selenium was
+used since that was the only viable option at the time. Secondly,
+since most of application logic was coupled between Rails controllers
+and models, the most important test had to go through the GUI.
+Thirdly, it was impossible to run tests without a database since the
+application was coupled to ActiveRecord. The test suite also dependend
+on third party services like Microsoft Exchange to test syncing. All
+these factors combined created a very slow (and somewhat finnicky)
+test suite. This was the most visible pain point.
+
+The view layer (and other user facing code) was responsible for most
+of the application's complexity. The pages in the application
+displayed too many things. Each page had multiple widgets each with
+their own interactions. The user interface was updated with server
+rendered JavaScript. This was before Backbone and other JavaScript
+frameworks came onto the scene. Maintaining the JavaScript was
+challenge enough. Maintaing the view templates was the most difficult
+part. Naturally overtime the templates acquired logic and got to a
+point where they were near impossible to change.
+
+Rail's prescribed MVC excerbated the problem. The application followed
+the fat model/skinny controller advice. The tetriary class advice
+inhibited other emerging object roles. The application grew to contain
+many
+
