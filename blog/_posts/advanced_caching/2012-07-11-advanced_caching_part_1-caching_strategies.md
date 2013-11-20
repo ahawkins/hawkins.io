@@ -618,7 +618,7 @@ headers and response codes to indicate weather the user agent should
 make a request or use a locally stored copy instead. The invalidation
 or expiring is based on `ETags` and `Last-Modified` timestamps. `ETag` stands
 for "entity tag". It's a unique fingerprint for this request. It's usually
-a checksum of the respnose body. Origin
+a checksum of the response body. Origin
 servers (computers sending the source content) can set either of these
 fields along with a `Cache-Control` header. The `Cache-Control` header tells
 the user agent what it can do with this response. It answers questions
