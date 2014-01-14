@@ -1,5 +1,5 @@
 ---
-title: "Joy of Design: Delivery Mechanisms with Sinatra - Middleware"
+title: "Delivery Mechanisms with Sinatra - Middleware"
 layout: post
 ---
 
