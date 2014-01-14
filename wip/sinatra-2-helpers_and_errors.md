@@ -1,8 +1,15 @@
-## Helpers
+---
+title: "Delivery Mechanisms with Sinatra - Helpers & Errors"
+layout: post
+---
 
-I have a common set of helpers across all apps. They are: `serialize`,
-`halt_with_error`, `json_error`, and `extract!`. `extract!` is first
-because it involves the other helpers.
+A delivery mechanism must act correctly for its medium. A HTTP
+delivery mechanism must handle HTTP semantics. This mainly includes
+handling the correct content type, accept, and status code. I have a
+common set of helpers for this. They fulfill two
+roles: extracting input parameters and serializing objects. These are
+the common helpers between different applications. They
+are: `serialize`, `halt_with_error`, `json_error`, and `extract!`.
 
 ```ruby
 class WebService < Sinatra::Base
@@ -61,7 +68,7 @@ class WebService < Sinatra::Base
 end
 ```
 
-`serializer` is the final helpers. It wraps `ActiveModel::Serializers`
+`serializer` is the final helper. It wraps the `ActiveModel::Serializers`
 interface.
 
 ```ruby
@@ -79,17 +86,13 @@ end
 ```
 
 All those helpers really come together when handling errors and use
-cases specific error codes.
+cases specific exceptions.
 
-### Error Handling
-
-The previously described helpers make error handling easy. Here's an
-example.
+The helpers make error handling easy. Here's an example.
 
 ```ruby
 class WebService < Sinatra::Base
   # global errors can be caught and return the same status code
-  # globally
   error PermissionDeniedError do
     halt_json_error 403
   end
@@ -100,5 +103,5 @@ class WebService < Sinatra::Base
   end
 ```
 
-That covers the common error handling bits. Now for the final bit:
-route handling!
+This post was short and sweet. All the helpers come together when
+writing route handlers. Check back in a day or two for the next entry.
