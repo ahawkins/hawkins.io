@@ -13,7 +13,8 @@ down to: run the use case and serialize the result, or capture the
 errors and respond with a correct status code and error message.
 
 The route handlers use all the helpers so look at for them. You can
-read about them in the previous post on [helpers & errors](/sadf).
+read about them in the previous post on [helpers &
+error handling](/2014/01/delivery_mechanisms-helpers_and_error_handling/).
 
 Time to move on to writing a route handler. Step 1: Instantiate the
 objects.
