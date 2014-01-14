@@ -90,7 +90,7 @@ class WebService < Sinatra::Base
 
     def call(env)
       # Get the 'X-User-Token' header
-      token = env.fetch HTTP_X_USER_TOKEN' do
+      token = env.fetch 'HTTP_X_USER_TOKEN' do
         raise "Auth header missing!"
       end
 
