@@ -3,13 +3,13 @@ title: "Delivery Mechanisms with Sinatra - Helpers & Errors"
 layout: post
 ---
 
-A delivery mechanism must act correctly for its medium. A HTTP
-delivery mechanism must handle HTTP semantics. This mainly includes
-handling the correct content type, accept, and status code. I have a
-common set of helpers for this. They fulfill two
-roles: extracting input parameters and serializing objects. These are
-the common helpers between different applications. They
-are: `serialize`, `halt_with_error`, `json_error`, and `extract!`.
+A delivery mechanism must behave correctly in its medium. A HTTP
+delivery mechanism must handle HTTP semantics. This mainly means
+content types, accept headers, and status codes. I have a common set
+of helpers for this. They fulfill two roles: extracting input
+parameters and serializing objects. These are the common helpers
+between different applications. They are: `serialize`,
+`halt_with_error`, `json_error`, and `extract!`.
 
 ```ruby
 class WebService < Sinatra::Base
@@ -40,7 +40,7 @@ class WebService < Sinatra::Base
 end
 
 Next up `json_error`. This helpers take an exception and status code
-and reports a JSON representation.
+then generates a JSON representation.
 
 ```ruby
 class WebService < Sinatra::Base
@@ -105,3 +105,5 @@ class WebService < Sinatra::Base
 
 This post was short and sweet. All the helpers come together when
 writing route handlers. Check back in a day or two for the next entry.
+Or you can read the previous post on
+[middleware](/2014/01/delivery_mechanisms_with_sinatra_middleware/).

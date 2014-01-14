@@ -383,5 +383,5 @@ stack.
 I hope these examples were helpful for you or revealed some things you
 could do in your application today.
 
-The next post will focus on error handling and helpers. Check back in
-a few days for the next installment.
+The next post is about [error handling and
+helpers](/2014/01/delivery_mechanisms-helpers_and_error_handling/).
