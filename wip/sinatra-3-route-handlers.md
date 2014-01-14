@@ -1,15 +1,22 @@
+---
+title: "Delivery Mechanisms with Sinatra - Route Handlers"
+layout: post
+---
 
+The delivery mechanism is responsible for instantiating the objects
+required to complete a given interaction. The app constructs a form
+object using input parameters. The form is passed to the use case. The
+use case is run and returns an object. The delivery mechanism then
+decides how properly respond for it's medium. It also captures use case
+specific failures and responds in the correct way. For me this boils
+down to: run the use case and serialize the result, or capture the
+errors and respond with a correct status code and error message.
 
-### Route Handling
+The route handlers use all the helpers so look at for them. You can
+read about them in the previous post on [helpers & errors](/sadf).
 
-Like I mentioned before, the delivery mechanism is responsible for
-constructing the from object and the required use case. It runs the
-use case and returns the result apporiate to the medium. It also
-captures use case specific failures and responds in the correct way.
-
-I'll build one up from scratch (look out for the helpers).
-
-Step 1: Instantiate the objects
+Time to move on to writing a route handler. Step 1: Instantiate the
+objects.
 
 ```ruby
 class WebService < Sinatra::Base
@@ -68,13 +75,12 @@ end
 ```
 
 All the route handlers follow the same structure. The handlers contain
-no logic besides instantiating the objects, serializing, and reponse
+no logic besides instantiating the objects, serializing, and status
 code.
 
-This sums up everything about using sinatra as JSON delivery
-mechanism. This post has already gone on for too long! The next entry
-will handle logicless HTML presentation. There is certainly a lot to
-cover there! 
+This sums up everything about using Sinatra as a HTTP (JSON) delivery
+mechanism. The next entry will handle logicless HTML presentation.
+There is certainly a lot to cover there!
 
 I'd love to pair with any of you implementing some of stuff in your
 codebases. Get at me if you're interested. Until next time.
