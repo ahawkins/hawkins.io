@@ -38,6 +38,7 @@ class WebService < Sinatra::Base
     end
   end
 end
+```
 
 Next up `json_error`. This helpers take an exception and status code
 then generates a JSON representation.
