@@ -73,6 +73,8 @@ Here's the schedule:
    Middleware](/2014/01/delivery_mechanisms_with_sinatra_middleware/)
 2. [Delivery Mechanisms with Sinatra - Helpers & Error
    Handling](/2014/01/delivery_mechanisms-helpers_and_error_handling/)
+3. [Delivery Mechanisms with Sinatra - Route 
+   Handlers](/2014/01/delivery_mechanisms_with_sinatra-route-handlers/).
 2. Forms with Virtus
 3. Use Cases
 4. Business Objects & Persistence

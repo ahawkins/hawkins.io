@@ -104,7 +104,8 @@ class WebService < Sinatra::Base
   end
 ```
 
-This post was short and sweet. All the helpers come together when
-writing route handlers. Check back in a day or two for the next entry.
+This post was short and sweet. All the helpers come together in the
+next post on [route
+handlers](/2014/01/delivery_mechanisms_with_sinatra-route-handlers/).
 Or you can read the previous post on
 [middleware](/2014/01/delivery_mechanisms_with_sinatra_middleware/).
