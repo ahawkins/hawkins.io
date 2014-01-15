@@ -206,5 +206,127 @@ involved to get access to the `url` helper in the view objects.
 
 ## Where this Shines
 
-* translations
-* rendering lists
+There are a few significant places where this approach really shines.
+I'll point out some examples I've seen.
+
+This approach makes handling translations dead easy. The template
+doesn't even need to know that the content _is_ translated. This
+provides a few benefits that are not obvious on initial inspection.
+First, it keeps all key names outside the template, and thus logic
+that will inevitably spread into more places. Second, it makes complex
+key derivation easy. How many have you needed to generate a
+translation key that was based on the properties of some other
+object(s)? I'm talking about stuff like this:
+`I18n.translate("foo.bar.#{thing.type}.#{other_thing.kind}")` or had
+default logic or other behavior? All of this logic happens in the view
+model. Third, it makes things more testable. If such complex logic
+exists you can easily test the view model's reader method's return
+values. It's also easy to assert that view model uses simple
+translation keys as well. Fourth, having a view model makes it easier
+to migrate to a translated UI in the future. Here is some example
+code:
+
+```ruby
+class PhotoPage
+  def initialize(photo, locale = I18n.default_locale)
+    @photo, @locale = photo, locale
+  end
+
+  def popularity
+    if photo.views? >= 1000
+      translate 'photo.views.popular'
+    elsif photo.views? >= 300
+      translate 'photo.views.rising'
+    else
+      translate 'photo.views.workign_on_it'
+    end
+  end
+
+  def title
+    translate "photo_page.title.#{photo.category}.#{photo.location}"
+  end
+
+  private
+  def translate(key)
+    I18n.translate(key, raise: true, locale: locale)
+  end
+
+  def locale
+    @locale
+  end
+
+  def photo
+    @photo
+  end
+end
+```
+
+I prefer to pass the locale like this instead of relying on global
+variables. Using the global as the default works makes things work
+easier in the real world. I also prefer to use the `raise` option.
+This will raise an error and make tests fail. Shipping code with
+missing translations is not acceptable.
+
+View models also make rendering complex substructures easy. Lists or
+tables is a common example. In this case the view model provides a
+reader method that returns an array of view models. Naturally this is
+especially useful when the data provided does not map 1-1 with what
+should be displayed. Here's an example:
+
+```ruby
+class PhotosPage
+  class PhotoPresenter
+    def initialize(photo)
+      @photo = photo
+    end
+
+    def popularity
+      if photo.views? >= 1000
+        translate 'photo.views.popular'
+      elsif photo.views? >= 300
+        translate 'photo.views.rising'
+      else
+        translate 'photo.views.workign_on_it'
+      end
+    end
+
+    def favorite_url
+      "/photos/#{photo.id}/favorites"
+    end
+
+    def photographer
+      photo.user.nick
+    end
+  end
+
+  def initialize(photos)
+    @photos = photos
+  end
+
+  def photos
+    @photos.map { |photo| PhotoPresenter.new photo }
+  end
+end
+```
+
+## Everything Must be Explicit
+
+I use `private` for all view models. The template may only access data
+through the public interface. Everything the template needs is
+provided a by single method. This keeps things used to initialize the
+object outside the public scope. This is the reason I do not use any
+proxy objects for this purpose. A proxy allows the template to call
+methods not explicitly defined. Imagine if `photo` where a domain
+object. It may have a method that mutates state. That method should
+not accessible to templates. This is why `PhotoPresenter` does not use
+`SimpleDelegator` or another proxy object.
+
+## Final Notes
+
+It is hard so sum up everything there is about logic less views in a
+single post. I hope this post had enough information to wet your
+whistle and convince you to move your applications in this direction.
+This approach has made maintaining my applications much easier.
+
+The next post about composing larger web services with multiple
+sinatra applications.
