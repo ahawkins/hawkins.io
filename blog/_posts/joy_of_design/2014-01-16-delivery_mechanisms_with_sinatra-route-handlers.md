@@ -80,7 +80,8 @@ no logic besides instantiating the objects, serializing, and status
 code.
 
 This sums up everything about using Sinatra as a HTTP (JSON) delivery
-mechanism. The next entry will handle logicless HTML presentation.
+mechanism. The next entry will handle [logicless HTML
+presentation](/2014/01/delivery_mechanisms_with_sinatra-logic-less_views/).
 There is certainly a lot to cover there!
 
 I'd love to pair with any of you implementing some of stuff in your
