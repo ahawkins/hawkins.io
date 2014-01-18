@@ -133,7 +133,7 @@ Writing the template is easy. Just call the view's methods.
 
 ```
 <!-- markup -->
-<link rel="stylesheet" href="<%= @view.stylesheet_url %> />
+<link rel="stylesheet" href="<%= @view.stylesheet_url %>" />
 <!-- markup -->
 <p>Total Photos: <%= @view.total_photos %>
 ```
@@ -192,7 +192,7 @@ think this is a fair and useful compromise. If we revisit a template
 for the described view you'd end up with a template like this:
 
 ```
-<link rel="stylesheet" href="<%= url(@view.stylesheet_url) %> />
+<link rel="stylesheet" href="<%= url(@view.stylesheet_url) %>" />
 ```
 
 This is the most logic I put into the templates. It's also easy to see
