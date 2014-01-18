@@ -328,5 +328,5 @@ single post. I hope this post had enough information to wet your
 whistle and convince you to move your applications in this direction.
 This approach has made maintaining my applications much easier.
 
-The next post about composing larger web services with multiple
+The next post is about composing larger web services with multiple
 Sinatra applications.
