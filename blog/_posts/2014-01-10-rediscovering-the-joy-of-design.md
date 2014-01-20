@@ -77,6 +77,8 @@ Here's the schedule:
    Handlers](/2014/01/delivery_mechanisms_with_sinatra-route-handlers/).
 4. [Delivery Mechanisms with Sinatra - Logic-less
    Views](/2014/01/delivery_mechanisms_with_sinatra-logic-less_views/).
+5. [Delivery Mechanisms with Sinatra - Composing Web
+   Services](/2014/01/delivery_mechanisms_with_sinatra-composing_web_services/)
 2. Forms with Virtus
 3. Use Cases
 4. Business Objects & Persistence
