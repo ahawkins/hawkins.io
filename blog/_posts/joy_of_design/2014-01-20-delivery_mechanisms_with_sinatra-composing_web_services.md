@@ -130,5 +130,6 @@ each app was testable in complete isolation. Testing was also more
 straight forward because semantics from other parts of the app did not
 leak into tests for the others.
 
-The next and final post on delivery mechanisms covers testing with
-`rack-test`.
+The next and final post on delivery mechanisms covers
+[testing](/2014/01/delivery_mechanisms_with_sinatra-composing_web_services/)
+with `rack-test`.
