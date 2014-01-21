@@ -354,3 +354,16 @@ class CreateUserTest < AcceptanceTestCase
   end
 end
 ```
+
+## That's All Folks
+
+This is the final post on delivery Mechanisms. I've covered their
+complete responsibility sphere middleware, helpers, error handling,
+domain object interaction, logic-less views, and finally testing. JSON
+delivery mechanisms can be quite small. If you look at the tests and
+previous posts you'lll see that they don't really do much but they
+exist as a powerful boundary between the world and the code.
+
+Now that delivery mechanisms have been beaten to death, time to move
+into the domain area! The next post is on writing form objects with
+Virtus.
