@@ -170,5 +170,6 @@ previous posts you'll see that they don't really do much but they
 exist as a powerful boundary between the world and the code.
 
 Now that delivery mechanisms have been beaten to death, time to move
-into the domain area! The next post is on writing form objects with
+into the domain area! The next post is on writing [form
+objects](/2014/01/form_objects_with_virtus/) with
 Virtus.
