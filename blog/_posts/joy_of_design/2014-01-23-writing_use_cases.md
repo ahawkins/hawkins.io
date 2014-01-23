@@ -1,26 +1,31 @@
-Use cases take in a form and whatever external state (often the
-current user) and do something. Use cases are appropriately named:
-`CreateTodo`, `UploadPicture`, or `PostAd`. No REST here! Domain use
-cases are isolated and agnostic. A use case has a `run!` method (with
-varying signatures depending on context) and it returns an object.
-Failures are communicated through exceptions. I like exceptions. I use
-exceptions much more now. They prevent a lot of weird stuff from
-happening. I usually have at least `ValidationError` and
-`PermissionDeniedError`. I've never worked on app that didn't have
-validations or some permissions. Each use case may raise its own
-specific errors like `AccountCapacityExceededError` that only happen
-when certain objects are used in concert. I prefer this approach
-because the delivery mechanism can capture the errors and react
-accordingly. The errors are also very helpful in testing because the
-classes describe the failure. This had made debugging random tests
-failures much easier because unexpected errors are clearly presented.
-How many times have written a test that fails in a weird way because
-code assumed valid data? That happened a lot to me. It still happens,
-but raising an error makes the root cause easy to diagnose.
+---
+title: "Writing Use Cases"
+layout: post
+---
+
+Use cases take in a form and external state (often the current user)
+and do something. Use cases are appropriately named: `CreateTodo`,
+`UploadPicture`, or `PostAd`. No REST here! Use cases are isolated and
+agnostic. A use case has a `run!` method (with varying signatures
+depending on context) and it returns an object.  Failures are
+communicated through exceptions. I like exceptions. I use exceptions
+much more now. They prevent a lot of weird stuff from happening. I
+usually have at least `ValidationError` and `PermissionDeniedError`.
+I've never worked on app that didn't have validations or permissions.
+Each use case may raise its own specific errors like
+`AccountCapacityExceededError` that only happen when certain objects
+are used in concert. I prefer this approach because the delivery
+mechanism can capture errors and react accordingly. The errors are
+also helpful since they have useful failure messages.  This had made
+debugging random tests failures much easier because unexpected errors
+are clearly presented. How many times have written a test that fails
+in a weird way because code assumed valid data? That happened a lot to
+me. It still happens, but raising an error makes root cause diagnose
+easy.
 
 Use cases are also fantastic because new use cases can be composed of
-existing ones. I cannot express how awesome this was when I saw it
-happen for the first time in Radium. I had an existing use case:
+existing ones. I cannot express how awesome this is. I saw it
+for the first time in Radium. I had an existing use case:
 `CreateContact`. I had to write a new use case: `SendEmail`.
 `SendEmail` needed to create new contacts when it encountered unknown
 email addresses. At that moment I realized I could simply instantiate
@@ -56,18 +61,18 @@ def run!
 end
 ```
 
-The `validate!` help raises a `ValidationError` is the block does not
-return true. The block can also raise it's own errors as well.
+The `validate!` helper raises a `ValidationError` if the block does not
+return true. The block may also raise its own errors.
 
 The `authorize!` helper takes no arguments. It contains required
-permission logic. Every application I've worked on has different
+permission logic. Every application I've worked on had different
 access rules so I gave up on trying to define a general helper.
 Instead my domain entities have an `accessible_by?(thing)` method
 that does exactly what it says. Then in the use cases, I can query all
 the accessible by logic or compose it for the desired effect.
 
 ```ruby
-def authorize!(contact)
+def authorize!
   if !contact.accessible_by? current_user
     fail PermissionError, contact
   end
@@ -81,10 +86,12 @@ end
 The `run!` method is flexible. Initially all `run!` methods start out
 with that signature. Things change when use cases are composed. In the
 `SendEmail` scenario I described earlier, it needed to create
-contacts. The use case also needed to do that a little differently
-than the `CreateContact` use case. I introduced `run!` with an
+contacts. The `SendEmail` use case needed to modify the contacts
+before they were saved. Initially I thought about subclassing
+`CreateContact` but then I remembered Avdi Grim talking about extending
+functionality with blocks. That's exactly what I did. I introduced `run!` with an
 optional block. This made things so powerful since the other use cases
-could tie into logic at the right time. It's up the use case when it
+could tie into logic at the right time. It's up to the use case when it
 should `yield`, but my use cases usually `yield` right before the `save`
 call happens. I yield the use case's main object at a minimum.
 
@@ -93,11 +100,11 @@ call happens. I yield the use case's main object at a minimum.
 Domain entities have their own life cycle and things that happen on
 them. A contact knows when it has been reassigned and a deal knows
 when it has been closed. The classes uses the observer pattern to send
-events. However what happens when you need to do something with this
+events. What happens when you need to do something with this
 information? Consider you need to create an activity feed: who did
 what to what and when. The entities are emitting events but they don't
 know _who_ did them--just that they happened. This is where the use
-case comes. The use case is the only contextual object in the system.
+case comes in. The use case is the only contextual object in the system.
 It can observe these events, combine them with context, and then act
 accordingly. Here's an example:
 
@@ -138,11 +145,11 @@ class CreateContact
   end
 
   def run!
-    validate! && authorize!
+    validate! and authorize!
 
     contact = Contact.new 
 
-    # do stuff with the form, and assign attributes
+    # do stuff with the form and assign attributes
 
     yield contact if block_given?
 
@@ -182,7 +189,7 @@ that `run!` method can get gnarly at times. Use cases have been a
 positive force since I introduced them. I know they will be for you
 too.
 
-The next post continues the dive down the rabbit hole. We started on
+The next post continues the dive down the rabbit hole. We started at
 the outermost layer with delivery mechanisms (that took a while),
 followed by form objects, and now finally to use cases. The example
 code shows use cases interacting with many other classes. These are
