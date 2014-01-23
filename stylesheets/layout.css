@@ -139,6 +139,7 @@ em {
 }
 
 pre code {
+  border: none;
   display: block;
   background-color: #f8f8ff;
   padding: .8em;
@@ -186,4 +187,12 @@ blockquote cite:before {
 
 iframe.jsbin-embed {
   height: 450px !important;
+}
+
+code {
+  margin: 0 2px;
+  padding: 0px 5px;
+  border: 1px solid #BCBCBC;
+  background-color: #EFEFEF;
+  border-radius: 3px;
 }
