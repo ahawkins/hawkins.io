@@ -82,9 +82,11 @@ Here's the schedule:
 6. [Delivery Mechanisms with Sinatra -
    Testing](/2014/01/delivery_mechanisms_with_sinatra-testing)
 7. [From Objects With Virtus](/2014/01/form_objects_with_virtus/)
-2. Forms with Virtus
-3. Use Cases
-4. Business Objects & Persistence
+8. [Writing Use Cases](/2014/01/writing_use_cases/)
+9. Entities
+10. Repositories, Queries, & Persistence
+11. TBA
+
 
 If you're already interested you can check out the
 [paper](https://github.com/ahawkins/hawkins.io/pull/7). Everything is

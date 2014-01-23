@@ -200,4 +200,4 @@ used it and you're working with Rails, it is a great library for
 creating objects that work with Rails' form builders.
 
 The next post covers writing the most important object in the system:
-use cases. I hope you like it.
+[use cases](/2014/01/writing_use_cases/). I hope you like it.
