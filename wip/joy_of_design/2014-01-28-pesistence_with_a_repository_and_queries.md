@@ -1,5 +1,5 @@
 ---
-title: "Persistence with a Repository and Query Patterns"
+title: "Persistence with Repository and Query Patterns"
 layout: post
 ---
 
