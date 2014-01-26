@@ -48,11 +48,13 @@ ol,ul,p,blockquote {
 }
 
 ol li {
-  list-style: decimal inside;
+  list-style: decimal outside;
+  margin-left: 1em;
 }
 
 ul li {
-  list-style: disc inside;
+  list-style: disc outside;
+  margin-left: 1em;
 }
 
 ol.unstyled li, ul.unstyled li {
