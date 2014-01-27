@@ -83,7 +83,7 @@ Here's the schedule:
    Testing](/2014/01/delivery_mechanisms_with_sinatra-testing)
 7. [From Objects With Virtus](/2014/01/form_objects_with_virtus/)
 8. [Writing Use Cases](/2014/01/writing_use_cases/)
-9. Entities
+9. [Entities](/2014/01/entities/)
 10. Repositories, Queries, & Persistence
 11. TBA
 

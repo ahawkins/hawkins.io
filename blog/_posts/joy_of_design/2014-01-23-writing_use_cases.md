@@ -193,4 +193,4 @@ The next post continues the dive down the rabbit hole. We started at
 the outermost layer with delivery mechanisms (that took a while),
 followed by form objects, and now finally to use cases. The example
 code shows use cases interacting with many other classes. These are
-domain entities and the next post is all about them.
+[domain entities](/2014/01/entities/) and the next post is all about them.
