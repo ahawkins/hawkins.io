@@ -86,7 +86,8 @@ Here's the schedule:
 9. [Entities](/2014/01/entities/)
 10. [Repositories, Queries, &
     Persistence](/2014/01/pesistence_with_repository_and_query_patterns/)
-11. TBA
+11. [Conclusion](/2014/01/the_joy_of_finish_design/)
+12. Amendments & Clarifications - WIP
 
 
 If you're already interested you can check out the
