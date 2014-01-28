@@ -37,3 +37,7 @@ ideas with the world. I'd love to talk to you about how you can
 refactor your application or if you have questions implementing any
 of this stuff. Don't hesitate to pair either. It's a great way to
 learn. Good luck out there.
+
+I leave you with
+[boundaries](https://www.destroyallsoftware.com/talks/boundaries) by
+Gary Bernhardt.
