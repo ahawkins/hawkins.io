@@ -84,7 +84,8 @@ Here's the schedule:
 7. [From Objects With Virtus](/2014/01/form_objects_with_virtus/)
 8. [Writing Use Cases](/2014/01/writing_use_cases/)
 9. [Entities](/2014/01/entities/)
-10. Repositories, Queries, & Persistence
+10. [Repositories, Queries, &
+    Persistence](/2014/01/pesistence_with_repository_and_query_patterns/)
 11. TBA
 
 
