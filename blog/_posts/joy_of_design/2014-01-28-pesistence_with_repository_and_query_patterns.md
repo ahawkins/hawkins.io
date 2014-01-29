@@ -3,7 +3,7 @@ title: "Persistence with Repository and Query Patterns"
 layout: post
 ---
 
-Talking about the day layer is inevitable. I saved the least important
+Talking about the data layer is inevitable. I saved the least important
 part for last. I say least important because this entire layer is an
 implementation detail. The application could not care less about what
 happens behind the scenes. Conversely this could also be the most
