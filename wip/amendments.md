@@ -22,7 +22,9 @@ other. That's to say there is no knowledge about the other. The
 repository pattern is a great example. Objects ask the repository for
 objects. The repository does whatever to provide the objects. The
 reposistory object is a boundary. The repository's implemenation could
-change without callers knowing about it.
+change without callers knowing about it. [Ars
+Technica](http://arstechnica.com/information-technology/2014/02/why-isolate-lower-application-layers-from-higher-layers/)
+has more on this topic.
 
 ## Uniqueness Validations
 
