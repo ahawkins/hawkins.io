@@ -9,7 +9,7 @@ ago. Since then I've received many questions, concerns, and various
 feedback. This post addresses the common ones. I may add more follow
 up posts or simply add onto this post.
 
-## What's a Boundary
+## What's a Boundary?
 
 I had a lengthy dicussion with a coworker about this term. Good
 software architecture contains layers. Each layer builds upon the
