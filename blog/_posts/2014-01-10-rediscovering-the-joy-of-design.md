@@ -87,7 +87,7 @@ Here's the schedule:
 10. [Repositories, Queries, &
     Persistence](/2014/01/pesistence_with_repository_and_query_patterns/)
 11. [Conclusion](/2014/01/the_joy_of_finish_design/)
-12. Amendments & Clarifications - WIP
+12. [Amendments & Clarifications](/2014/02/amendments_and_clarifications/)
 
 
 If you're already interested you can check out the

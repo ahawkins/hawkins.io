@@ -42,3 +42,7 @@ blog. Good luck out there.
 I leave you with
 [boundaries](https://www.destroyallsoftware.com/talks/boundaries) by
 Gary Bernhardt.
+
+EDIT: I've published a post with [amendments &
+clarifications](/2014/02/amendments_and_clarifications/). If you have
+questions, perhaps they're answered there.

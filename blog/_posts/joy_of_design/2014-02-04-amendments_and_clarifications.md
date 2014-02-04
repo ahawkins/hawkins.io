@@ -1,5 +1,5 @@
 ---
-title: "Joy of Design - Amendments & Clarifications"
+title: "Amendments & Clarifications"
 layout: post
 ---
 
