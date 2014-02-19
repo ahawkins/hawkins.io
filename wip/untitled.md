@@ -28,15 +28,15 @@ term financial planning to software applications.
 
 Technical debt is the cost of previous engineering decisions.
 Implemenations can be quick and dirty way or executed to meet current
-needs and also setup the next iteration.sThis illustrates the choice:
-quick and messy, or slower and cleaner.sEvery programmer has made
+needs and also setup the next iteration. This illustrates the choice:
+quick and messy, or slower and cleaner. Every programmer has made
 this decision "oh, I'll just hack this in” then written FIXME directly
-above it." Then probably thought to themselves how to implement it
+above it. Then probably thought to themselves how to implement it
 correctly. Applications often collapse under their technical debt.
 Applications become impossible to maintain. Iterations become longer,
 deliverability estimates are incorrect, and developer happiness
 plummets. In the worst case, starting over is the only way to repay
-the debt.sThis is an unfortunate but avodiable situation. This
+the debts. This is an unfortunate but avodiable situation. This
 situation happens when engineering teams (for whatever reason) decide
 to accumulate more technical debt. The decision usually comes from
 business requirements and short delivery dates. Teams must actively
@@ -59,7 +59,7 @@ Applications are often tightly coupled to their delivery mechanism.
 This is a pain point since it is hard to extend existing code bases.
 It also affects testability and blurs the line between core business
 and presentation logic. Arranging objects is the most difficult part.
-*Possible Sandi Metz quote*. This paper demonstrates an object
+**TODO:** Possible Sandi Metz quote. This paper demonstrates an object
 arrangement that exemplifies all the important characteristics of a
 maintainable and extendable application. Creating good software
 requires heavy focus on its core functionality. We call know them as
@@ -70,7 +70,7 @@ use cases.
 A use case describes something a system does. It is a unit of work. A
 CRM (Customer Relationship Management) system has use cases like
 “create customer”, “invoice customer”, or “contact customer.” A
-classifieds site like Craigslist has uses cases such as “post ad” or
+classifieds site like Craigslist has use cases such as “post ad” or
 “contact seller.” Use cases are things users can do. They are a
 systems's core. Use cases have alternate flows and are often composed
 into more complex flows. A CRM may want to add a customer then contact
@@ -78,13 +78,13 @@ them. This is possible when implemented correctly and down right
 painful when not. Use cases are usually not straight forward. They
 must interact with many other entities in the system. They are
 conductors orchestrating the interaction between all the other
-entities in the system. A use cases takes in some form of input and
+entities in the system. A use case takes in some form of input and
 takes appropriate action. The input is examined and some records are
-created or modifies. Perhaps some external state is modified (like
+created or modified. Perhaps some external state is modified (like
 talking to an external service). Eventually the user is presented with
 some interface showing the result of this interaction. This is how
 software fundamentally it works. It all starts with handling user
-input. I think this paragraph needs to focus more on defining
+input. **TODO:** I think this paragraph needs to focus more on defining
 “domain."
 
 Handling user input is one of the most boring task’s for programmers.
@@ -94,7 +94,7 @@ millions of times across the globe. Eventually this part of the work
 is done and we can get back to the real meat of the problem. Handling
 user input is actually extremely important to an application’s long
 term health. Proper input checking makes code more confident. Avdi
-Grimm used this term in his book “Confident Ruby.”  Insert Avdi Quote
+Grimm used this term in his book “Confident Ruby.” **TODO:** Insert Avdi Quote
 here. He describes unconfident code as between too focused on edge
 cases and input handling and that happening in many parts of the code.
 Confident code does not have this problem. It knows what it has and
@@ -110,11 +110,11 @@ transformative action. Form objects encapsulate this responsibility.
 Form objects represent the first boundary.
 
 Boundaries are fundamental concepts in software architecture. They
-determine area of responsibilities and knowledge. Dependencies also
+determine areas of responsibilities and knowledge. Dependencies also
 point in one direction. Code cannot reach over the boundary and
-conversely abstractions on side of the boundary do not leak to the
-other side. Insert Uncle Bob Quote.  Form objects are an important
-boundary Form objects are the application’s skin.  Consider your
+conversely, abstractions on the boundary's side do not leak to the
+other side. **TODO:** Insert Uncle Bob Quote.  Form objects are an important
+boundary. Form objects are the application’s skin.  Consider your
 physical skin for a moment. What does it do? First of all it is the
 biggest organ your body. It keeps everything protected by keeping all
 the bad stuff on the outside. The body would become infected and die
@@ -133,7 +133,7 @@ many models, most notably a customer. There will also be a user,
 company, deal, task, meeting, and invoice among others. Models are the
 nouns in the problem domain.  Models are for data.  A customer will
 have a name, company, email, and an office address. The model
-encapsulates all the semantics and exposed them in a programmatic way
+encapsulates all the semantics and exposes them in a programmatic way
 to other objects. Use cases usually need to persist model data. What
 good is a customer in a CRM if it cannot be retrieved later? Zero.
 This leads into the very important topic of persistence.
@@ -180,27 +180,27 @@ allows the two abstractions to very independently. The public
 interface to the collection can evolve to include access control and
 more query methods. The other side can evolve to store data in an
 optimal way for each use case. Consider two retrieval use cases. The
-repository can lookup models by unique id or request the object graph
+repository can lookup models by unique id or it can request the object graph
 for a given model. The individual items may be stored in Redis for
 direct access and the graphs in Neo4j. The caller has no idea how this
 happens, but it does. This boundary pays dividends in so many places.
 The previous example was extracted from a real world use case where
 performance mattered and the data store was tailored to each use case.
 This pays off big in test suites because by definition one side of the
-boundary can be replaced or dropped. In the tests suite there is an
+boundary can be replaced or dropped. In the test suite there is an
 option to use an in memory or a null implementation.  Applications
 suffer from slow test suites as they grow older. Using a real
 persistence implementation causes most of the slow down. Unfortunately
 most applications are not architected with this boundary in mind.
 Removing the database is a pipe dream in these cases. This change is
 very hard to retrofit.  This is a choice that will live on through an
-applications’s life span. It is important to think about technical
+application’s life span. It is important to think about technical
 investment and make the correct decisions up front. 
 
-This is hard change to make because it fundamentally reverses how
+This is hard to change because it fundamentally reverses how
 application’s are commonly structured. Uncle Bob speaks about his
 personal experience in his talk “Architecture, The Lost Years”. He
-provides a case study about INSERT PROJECT NAME HERE. He says that
+provides a case study about **TODO:** INSERT PROJECT NAME HERE. He says that
 they planned on using a database early on in the process. Instead they
 decided not to and stick with handling persistence in a different way.
 As it turns out a database wasn’t an actual requirement. They were
@@ -221,13 +221,13 @@ has its own interface, however the problem domain does not change. The
 problem domain and delivery mechanism lie on different sides of the
 boundary. Semantics of one don’t affect the other. This requires a
 core shift in development perspective. The application is not what the
-user interacts with, is is the delivery mechanism used to deliver
+user interacts with, it is the delivery mechanism used to deliver
 functionality through use cases to a user in a given context. The use
 cases are the heart of the application, not user facing interfaces.
 Since it is the delivery mechanism’s responsibility to display the
 interface, how does that happen?
 
-It should always happen the same way, just the “what” is different.
+It should always happen the same way, just the "what" is different.
 This paper is not concerned with what is displayed but how it happens.
 Displaying views can be a major technical debt sink. This is more true
 for applications that use template languages not as much for desktop
@@ -254,7 +254,7 @@ models and their persisted implementation. The repository object
 manages this boundary. These boundaries make code easier to test and
 develop because everything is decoupled. The use cases can be tested
 without a delivery mechanism.  Persistence can be treated as an
-implementation detail and swapped in or out during tests. New delivery
+implementation detail and can be swapped in or out during tests. New delivery
 mechanisms can be created and tested in isolation as well.
 
 So far all the layers have been discussed in the abstract. This
@@ -265,7 +265,7 @@ be made inside each layer and they all must be made correctly to
 promote good design. They are only visible once you get down to the
 code.
 
-## Test Driven Implemenation
+## Test Driven Implementation
 
 The paper focused on abstract concepts until this point. It is time to
 deal in concrete implementations. This section describes a general
