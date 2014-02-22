@@ -5,11 +5,11 @@ layout: post
 
 **Abstract**: This paper describes an application architecture that
 maximizes long term maintainability and feature deliverability for a
-certain class of applications. It covers effective use of boundaries,
-application roles, and application of design patterns to create an
-architecture that separates the core business logic from the delivery
-mechanisms. Problems with current approaches are covered. It finishes
-with a migration strategy for existing applications.
+certain class of applications. It covers effective boundary use,
+application roles, and design patterns to create an architecture that
+separates the core business logic from the delivery mechanisms and
+external concerns. Problems with current approaches highlighted as
+well. It finishes with a migration strategy for existing applications.
 
 --------------------------------------------------------------------
 
@@ -21,26 +21,26 @@ places. Design patterns organize code in predictable and
 understandable ways. Both strategies actively defend against technical
 debt and encourage technical investment. It is common knowledge that
 smart investments lead to long term success. Software engineering is
-the same way.  Investments must be made in an application's
+no different. Investments must be made in an application's
 architecture to maximize its long term success, feature
 deliverability, and scalability. It is time to apply the same long
 term financial planning to software applications.
 
 Technical debt is the cost of previous engineering decisions.
-Implemenations can be quick and dirty way or executed to meet current
-needs and also setup the next iteration.sThis illustrates the choice:
-quick and messy, or slower and cleaner.sEvery programmer has made
+Implemenations can be quick and dirty or executed to meet current
+needs and also setup the next iteration. This illustrates the choice:
+quick and messy, or slow and clean. Every programmer has made
 this decision "oh, I'll just hack this in” then written FIXME directly
 above it." Then probably thought to themselves how to implement it
-correctly. Applications often collapse under their technical debt.
+correctly. Applications routinely collapse under their technical debt.
 Applications become impossible to maintain. Iterations become longer,
-deliverability estimates are incorrect, and developer happiness
+estimates become impossible, and developer happiness
 plummets. In the worst case, starting over is the only way to repay
-the debt.sThis is an unfortunate but avodiable situation. This
-situation happens when engineering teams (for whatever reason) decide
+the debt. This is an unfortunate but avodiable. This
+happens when engineering teams (for whatever reason) decide
 to accumulate more technical debt. The decision usually comes from
 business requirements and short delivery dates. Teams must actively
-decide to pay back their debt in terms of technical investments.
+decide to pay back debt in terms of technical investments.
 Projects incur most technical debt in the early stages. This is the
 most delicate time in an application's life time. Just like real life
 childhood, the decisions (good, bad, and ugly) made in the formative
@@ -48,7 +48,7 @@ years have a strong lasting impact. The signs of excellent parenting
 live on and people grow into well adjusted individuals. Horrible or
 abusive parenting often leave scars for life which are difficult or
 impossible to heal without serious effort. This paper is about making
-technical investment in application architecture from t0 to raise a
+technical investment in software architecture from time zero to raise a
 happy, mature, and maintainable programs. Children need proper
 nourishment from the beginning. Applications require proper separation
 of concerns, boundaries, objects roles, and design patterns.
@@ -80,26 +80,25 @@ must interact with many other entities in the system. They are
 conductors orchestrating the interaction between all the other
 entities in the system. A use cases takes in some form of input and
 takes appropriate action. The input is examined and some records are
-created or modifies. Perhaps some external state is modified (like
-talking to an external service). Eventually the user is presented with
-some interface showing the result of this interaction. This is how
-software fundamentally it works. It all starts with handling user
-input. I think this paragraph needs to focus more on defining
-“domain."
+created or modified. Perhaps some external state is modified (like
+talking to an external service or a RDMS). Eventually the user is
+presented with some interface showing the result of this interaction.
+This is how software fundamentally it works. It all starts with
+handling user input.
 
-Handling user input is one of the most boring task’s for programmers.
+Handling user input is one of the most boring task's for programmers.
 It always seems like unimportant work. Input must always be checked,
 sanitized, and validated. The same type of code has been written
 millions of times across the globe. Eventually this part of the work
 is done and we can get back to the real meat of the problem. Handling
 user input is actually extremely important to an application’s long
 term health. Proper input checking makes code more confident. Avdi
-Grimm used this term in his book “Confident Ruby.”  Insert Avdi Quote
-here. He describes unconfident code as between too focused on edge
+Grimm used this term in his book "Confident Ruby".  *Insert Avdi Quote
+here*. He describes unconfident code as between too focused on edge
 cases and input handling and that happening in many parts of the code.
 Confident code does not have this problem. It knows what it has and
 what to do. Proper input sanitization makes this possible. User input
-should be checked and sanitized before it enters the system then never
+should be checked and sanitized before it enters the system and never
 again. Classes further down the chain receive the required objects and
 go about their business. Consider a terminal based application. The
 use case requires a Customer instance. It is impossible to input the
