@@ -4,13 +4,12 @@ layout: post
 ---
 
 I don't write about Rails anymore. I don't use it in my personal
-projects. However my company uses it this means I still have daily
-exposure. We use AMQP. AMQP is awesome but depending on how your
-client it has initialization requirements. We're using the `amqp` gem
-which is based on eventmachine. So depending on how the application is
-booted we connect to AMQP in different ways. This problem also gets
-worse because our rails application boots in different contexts. There
-are:
+projects. However I get daily exposure at the office.  We use AMQP.
+AMQP is awesome but depending on how your client it has initialization
+requirements. We're using the `amqp` gem which is based on
+eventmachine. So depending on how & when the application is booted we connect
+to AMQP in different ways. This problem also gets worse because our
+rails application boots in different contexts. There are:
 
 * from unicorn (preforking-nonblocking)
 * resque (forking-nonblocking)
@@ -25,12 +24,11 @@ rake initializer and a console hook through a railtie. I cannot take
 care of the `after_fork` cases with a railtie. Rails can actually do
 something about this.
 
-Rails is popular enough (regardless if you think that is good or not
-that is a fact) that popular projects provide integration (via a
+Rails is popular enough that popular projects provide integration (via a
 railtie). Forking web servers (unicorn/passenger) are not going away
 anytime soon. Resque is not going away either. There are plenty of
 popular projects that need this hook. I think Rails should add an
-`after_fork` hook to the `Railtie` class. This make it easier to any
+`after_fork` hook to the `Railtie` class. This make it easier for any
 project or application requirement to tie into the boot process and
 execute code in a clean way. This would require two interfaces: one to
 declare hooks, and one to run the hooks. Here is my proposal:
