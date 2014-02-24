@@ -8,11 +8,11 @@ classes--especially when paired with an interface implementation. This
 is nice thing to have. You can mimic it in ruby but it's never 100%
 the same. It's not possible to get it 100% right because Ruby is
 dynamically typed and Java is static and compiled. But the spirit
-lives on! I've found myself working with interface/protocols much more
-these days. Often with a generic implementation containing must of the
-work but would only work when a subclass implements the missing bits
-(template method pattern). I've come up with something that in theory
-works pretty well but lacks on key feature.
+lives on! I've found myself working with interfaces/protocols much
+more these days. You can usually create a generic abstract class that
+would work when a subclass implements the missing bits (template
+method pattern). I've come up with something that in theory works
+pretty well but lacks on key feature.
 
 My approach uses a factory, `class_eval`, and an anonymous class. This
 makes is impossible use the abstract class without providing an
@@ -90,16 +90,23 @@ class LotteryPriceCalculator = PriceCalculator.build do
 end
 ```
 
-The moment `LotteryPriceCalculator::Results` is referenced you'll see
-a warning that `Results` is referenced in the wrong way. `Results` is
-defined in the global namespace! We certinaly don't want that! Right
-now I don't see a way around this using this implementation. Which is
-a shame becuase I really like it! It feels more ruby-esque has the
+An error occurs the moment `LotteryPriceCalculator::Results`
+`Results` is referenced in the wrong way. `Results` is
+defined in the global namespace! I certainly don't want that! Right
+now I don't see a way around this in this implementation. Which is
+a shame because I really like it! It feels more ruby-esque and has the
 desirable property that the abstract implementation cannot be used
 directly. If anyone knows a way around this please let me know! It
 seems something is possible in C (Struct is implemented in C) but I
-don't want that. I oftenly create inner classes which means this
+don't want that. I create inner classes often which means this
 approach will not work for me. So for the time being I've settled on
 having an actual base class then subclassing. I know there is an
-abstract thing in ActiveSupport but that is undersirable. So my fellow
+abstract thing in ActiveSupport but that is undesirable. So my fellow
 ruby programmers, how do you make this happen in your applications?
+
+I asked [Piotr Solnica](http://twitter.com/_solnic_) to review this
+post in hopes he found a solution. Naturally the ROM guys have
+something small and portable. They've gone with the explicitly defined
+subclass approach in
+[`abstract_type`](https://github.com/dkubb/abstract_type). Check it
+out if you want a simple way to create abstracts.
