@@ -23,7 +23,7 @@ This is the probably the most bastardized method in the entire
 ecosystem. `alias_method_chain` works by creating an alias (thusly
 copying the implementation) and allowing you to insert a new method
 and call the original implementation. (Astute readers will realize is
-almost like `Module.prepend`). `What that boils down to is a
+almost like `Module.prepend`). What that boils down to is a
 very complex way to implement `super`. This is a work around for rails
 metaprogramming problems. Let's use the wonderfully ill-fated
 `accepts_nested_attributes_for` example. The problems with this
