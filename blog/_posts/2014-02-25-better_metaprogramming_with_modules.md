@@ -46,7 +46,7 @@ compromising ability to metaprogram . So instead of defining a method
 directly on the class, we'd dynamically generate a module and include
 that in the class. Now the class can call `super` as expected. This is
 metaprogramming done right. Here are some notable examples. I first
-saw this from [Piotr Solnica](http://twitter.com/@_solnic_) and
+saw this from [Piotr Solnica](http://twitter.com/_solnic_) and
 Virtus. Virtus is a perfect project and Piotr is becoming one of my
 favorite Rubyists because of how he commands Ruby. A class acquires
 virtus' functionality by including a module. Here's an example:
