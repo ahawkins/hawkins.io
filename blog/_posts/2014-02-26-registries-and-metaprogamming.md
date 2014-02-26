@@ -25,7 +25,7 @@ was not testable.
 I tried a metaprogramming solution that did automatic constant lookup
 based on property type or class. Here's an example. If the given
 property is a `TextField` the validator could do something like this:
-`validator = "#{property.class}Validator".constantize"`. This approach
+`"#{property.class}Validator".constantize"`. This approach
 would work with things like `TextFieldCoercer`, `TextFieldFormatter`,
 and `TextFieldSerializer`. This approach is problematic. First off,
 testing this is difficult. Testing requires defining a new constant
