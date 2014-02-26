@@ -51,15 +51,15 @@ seemed less than ideal. We were creating a bunch of constants for no
 reason other than to satisfy runtime constant lookup.
 
 We took all of this into account and decided to go with a registry
-instead. The classes that interacted
-with properties ask the registry which implementation to use and go on about
-their business. This has three key benefits. First, the caller is unaware of
-what actually happens to provide the correct implementation. Second,
-the registry object can be passed as an argument during testing to
-simulate any number of scenarios. Third, the instance itself is the
-matching criteria. This allows the registry itself to implement more
-complex detection strategies (simple class match, attribute detection,
-or implementations tied to a specific instance). Forth, the mapping is
+instead. The classes that interacted with properties ask the registry
+which implementation to use and go on about their business. This has
+three key benefits. First, the caller is unaware of what actually
+happens to provide the correct implementation. Second, the registry
+object can be passed as an argument during testing to simulate any
+number of scenarios. Third, the instance itself is the matching
+criteria. This allows the registry itself to implement more complex
+detection strategies (simple class match, attribute detection, or
+implementations tied to a specific instance). Forth, the mapping is
 explicit and can be tested. So what we end up is one file that
 registers all the implementations and one object that uses the
 registry at runtime. Here's an example.
