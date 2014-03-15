@@ -3,9 +3,9 @@ title: "Rethinking Application Architecture Talk"
 layout: post
 ---
 
-This is This is my script for my talk I gave at Wroclove.rb.  You can
-find the slides on [speaker
-deck](https://speakerdeck.com/ahawkins/rethinking-application-architecture).
+This is This is my script for my talk I gave at
+[Wroclove.rb](http://wrocloverb.com).  You can find the slides on
+[speaker deck](https://speakerdeck.com/ahawkins/rethinking-application-architecture).
 
 -----
 
