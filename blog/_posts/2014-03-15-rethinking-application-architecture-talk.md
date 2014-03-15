@@ -5,7 +5,7 @@ layout: post
 
 This is This is my script for my talk I gave at Wroclove.rb.  You can
 find the slides on [speaker
-deck](https://speakerdeck.com/ahawkins/rethinking-application-architecture)
+deck](https://speakerdeck.com/ahawkins/rethinking-application-architecture).
 
 -----
 
