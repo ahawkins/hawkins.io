@@ -50,7 +50,7 @@ is your homework.
 Here's the Schedule:
 
 1. When & Why to use a Repository
-2. Understanding Chassis' Repository Implementation
+2. Chassis Internals
 2. The Public Interface
 3. Implementing Queries
 4. Loading Object Graphs
