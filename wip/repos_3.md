@@ -99,7 +99,7 @@ post.text = 'Very easy. Wow'
 
 repo.save post
 
-repo.find(post, post.id).content #=> 'Very easy. Wow.'
+repo.find(Post, post.id).text #=> 'Very easy. Wow.'
 
 class PostRepo
   extend Chassis::Repo::Delegation
