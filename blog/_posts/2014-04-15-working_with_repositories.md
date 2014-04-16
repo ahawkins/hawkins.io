@@ -49,7 +49,7 @@ is your homework.
 
 Here's the Schedule:
 
-1. When & Why to use a Repository
+1. [When & Why Repository](/2014/04/repositories-when-and-why/)
 2. Chassis Internals
 2. The Public Interface
 3. Implementing Queries

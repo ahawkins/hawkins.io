@@ -1,5 +1,5 @@
 ---
-title: "When & Why"
+title: "Repositories: When & Why"
 layout: post
 ---
 
@@ -8,20 +8,19 @@ current need and try to predict what's around the corner. It's not
 about making the right decision all the time, but more about staying
 flexible and shipping end of the day. Honestly you have a great
 responsibility. Code may live for years, make or break the business.
-We, as professional software engineers, weigh all factors make the
-right decision.
+We, as professional software engineers, weigh all factors and make
+the best decision.
 
 Unfortunately there is no globally correct answer. Programmers know
-the answer is "it depends" regardless. There is no way around this.
-There are always scenarios and circumstances that force us to
-re-evaluate our position and accept other trade-offs.  This post is
-about bringing focusing on the trade-offs into focus.
+the answer is "it depends" regardless. There are always scenarios and
+circumstances that force us to re-evaluate our position and accept
+other trade-offs. This post is about bringing trade-offs into focus.
 
 The repository pattern is not complex. There is an object. That object
 handles the communication of objects across the boundary between
 application and persistence layers. It separates domain objects from
-their persistence. It requires a few moving parts.  There are
-"selectors" (according to Fowler's definition) which define criteria
+their persistence. It requires a few moving parts. There are
+"selectors" (according to Fowler's definition) that define criteria
 for finding objects. The repository resolves the selector and returns
 the correct objects. A "selector" can be anything. It can be a complex
 query or a unique identifier. The repository provides a few things out
@@ -37,11 +36,11 @@ Not every application requires this.
 
 ## Case 1: Minimal Complexity
 
-There are large complex applications and conversely small and trivial
+There are complex applications, conversely there are trivial
 applications. Think a blog vs an ERP system. There are certain
 inflection points in software development where the complexity changes
 and you're forced change architecture. I cannot pinpoint them, but a
-repository is not needed for small or trivial applications.
+repository is not needed for trivial applications.
 
 I maintain a web service responsible for proxing a bunch of payment
 gateways. There is one object that must be persisted. I used Sequel
@@ -192,23 +191,28 @@ stubbing, or some other inadequate solution you should consider this.
 Now that some anti-use cases and use cases have been covered, I'll
 leave you with a simple list of trade offs.
 
-* + clear separation of data access from data storage
-* + run tests against any implementation (fast tests with memory, CI
-    testing against real persistence)
-* + possible to unit tests persistence mechanisms
-* + all data related changes are localized to a single unit of code
-* + easier to develop new applications because persistence can be
-    ignored
-* + can use data store to fullest extent
-* - must maintain your own data layer
-* - you must implement all queries
-* - semantics may leak across implementations (IDs are integers
-    w/memory implementation but are UUIDs in another)
-* - time required to implement "real" persistence after all domain
-    classes & relationships are known
-* - hard to grasp conceptually after working with more simple patterns
-* - every implementation is application specific ; no consistency
-    similar to using ActiveRecord in multiple projects
+Pros:
+
+* clear separation of data access from data storage
+* run tests against any implementation (fast tests with memory, CI
+  testing against real persistence)
+* possible to unit tests persistence mechanisms
+* all data related changes are localized to a single unit of code
+* easier to develop new applications because persistence can be
+  ignored
+* can use data store to fullest extent
+
+Cons:
+
+* must maintain your own data layer
+* you must implement all queries
+* semantics may leak across implementations (IDs are integers
+  w/memory implementation but are UUIDs in another)
+* time required to implement "real" persistence after all domain
+  classes & relationships are known
+* hard to grasp conceptually after working with more simple patterns
+* every implementation is application specific ; no consistency
+  similar to using ActiveRecord in multiple projects
 
 Deciding to use a repository is a big decision. It will have serious
 impacts on how you develop and think about the whole system. Just like
