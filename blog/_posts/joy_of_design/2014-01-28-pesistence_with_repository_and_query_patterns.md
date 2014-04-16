@@ -142,6 +142,10 @@ the adapter and that's a wrap. Here's some real world code.
 <script
 src="https://gist.github.com/ahawkins/9168491345aafdbd3d8a.js"></script>
 
+Man, there's two identical files in ↑this↑ gist:
+https://gist.github.com/ahawkins/2779c646a604b21bd1b2#file-repo-rb
+https://gist.github.com/ahawkins/2779c646a604b21bd1b2#file-in_memory_adapter-rb
+
 ## Wrapping It Up
 
 Implementing the adapter is the only thing left. Unfortunately I can't
