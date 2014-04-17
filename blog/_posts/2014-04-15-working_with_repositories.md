@@ -24,7 +24,7 @@ Then came Rails with its wonderfully power implementation of the
 Active Record pattern. Rail's ActiveRecord made me realized the power
 of abstractions over data. Gone where the day of sanitizing forms and
 writing SQL. Things had leveled up. But something was missing. There
-was never any true single responsiblity. Every application was working
+was never any true single responsibility. Every application was working
 under the assumption that a model is data plus persistence. Rails only
 made that worse and has probably scared many people for life. The
 repository pattern is the anti-active record pattern. It enforces true
