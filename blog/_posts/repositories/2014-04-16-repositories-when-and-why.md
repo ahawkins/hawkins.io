@@ -149,7 +149,7 @@ new format. All of this is transparent to the legacy reader.
 
 ## Case 3: More Productive Greenfielding
 
-You don not know to do at at the start of anew project.  You may have
+You do not know to do at at the start of a new project.  You may have
 some idea about features or potential domain classes, but you are not
 certain what data will be where or how it will be used. There are only
 vague theories waiting to be proven by tests. Flexibility is key at this
