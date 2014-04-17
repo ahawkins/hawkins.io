@@ -6,6 +6,9 @@ layout: post
 This is This is my script for my talk I gave at
 [Wroclove.rb](http://wrocloverb.com).  You can find the slides on
 [speaker deck](https://speakerdeck.com/ahawkins/rethinking-application-architecture).
+Yay, a
+[video](https://www.youtube.com/watch?v=_u2w57QBIkU&list=PLoGBNJiQoqRCYNOfsPoxVWChbT5x5D5WP&index=7)
+has been posted. Check out to get the full effect.
 
 -----
 
