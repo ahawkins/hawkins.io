@@ -119,3 +119,6 @@ This concludes the basic CRUD examples. The public interface should be
 easy enough to explore from here on out. I do not want this post to go
 long because the next few posts cover implementing parts of the public
 API in depth. The next post is on implementing queries.
+
+* [Back to Series](/2014/04/working_with_repositories)
+* [Previous Post: Chassis Internals](/2014/04/repositories-the-public-interface)

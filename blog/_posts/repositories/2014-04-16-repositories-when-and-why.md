@@ -221,3 +221,6 @@ this post helps you decide.
 
 The next post focuses on the public API and what it's like to interact
 with these objects.
+
+* [Back to Series](/2014/04/working_with_repositories)
+* [Next Post: Chassis Internals](/2014/04/repositories-chassis-internals/)

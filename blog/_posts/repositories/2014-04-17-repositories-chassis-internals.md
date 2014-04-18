@@ -69,3 +69,7 @@ concepts.
 <script src="https://gist.github.com/ahawkins/10583643.js"></script>
 
 The next post is on using the public interface.
+
+* [Back to Series](/2014/04/working_with_repositories)
+* [Previous Post: When & Why](/2014/04/repositories-when-and-why/)
+* [Next Post: The Public Interface](/2014/04/repositories-the-public-interface/)
