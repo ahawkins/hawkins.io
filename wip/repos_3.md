@@ -54,7 +54,7 @@ all the application specific queries. Here's an example.
 class PostRepo
   extend Chassis::Repo::Delegation
 
-  FindPostsByAuthor = Struct.new(:author)
+  FindPostsByAuthor = Struct.new :author
 
   class << self
     def written_by(author)
