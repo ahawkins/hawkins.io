@@ -66,6 +66,6 @@ the persistence mechanism.
 I'll leave you with a gist with some real code to illustrate the
 concepts.
 
-<script src="https://gist.github.com/ahawkins/10583643.js"></script>
+<script src="https://gist.github.com/ahawkins/10583642.js"></script>
 
 The next post is on using the public interface.
