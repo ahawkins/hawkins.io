@@ -1,14 +1,14 @@
 ---
-title: "The Joy of Teaching"
+title: "The Joy of Teaching TDD"
 layout: post
 ---
-My current title is "Lead Developer". I write & review code and help
-my coworkers improve. I see my coworkers improve and learn everyday.
+My title is "Lead Developer". I write & review code and help my
+coworkers improve. I see my coworkers improve and learn everyday.
 Everyone has their own experience level and TDD exposure. The current
 code bases don't provide a great TDD experience. Add inexperience and
 it's no surprise people can't or are not interested in TDD. I was able
-to turn this around for one coworker and that made me happier than
-other professional achievement.
+to turn this around for one coworker and that was better than any
+other other professional achievement.
 
 I noticed him struggling over the past couple of weeks. He was working
 on refactoring/reimplementing a large part of the application. He was
@@ -27,10 +27,9 @@ even do such a thing when the code would be removed. I asked him to
 trust me and we plowed on. We did an effective exercise where one
 person writes the test and the other does the implementation. We
 alternated like this so he could get a feel for the process.  I could
-not pair with him the entire implementation. I created an ordered list
+not pair with him for the entire task. I created an ordered list
 of tests to write. This would illustrate incremental improvements with
-the end goal in mind. This was the path for him to follow and with
-he was off like Biblo Baggins on a wonderful adventure.
+the end goal in mind. This was his path into a new adventure.
 
 I talked with him a day or two ago. He told me everything had changed
 for him--he had that "ah ha! moment"--that one moment of clarity where
