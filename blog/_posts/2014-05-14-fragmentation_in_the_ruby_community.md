@@ -32,12 +32,12 @@ is visible in people's personal descriptions: "Rails Developer" or
 I do not want to see an entire language ecosystem driven by the head
 of a web framework. I don't usually say good things about Javascript,
 but I envy their diversity. The language is used in so many places now
-that there simply more smart people involved. There are the browser
+that there are simply more people involved. There are the browser
 framework guys and there is all a bunch of Node community leaders.
-The Ruby community does not have that. We one person with his own
+The Ruby community does not have that. We have one person with his own
 conference and almost religious following. There are Ruby developers
 in the community that I respect, but it seems like a loose coalition
-rather than a figurehead. I'd like to see the new leaders with wider
+rather than a figurehead. I'd like to see new leaders with wider
 experience who focus on Ruby itself and not a single use case. Perhaps
 those of us with experience just need to be more vocal. Hopefully we
 can change the community's direction.
