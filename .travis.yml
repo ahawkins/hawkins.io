@@ -1,4 +1,4 @@
-rvm: 2.1.0
+language: bash
 script: echo 'Shipping your thoughts.'
 deploy:
   provider: heroku
