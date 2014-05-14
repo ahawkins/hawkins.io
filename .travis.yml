@@ -2,6 +2,6 @@ rvm: 2.1.0
 script: echo 'Shipping your thoughts.'
 deploy:
   provider: heroku
-  app: broadcastingadam.com
+  app: broadcastingadam
   api_key:
     secure: O9FyKBzSLK9u8KrGKpy1n1+FT7yZ2YZq3ssZ7CH/c8mYoxi5FZp7t4fBBpu5Rj2XxdkTueJ+MFYrJScjr7xt+nlu1O+p/F+pf2s9NIvk6Fg5avTy0YDzGPQRlL2Jd+IPlLg5hecvgTsAV2MWDspi8nwuGBSmPDmDn64lgjH+kPI=
