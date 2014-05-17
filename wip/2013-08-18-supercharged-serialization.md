@@ -3,68 +3,36 @@ title: Supercharged Serialization
 layout: post
 ---
 
-I've been working on building an API for an Ember frontend. We're
+I've built an API for an Ember (+Ember-Data) frontend. We're
 using `ActiveModel::Serializer` on the backend. This article is about
-how I dropped a blower on the backend and turned up the boost. That's
-a shoutout to all my fellow gear heads. My current work is not Rails.
-It's a more sane setup. The techniques I describe can be ported to
-Rails applications. Here's a quick overview of my setup:
+how I dropped a blower on the backend and turned up the boost. This
+post chronicles the optimizations and architecture bits that make it
+all fit together.
 
-* Sinatra serving requests
-* Repository pattern for data access
-* Different adapters for development/test/production
-* Sequel talking to postgres for production
+All entities implement two caching protocols. They all respond to
+`#cache_key`. Any layer can cache the object as they see it. Secondly,
+every entity implements `#mashal_load` and `#marhsal_dump`. This
+ensures the object behaves correctly when stored in memcached.  We can
+cache individual objects or complex object graphs without worrying.
 
-This setup works very well for our domain logic. I really enjoy
-because we have complex data access rules. It also ensures that every
-data request goes through a known set of method calls on the
-repository. This makes caching extremely easy. It also allows me to
-request objects specifically crafted for a given use case. JS
-applications are very read heavy. They need **all** the data to do
-anything. Having the proper structure on the backend makes optimizing
-for specific use cases trivial. I've created two different data flows
-inside the backend. There is the read layer: clients hammer away with
-GET requests and go through heavily optimized code paths for a
-specific requirement set. That being said, let's get onto the meat of
-it.
+The `GET /collection` is the most important API call for JS
+applications. Its only job is to provide data as fast as
+possible. I'm talking 100ms or bust regardless of how many results.
 
-All data objects implement two caching protocols. They all respond to
-`#cache_key`. Any layer can cache the object as they see it. Since
-access goes through the repository, it's very easy to keep every data
-object in memcache. This avoids a call to postgres on every basic
-object look (read PK selection). This is by far the most common case
-in our application. Secondly, every object implements `#mashal_load`
-and `#marhsal_dump`. This ensures every object can be stored in the
-cache without any problems. How many times have you tried to put an
-ActiveRecord instance into memcache? Gonna have a bad time there. I've
-specifically designed our code to avoid these problems. The repository
-pattern is the most important bit. It makes all this possible by seperating
-persistance from data. We can cache individual objects or complex 
-object graphs without worrying. This covers the data access layer. It
-provides objects to a higher layer in the system. Now onto
-serialization.
-
-The `GET /collection` is the single most important API call for single
-page applications. Its only job is to provide data as fast as
-possible. I'm talking 100ms are bust regardless of how many objects
-need to be serialized. I can safely say we are well under that
-threshold for serializing thousands of objects. We'd never actually do
-this because of bandwidth concernss, but right we can serialize records
-pretty damn fast.
-
-The first step is optimizing your caching. Cache reads are not free.
-They should happen very quickly but you must deal with network
-latency. You should always use `read_multi`. All
-`ActiveSupport::Cache` support this call. We use this when
+First optimize the caching. Cache reads are not free. Excessive reads
+can be cost ineffective because network latency. You should also
+precompute what your requests and use `read_multi`. `read_multi` reads
+N items in a single request. This is a major win when operating on
+lists. `ActiveSupport::Cache` support this call. We use this when
 materializing data objects from queries. I mentioned previously that
 all individiual data objects are kept in memcache. A query may have
 some of it's objects already loaded. When a query result is
 materialized, it reads all the values from the cache and only
-materializes what's needed. This is extremely important in our case
-because materialization can require more queries to fully populate the
-domain objects. We also used this technique inside
-ActiveModel::Serializers. We don't need this anymore, but I'll share
-the implementation with you.
+materializes what's needed. This is vital in our case because
+materialization may require more queries to fully populate the domain
+entities. We also used this technique inside ActiveModel::Serializers.
+We don't need this anymore, but I'll share the implementation with
+you.
 
 ```ruby
 class FastArraySerializer < ActiveModel::ArraySerializer
@@ -97,8 +65,8 @@ end
 You can use the `FastArraySerializer` in place of the standard
 `ActiveModel::ArraySerializer`. I recommend you do some benchmarking
 to figure out its best use case. If your object load time is faster
-than a cache request then it doesn't make any sense to this. I saw
-significant gains in part of our application. Give it a go and see how
+than a cache request then it doesn't make any sense. I saw
+significant gains in parts of our application. Give it a go and see how
 it works for you.
 
 Now comes my favorite thing I've done in a long time. We tried to use
@@ -106,17 +74,17 @@ sideloading in our application. This caused two problem:
 
 * We couldn't dump the object graph fast enough
 * It broke Ember Data. We would update one record, then the server
-  would dump it's graph which sometimes contained an inflight record.
+  would dump its graph which sometimes contained an inflight record.
   This causes an error and wasn't worth the trouble.
 
 We decided it wasn't worth the effort to continue with it. If we could
-solve #1, we'd still be bit by #2. It made more sense for to simply
-ignore dumping full objects and focus on optimizing ID retrevial. This
-is easier for a few reasons.
+solve #1, we'd still be bit by #2. It was more sensible to ignore
+dumping full objects and focus on optimizing ID retrevial. This is
+easier for a few reasons.
 
 * Disabling `include: true` allows to focus on a specific subset of
   data. This makes optimizing and caching must easier. Caching an
-  object graph in your application may be impossible due to object
+  object graph may be impossible due to object
   associations. The more associations the more problems. This way we
   know exactly what data is needed to serialize one object.
 * Smaller responses means faster travel over the network. It's easier
@@ -124,34 +92,36 @@ is easier for a few reasons.
 * Clients can uses the `?id=[]` query parameter to query a subset if
   needed. These can be fast by the same logic.
 
-The data in your JSON unfortunately usually mirrors some sort of DB
-stucture. You provide the "raw" data, essentially ID's and column
-values. There is absoutely no point to load anything more.
-Unfortunately, AMS does not seem to care about this as much as I'd
-like. It is somewhat noob. It will simply do a `map(&:id)` over
-collections. This is a naive approach. You can implement methods on
-the serializer if you have a fast way to provide ids. This this is not
-the right way to do things. Instead ask the collection to give you
-its ids. The collection object itself always knows the fastest way to
-retrevie the ID's of its members. It's incorrect to assume it should
-be map operation. I suggest you patch AMS to call `#ids` when
-serializing `has_many` associations. You can easily patch AR's queries
-to have an `ids` method by using `pluck`. This will speed up your
-serialization process dramatically. Otherwise it will fully load all
-the objects to simply get the ID. I combined this with custom lazy
-loading of all internal associations. This made a huge difference but
-it did not solve the problem completely. We still we were going too
-many queries. Say each object needs 5 association ids. Now you have
-100 objects. That's 500 queries. Network access isn't free and each
-query costs something.
+JSON usually mirrors some sort of DB stucture. You provide the "raw"
+data, essentially ID's and column values. There is absoutely no point
+to load anything more. Unfortunately, AMS does not seem to care about
+this as much as I'd like. It will simply do a `map(&:id)` over
+collections. This this is not the right way to do things. Instead ask
+the collection to give you its ids. The collection knows the fastest
+way to retrevie the ID's of its members.  I suggest you patch AMS to
+call `#ids` when serializing `has_many` associations. You can easily
+patch AR's queries to have an `ids` method by using `pluck`.  This
+speeds the serialization process dramatically. Otherwise it will fully
+load all the objects to simply get the ID. I combined this with custom
+lazy loading of all internal associations. This made a huge difference
+but it did not completely solve the problem. We we were still doing
+too many queries. Say each object needs 5 association ids. Now you
+have 100 objects. That's 500 queries. Network access isn't free and
+each query costs something.
 
 It was time for a radical solution: SQL views + Postgres 9.2's new
-JSON features. Its possible to create a view that contains all the
-data needed to serialize one objects graph. So in order to serialize
-one record, it's a simple "primary key" lookup. The SQL can get pretty
-hairy, but it has worked like a charm. An objects associations are
-captured as a JSON array of ids. Objects embedded are also stored in
-JSON columns.
+JSON features. It is possible to create a view that contains all the
+JSON for one object graph. This is an excellent solution because you
+do not need to concern yourself with caching. The database will update
+the view anytime the associated data changes. This is a godsend when
+you have complex associations. This changes serialization from a
+series of queries to a single primary key lookup in the view table.
+The SQL can get pretty hairy, but it has worked like a charm. An
+objects associations are captured as a JSON array of ids. Embedded
+objects are also stored in JSON columns.
+
+NOTE: The backend uses a repository and the Sequel gem to talk to
+PostgreSQL.
 
 Here's a real life example.
 
@@ -222,15 +192,17 @@ create_view :meeting_graphs, <<-sql
   sql
 ```
 
-The first two joins compute the required id array. The second two
-compute all data needed for embedded associations. Then I can simply
-say `MeetinGraph.find(1)` and I have all the data needed to serialize
-that given meeting. I've also changed some of our complex data access
-logic to use an SQL view as well. When a user does `GET /collection`
-that may join the accessible join table with the serialization table.
-Boom. All the records provided in milliseconds.
+The first two joins compute required ID arrays. The second two
+compute all data needed for embedded associations. That results in a
+row that be directly dumped in the response. Secondly, since it's a
+standard table you can do joins and other queries against it. We use
+this to query accessible records. The final result is pretty darn
+fast.
 
-Here are some benchmarks of my various implemenations:
+Here are some benchmarks of my various implemenations `Uncached` is
+without optimizations. `cached` is using `multi_get` and the
+`FastArraySerializer` technique mentioned. `View Load` is self
+explanatory. The benchmarks cover a set of 1000 objects.
 
 ```
                  user     system      total        real
