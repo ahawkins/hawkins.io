@@ -139,7 +139,7 @@ If a query requires knowing what `user_id` we can query on that
 column. Here's the same idea in JSON form.
 
 ```
-{ 
+{
   "query": {
     "user_id": 1
   }
@@ -148,4 +148,4 @@ column. Here's the same idea in JSON form.
 ```
 
 Mongo can use things inside the `query` key for same type of logic.
-This only works if you know all the queries up front. 
+This only works if you know all the queries up front.
