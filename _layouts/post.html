@@ -22,6 +22,10 @@
       </div>
 
       <article>
+				{% if page.image %}
+					<img src="{{page.image}}" alt="Article Logo Image" id="logo">
+				{% endif %}
+ 	
         {{ content }}
 
         <p class="signature muted"><em>&mdash; Adam Hawkins</em></p>

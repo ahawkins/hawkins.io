@@ -206,3 +206,9 @@ code {
   background-color: #EFEFEF;
   border-radius: 3px;
 }
+
+img#logo {
+	display: block;
+	margin: 0 auto;
+}
+
