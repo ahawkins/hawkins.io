@@ -398,7 +398,7 @@ longer make sense as this post ages. You can browse the source tree at
 the referenced commit on [GitHub][source tree].
 
 [field notes]: http://notes.hawkins.io
-[previous post]: /2015/04/introducing-field-notes/
+[previous post]: /2015/03/on-ruby/
 [source]: https://github.com/ahawkins/field_notes
 [source tree]: https://github.com/ahawkins/field_notes/tree/4630b85bca57508b25443d1aaf47955afecf57bb
 [bats]: https://github.com/sstephenson/bats
