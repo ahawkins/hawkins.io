@@ -131,6 +131,8 @@ explicitly to entities.
 Here is some code that got my excited about ROM.  I've annotated with
 comments on things I especially like.
 
+<script src="https://gist.github.com/ahawkins/92809d4ed467697480ed.js"></script>
+
 My hat is off the ROM team. They've done an excellent job on producing
 something useful with the correct architectual abstractions. I'm
 looking forward to using ROM the next time I do some Ruby work.
