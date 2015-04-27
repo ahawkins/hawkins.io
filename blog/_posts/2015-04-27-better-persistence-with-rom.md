@@ -1,6 +1,7 @@
 ---
 layout: post
-title: "On Persistence: New Beginnings"
+title: "Better Peristence with ROM"
+image: http://rom-rb.org/images/logo-nav.png
 ---
 
 Data persistence is at the heart of most computer programs. The
@@ -129,6 +130,6 @@ My hat is off the ROM team. They've done an excellent job producing
 something useful with the correct architectural abstractions. I'm
 looking forward to using ROM the next time I do some Ruby work.
 
-[pitor]: https://twitter.com/_solnic_
+[piotr]: https://twitter.com/_solnic_
 [ROM]: https://romrb.org
 [chassis]: https://github.com/ahawkins/chassis
