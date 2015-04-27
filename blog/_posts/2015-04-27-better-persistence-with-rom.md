@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Better Peristence with ROM"
+title: "Better Persistence with ROM"
 image: http://rom-rb.org/images/logo-nav.png
 ---
 
