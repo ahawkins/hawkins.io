@@ -85,3 +85,6 @@ test-cli`. The list goes on and depending on the project.
 This workflow has made me more productive and increase my work
 quality. I suggest you look into these things as well. They may be as
 transformative for you as they are for me.
+
+If you want concrete examples, then wait for the next post. That post
+is about replacing rake with make for great good.
