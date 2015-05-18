@@ -42,8 +42,8 @@ pretty code over technical correctness. This is evident in
 proliferation of DSLs instead of well designed and reusable APIs.
 Ruby's metaprogramming support is the most powerful language feature.
 Unfortunately it is routinely overused to create overly complex and
-opaque solutions. But who is still happy? The net effect of all these
-factors is that more developers are becoming unhappy Ruby programmers.
+opaque solutions through implicit dependencies. All of these factors
+are turning developers into unhappy Ruby developers.
 
 A conversation is starting in private circles. It is a backroom chat
 happening at conferences and small corners of the internet. There are
@@ -53,13 +53,12 @@ scared to broach the topic since it may be seen as biting the hand
 that feeds them. It may also because the current thought leaders do
 not see it as a problem--which is more concerning. It is unfortunate
 that is not more public conversation. People need to voice their
-opinions so like minded people can work together to improve the
-situation.
+opinions so we can work together to improve.
 
-The antidote to our current ails is painful. It requires a complete
-reorientation. This is not easy. I know because I have tested it on
-myself and I know others have as well. It is drastic but we must act
-now. There will never be a better Ruby ecosystem if we do not.
+The antidote is painful. It requires a complete reorientation. This is
+not easy. I know because I have tested it on myself and I know others
+have as well. It is drastic but we must act now. There will never be a
+better Ruby ecosystem if we do not.
 
 Experienced developers must lead by example to create small well
 designed libraries that use simple and explicit code constructs to
@@ -75,7 +74,7 @@ today. We will emerge stronger, better, and more informed community.
 I am convinced that adopting this way can be build the next
 version our community. It transformed my development
 habits and I have witnessed independent transformations in
-others. These points have guided my transformation:
+others. We must use these points to reorientate ourselves:
 
 * **Prefer simplicity** over convenience - convenience comes at a
 	cost. Writing extra code yourself is not a problem.
