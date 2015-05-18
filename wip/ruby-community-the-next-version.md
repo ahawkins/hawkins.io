@@ -9,7 +9,7 @@ to pinpoint why and what can be done. The community is facing large
 technical and mindset issues. We must revaluate ourselves to
 survive and thrive.
 
-The technical choices and mindset that reinforces them creates
+The technical choices and mindset that reinforces them create
 large amounts of long term technical debt. The ecosystem is not
 producing libraries and programs that obey fundamentally sound software
 design principles. The ecosystem is riddled with large projects
