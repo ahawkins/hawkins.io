@@ -14,7 +14,7 @@ large amounts of long term technical debt. The ecosystem is not
 producing libraries and programs that obey fundamentally sound software
 design principles. The ecosystem is riddled with large projects
 that do not respect architecture boundaries, or are overly coupled to many
-things, rely on global monkey patching of third party code, and the
+things, rely on monkey patching of third party code, and the
 list goes on. It is sad to see projects collapsing under
 technical debt at a high rate. Businesses are also suffering due to
 bad engineering practices. There are business models that exist to
