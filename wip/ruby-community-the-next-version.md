@@ -94,4 +94,5 @@ others. We must use these points to reorientate ourselves:
 * Lead by example - Demonstrate and teach others how to apply these
 	values through open source, code review, and other means.
 
-Will try these points and build the next version of the Ruby community?
+Will you reorientate yourself and build the next version of the Ruby
+community?
