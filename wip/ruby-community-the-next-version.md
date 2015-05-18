@@ -82,8 +82,6 @@ version of the Ruby community. It transformed my own development
 habits and I have witnessed independent transformations happen in
 others as well. Use these points to guide your decision making:
 
-* Actively minimize dependencies and carefully audit the ones you
-	intend to keep.
 * **Prefer simplicity** over convenience - convenience comes at a
 	cost. Writing extra code yourself is not a problem.
 * **Prefer Explict** over implicit - programs are more easily
@@ -95,8 +93,10 @@ others as well. Use these points to guide your decision making:
 	are easier to integrate into large code bases and also enforce
 	boundaries.
 *	**Prefer self composed stacks** over turn key solutions
-* Architect with strong boundaries in mind
 * Focus on **mid to long term** concerns over immediate needs
+* Architect with strong boundaries in mind
+* Actively minimize and audit your dependencies. Do not blindly trust
+	the other's work.
 * Lead by example - Demonstrate and teach others how to apply these
 	values through open source, code review, and other means.
 
