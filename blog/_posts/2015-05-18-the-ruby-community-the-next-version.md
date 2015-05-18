@@ -6,7 +6,7 @@ layout: post
 The Ruby community is and has been moving in the wrong direction for
 some time. It has taken me some time to acknowledge this and more time
 to pinpoint why and what can be done. The community is facing large
-technical and mindset issues. We must revaluate ourselves to
+technical and mindset issues. We must reorientate ourselves to
 survive and thrive.
 
 The technical choices and mindset that reinforces them create
