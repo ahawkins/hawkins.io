@@ -100,4 +100,4 @@ others as well. Use these points to guide your decision making:
 * Lead by example - Demonstrate and teach others how to apply these
 	values through open source, code review, and other means.
 
-Will you part of the next version of the Ruby community?
+Will you be part of the next version of the Ruby community?
