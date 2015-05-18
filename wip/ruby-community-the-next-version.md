@@ -22,8 +22,8 @@ specifically clean up this mess. We can do better.
 
 Ruby developers are used to being spoonfed integrated solutions. Many
 new and intermediate developers immediately reach for `gem install
-business-logic`, expect configure something then ship. I'm finding it
-increasingly difficult to find developers who have experience
+business-logic`, expect to configure something then ship. I'm finding
+it increasingly difficult to find developers who have experience
 implementing business logic or let alone more low level technical
 requirements. This concerns me as a developer and also as someone with
 hiring power. The long term effect is that many Ruby developers can
