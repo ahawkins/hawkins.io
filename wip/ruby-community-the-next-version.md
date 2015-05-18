@@ -38,8 +38,8 @@ Matz created Ruby to make programmers happy. He made programmers happy
 by creating the superb APIs (like `Enumerable` module), powerful
 metaprogramming support, and true OO implementation peppered with the
 best functional programming bits. Programmers were happy because they
-could be produce working software quickly. Matz's initial words has
-stuck with us and influence our culture. Today the culture prefers
+could produce working software quickly. Matz's initial words have
+stuck with us and influenced our culture. Today the culture prefers
 pretty code over technical correctness. This is evident in
 proliferation of DSLs instead of well designed and reusable APIs.
 Ruby's metaprogramming support is the most powerful language feature.
