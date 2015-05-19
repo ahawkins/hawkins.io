@@ -78,7 +78,7 @@ others. We must use these points to reorientate ourselves:
 
 * **Prefer simplicity** over convenience - convenience comes at a
 	cost. Writing extra code yourself is not a problem.
-* **Prefer explict** over implicit - programs are more easily
+* **Prefer explicit** over implicit - programs are more easily
 	maintained and understood when dependencies or side effects are
 	explicit.
 * **Prefer smaller libraries** over larger ones - Small API surfaces
