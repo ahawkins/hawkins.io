@@ -71,7 +71,7 @@ fundamentally sound solutions.
 
 These changes will slowly chip away at many of the issues plaguing us
 today. We will emerge stronger, better, and more informed community.
-I am convinced that adopting this way can be build the next
+I am convinced that adopting this way can build the next
 version our community. It transformed my development
 habits and I have witnessed independent transformations in
 others. We must use these points to reorientate ourselves:
