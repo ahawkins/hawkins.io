@@ -66,7 +66,7 @@ At this point my workflow goes like this:
 	 external libraries, compile things, or anything like that)
 1. `make` - build the project
 1. `make environment` - build the project; start processes delivered
-	 by the project and any other long running prcessed needed in
+	 by the project and any other long running processes needed in
 	 development
 1. `make test` - quick unit tests; should execute as quickly as
 	 possible and may not by exhaustive
