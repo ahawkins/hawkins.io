@@ -96,3 +96,8 @@ others. We must use these points to reorientate ourselves:
 
 Will you reorientate yourself and build the next version of the Ruby
 community?
+
+_P.S._: This post and the wider ruby ecosystem is discussed in a great
+[podcast][]!
+
+[podcast]: http://rails-refactoring.com/podcast/
