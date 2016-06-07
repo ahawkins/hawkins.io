@@ -131,15 +131,6 @@ em {
   font-style: italic;
 }
 
-#ad {
-  background-color: #e9f4f8;
-  border: solid 1px #9ab7c2;
-  padding: 0.4em;
-  font-size: 1.3em;
-  line-height: 1.5em;
-  margin: 1.7em 0;
-}
-
 .revision-warning {
   color: red;
 }
@@ -176,23 +167,6 @@ blockquote cite {
 
 blockquote cite:before {
   content: '—';
-}
-
-#newsletter {
-  margin-top: 1em;
-}
-
-#newsletter label {
-  width: 150px;
-  display: inline-block;
-}
-
-#newsletter .mc-field-group {
-  margin-bottom: 10px;
-}
-
-#newsletter .asterisk {
-  display: none;
 }
 
 iframe.jsbin-embed {
