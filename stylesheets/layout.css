@@ -190,7 +190,9 @@ img#logo {
 	background-color: #e9f4f8;
 	border: solid 1px #9ab7c2;
 	padding: 0.4em;
-	font-size: 1.3em;
-	line-height: 1.5em;
 	margin: 1.7em 0;
+}
+
+.banner > p {
+	margin: 0
 }
