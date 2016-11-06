@@ -4,6 +4,14 @@ title: Rack from the Beginning
 tags: [rack, tutorials]
 ---
 
+<div class="banner">
+<p>
+This post is out of date and contains some tecnical errors. Checkout
+the <a href="http://rack-bootcamp.slashdeploy.com/">Rack Bootcamp</a>
+for an update version with new sections.
+</p>
+</div>
+
 Rack is the HTTP interface for Ruby. Rack defines a standard interface
 for interacting with HTTP and connecting web servers. Rack makes it easy
 to write HTTP facing applications in Ruby. Rack applications are shockingly
@@ -89,7 +97,7 @@ applications. That's what we wrote.
 
 I skipped over over what `env` is in the previous section. That's
 because we didn't need it yet. The `env` is a `Hash` that meets the rack
-spec. You can read the spec [here](http://rack.rubyforge.org/doc/SPEC.html). 
+spec. You can read the spec [here](http://rack.rubyforge.org/doc/SPEC.html).
 It defines **incoming** information. Outgoing data must be
 triplets. The `env` gives you access to incoming headers, host info,
 query string and other common information. The `env` is passed to the
@@ -165,7 +173,7 @@ query string wasn't a hash. It was the string. The `env` is raw
 data. I like this design principle a lot. Rack is very simple to
 understand and use. If you wanted you could only work with hashes and
 triplets. However that's just tedious. Complex applications need
-abstractions. Enter `Rack::Request` and `Rack::Response`. 
+abstractions. Enter `Rack::Request` and `Rack::Response`.
 
 ## Abstractions
 
@@ -247,7 +255,7 @@ class HelloWorldApp
     env = parser.call env
     # env['params'] is now set to a hash for all the input paramters
 
-    [200, {}, env['params'].inspect] 
+    [200, {}, env['params'].inspect]
   end
 end
 ```
@@ -284,11 +292,11 @@ middlewares. They have one for caching and encodings. Let's increase
 the `HelloWorldApp`'s performance.
 
 ```ruby
-# this returns an app that responds to call cascading down the list of 
+# this returns an app that responds to call cascading down the list of
 # middlewares. Technically there is no difference between "use" and
-# "run". "run" is just there to illustrate that it's the end of the 
+# "run". "run" is just there to illustrate that it's the end of the
 # chain and it does the work.
-app = Rack::Builder.new do 
+app = Rack::Builder.new do
   use Rack::Etag            # Add an ETag
   use Rack::ConditionalGet  # Support Caching
   use Rack::Deflator        # GZip
@@ -348,7 +356,7 @@ end
 Now we can use those middlewares in our app.
 
 ```ruby
-app = Rack::Builder.new do 
+app = Rack::Builder.new do
   use Timer # put the timer at the top so it captures everything below it
   use EnsureJsonResponse
   run HelloWorldApp
