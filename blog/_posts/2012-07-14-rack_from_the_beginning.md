@@ -6,7 +6,7 @@ tags: [rack, tutorials]
 
 <div class="banner">
 <p>
-This post is out of date and contains some tecnical errors. Checkout
+This post is out of date and contains some technical errors. Checkout
 the <a href="http://rack-bootcamp.slashdeploy.com/">Rack Bootcamp</a>
 for an update version with new sections.
 </p>
