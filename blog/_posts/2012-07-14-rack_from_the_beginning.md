@@ -43,7 +43,7 @@ later.
 ```ruby
 class HelloWorldApp
   def self.call(env)
-    HellowWorld.new.response
+    HelloWorld.new.response
   end
 end
 ```
@@ -178,7 +178,7 @@ abstractions. Enter `Rack::Request` and `Rack::Response`.
 ## Abstractions
 
 `Rack::Request` is an abstraction around the `env` hash. It provides
-access to thinks like cookies, POST paramters, and other common things. It
+access to things like cookies, POST parameters, and other common things. It
 removes boiler plate code. Here's an example.
 
 ```ruby
@@ -187,7 +187,7 @@ class HelloWorldApp
     request = Rack::Request.new env
     request.params # contains the union of GET and POST params
     request.xhr?   # requested with AJAX
-    require.body   # the incoming request IO stream
+    request.body   # the incoming request IO stream
 
     if request.params['message']
       [200, {}, request.params['message']]
@@ -260,7 +260,7 @@ class HelloWorldApp
 end
 ```
 
-I admit this example is quite contrived. You want not do this in
+I admit this example is quite contrived. You don't want to do this in
 practice. The point is to illustrate that you can manipulate env (or
 response). You can create a middleware
 stack as deep as you like. Each middleware simply calls the next one and
@@ -286,7 +286,7 @@ end
 
 ## Composing Rack Apps from Middleware
 
-`Rack::Builder` creates up a middleware stack. Each object calls
+`Rack::Builder` creates a middleware stack. Each object calls
 the next one and returns its return value. Rack contains a bunch of handy
 middlewares. They have one for caching and encodings. Let's increase
 the `HelloWorldApp`'s performance.
