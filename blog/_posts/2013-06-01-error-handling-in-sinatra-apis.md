@@ -27,12 +27,12 @@ on github about this.
 With those things in mind, I set out to come up with a solution for
 these requirements:
 
-* Execptions coming from the app or middleware are logged to the
+* Exceptions coming from the app or middleware are logged to the
   console
 * Exceptions coming from the app or middleware are rendered as JSON in
   a helpful format. The stacktrace is included in the development
   env.
-* Compltely ignore Rack's default `ShowExceptions` middleware. This
+* Completely ignore Rack's default `ShowExceptions` middleware. This
   causes HTML responses useless when debugging the API.
 * Run simply with `rackup`
 
