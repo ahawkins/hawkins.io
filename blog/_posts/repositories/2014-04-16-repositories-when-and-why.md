@@ -1,6 +1,7 @@
 ---
 title: "Repositories: When & Why"
-layout: post
+layout: redirect
+redirect: "https://www.joyofdesign.info/2014/appendix/repository-pattern/when-and-why/"
 ---
 
 Every software architecture decision is about trade-offs. We asses the

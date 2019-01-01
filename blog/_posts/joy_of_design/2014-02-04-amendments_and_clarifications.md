@@ -1,6 +1,7 @@
 ---
 title: "Amendments & Clarifications"
-layout: post
+layout: redirect
+redirect: "https://www.joyofdesign.info/2014/afterword/"
 ---
 
 I published the last post in the [Joy of

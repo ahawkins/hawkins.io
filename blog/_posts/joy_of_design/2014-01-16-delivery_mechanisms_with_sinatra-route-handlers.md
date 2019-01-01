@@ -1,6 +1,7 @@
 ---
 title: "Delivery Mechanisms with Sinatra - Route Handlers"
-layout: post
+layout: redirect
+redirect: "https://www.joyofdesign.info/2014/delivery-mechanisms/route-handlers/"
 ---
 
 The delivery mechanism is responsible for instantiating the objects

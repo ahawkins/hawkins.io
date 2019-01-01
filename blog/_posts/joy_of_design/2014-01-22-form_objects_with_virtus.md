@@ -1,6 +1,7 @@
 ---
 title: "Form Objects with Virtus"
-layout: post
+layout: redirect
+redirect: "https://www.joyofdesign.info/2014/domain/form-objects/"
 ---
 
 A delivery mechanism provides the world access to your app. Form

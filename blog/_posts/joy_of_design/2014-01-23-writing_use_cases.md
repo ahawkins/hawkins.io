@@ -1,6 +1,7 @@
 ---
 title: "Writing Use Cases"
-layout: post
+layout: redirect
+redirect: "https://www.joyofdesign.info/2014/domain/use-cases/"
 ---
 
 Use cases take in a form and external state (often the current user)

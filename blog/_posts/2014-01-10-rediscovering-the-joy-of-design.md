@@ -1,6 +1,7 @@
 ---
 title: Rediscovering the Joy of Design
-layout: post
+layout: redirect
+redirect: "https://www.joyofdesign.info"
 ---
 
 The last year and half have been very interesting. It has been a

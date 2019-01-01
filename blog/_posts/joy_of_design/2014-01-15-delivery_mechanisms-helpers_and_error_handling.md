@@ -1,6 +1,7 @@
 ---
 title: "Delivery Mechanisms with Sinatra - Helpers & Errors"
-layout: post
+layout: redirect
+redirect: "https://www.joyofdesign.info/2014/delivery-mechanisms/helpers-and-error-handling/"
 ---
 
 A delivery mechanism must behave correctly in its medium. A HTTP

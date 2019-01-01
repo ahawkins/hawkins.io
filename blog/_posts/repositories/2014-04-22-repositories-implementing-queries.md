@@ -1,6 +1,7 @@
 ---
 title: "Repositories: Implementing Queries"
-layout: post
+layout: redirect
+redirect: "https://www.joyofdesign.info/2014/appendix/repository-pattern/queries/"
 ---
 
 Fowler's repository pattern definition describes "selectors". A

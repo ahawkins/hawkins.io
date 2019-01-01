@@ -1,6 +1,7 @@
 ---
 title: "Repositories: Chassis Internals"
-layout: post
+layout: redirect
+redirect: "https://www.joyofdesign.info/2014/appendix/repository-pattern/internals/"
 ---
 
 I have already covered when and why to use a repository. The rest of

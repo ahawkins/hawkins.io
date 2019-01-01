@@ -1,6 +1,7 @@
 ---
 title: "Delivery Mechanisms with Sinatra - Testing"
-layout: post
+layout: redirect
+redirect: "https://www.joyofdesign.info/2014/delivery-mechanisms/testing/"
 ---
 
 It's time for the final post on delivery mechanisms. This one is all

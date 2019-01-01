@@ -1,6 +1,7 @@
 ---
 title: "Delivery Mechanisms with Sinatra - Logic-less Views"
-layout: post
+layout: redirect
+redirect: "https://www.joyofdesign.info/2014/delivery-mechanisms/logic-less-views/"
 ---
 
 All the discussion up to this point has been around JSON generation.

@@ -1,6 +1,7 @@
 ---
 title: "Repositories: The Public Interface"
-layout: post
+layout: redirect
+redirect: "https://www.joyofdesign.info/2014/appendix/repository-pattern/api/"
 ---
 
 The previous entry covered how Chassis works internally. This is the

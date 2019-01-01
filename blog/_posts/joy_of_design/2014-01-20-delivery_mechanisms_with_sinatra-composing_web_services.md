@@ -1,6 +1,7 @@
 ---
 title: "Delivery Mechanisms with Sinatra - Composing Web Services"
-layout: post
+layout: redirect
+redirect: "https://www.joyofdesign.info/2014/delivery-mechanisms/composing-web-services/"
 ---
 
 Web applications usually handle different responsibilities. There may

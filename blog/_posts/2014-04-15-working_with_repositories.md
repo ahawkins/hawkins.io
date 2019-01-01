@@ -1,6 +1,7 @@
 ---
 title: "Working with Repositories"
-layout: post
+layout: redirect
+redirect: "https://www.joyofdesign.info/2014/appendix/repository-pattern/introduction/"
 ---
 
 I've gotten a ton of excellent feedback and questions about the joy of

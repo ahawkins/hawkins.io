@@ -1,6 +1,7 @@
 ---
 title: "Delivery Mechanisms with Sinatra - Middleware"
-layout: post
+layout: redirect
+redirect: "https://www.joyofdesign.info/2014/delivery-mechanisms/middleware/"
 ---
 
 Welcome to the first post in my "Rediscovering the Joy of Design"

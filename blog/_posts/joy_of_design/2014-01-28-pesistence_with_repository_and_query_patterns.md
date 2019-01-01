@@ -1,6 +1,7 @@
 ---
 title: "Persistence with Repository and Query Patterns"
-layout: post
+layout: redirect
+redirect: "https://www.joyofdesign.info/2014/domain/persistence/"
 ---
 
 Talking about the day layer is inevitable. I saved the least important
@@ -10,7 +11,7 @@ happens behind the scenes. Conversely this could also be the most
 important thing because of how important the boundary is. **The
 boundary between the data and entities is the most important boundary
 in the entire system.** Something simply provides the needed entities.
-The caller is completely unaware of how they got there. 
+The caller is completely unaware of how they got there.
 
 This is about more than that. It's about adopting a new perspective.
 How many applications are so caught up with the database? How did the

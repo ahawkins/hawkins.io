@@ -1,6 +1,7 @@
 ---
 title: "The Joy of Finishing Design"
-layout: post
+layout: redirect
+redirect: "https://www.joyofdesign.info/2014/conclusion/"
 ---
 
 This is the last post in the series. I've covered a lot of ground in
