@@ -1,7 +1,8 @@
 ---
-layout: post
+layout: redirect
 title: "Advanced Caching in Rails: Revised"
 tags: [rails, tutorials]
+redirect: "https://railscaching.com"
 ---
 
 I've decided to finally update my advanced caching post. The original is

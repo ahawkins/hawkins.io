@@ -1,8 +1,9 @@
 ---
-layout: post
+layout: redirect
 title: "Advanced Caching: Part 8 - Conclusion: Cashing Out"
 tags: [rails, tutorials]
 hide: true
+redirect: "https://railscaching.com/guide/part-8-conclusion/"
 ---
 
 I've covered a ton of material in this article. I've given a through
@@ -51,7 +52,7 @@ covered and some few goodies.
 ## General Points
 
 1. Don't worry about sweepers unless you have too.
-2. Understand the limitations of Rail's HTTP request cycle 
+2. Understand the limitations of Rail's HTTP request cycle
 3. Use cryptographic hashes to generate cache keys when permutations of
    input parameters are involved
 4. Don't be afraid to use `Rails.cache` in your data layer

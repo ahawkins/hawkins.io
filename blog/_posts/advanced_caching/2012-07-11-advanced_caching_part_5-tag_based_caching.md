@@ -1,8 +1,9 @@
 ---
-layout: post
+layout: redirect
 title: "Advanced Caching: Part 5 - Tag Based Caching"
 tags: [rails, tutorials]
 hide: true
+redirect: "https://railscaching.com/guide/part-5-tag-based-caching/"
 ---
 
 Tag based caching is a way to solve the second hard problem in computer

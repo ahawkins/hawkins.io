@@ -1,8 +1,9 @@
 ---
-layout: post
+layout: redirect
 title: "Advanced Caching: Part 7 - Tips and Tricks"
 tags: [rails, tutorials]
 hide: true
+redirect: "https://railscaching.com/guide/part-7-tips-and-tricks/"
 ---
 
 This section is for random tips and tricks that don't really belong in
@@ -25,11 +26,11 @@ using with cached HTML. Caching a form will
 generate unauthorized errors because the tokens were for a different
 session or request. There are parts of the cached pages that need to be
 _replaced_ with new values before the application can be used. This is a
-simple process, but it will take another HTTP request. 
+simple process, but it will take another HTTP request.
 
 You'll need to create a controller to serve up some configuration
 related information that's never cached. That way, a cached action will
-load, then a separate request will be made for correct tokens. 
+load, then a separate request will be made for correct tokens.
 
 You need to create a new controller that `responds_to` JSON and
 return some JSON to handle in a jQuery callack. **Make sure this request

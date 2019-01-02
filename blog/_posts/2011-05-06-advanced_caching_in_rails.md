@@ -1,7 +1,8 @@
 ---
-layout: post
+layout: redirect
 title: Advanced Caching in Rails
 tags: [rails, tutorials]
+redirect: "https://railscaching.com"
 ---
 
 <p class="revision-warning">
@@ -15,7 +16,7 @@ is written for <strong>Rails 2</strong>. The revised post focuses on <strong>Rai
 Caching in Rails is covered occasionally. It is covered in very basic
 detail in the caching [guide](http://guides.rubyonrails.org/caching_with_rails.html).
 Advanced caching is left to reader. Here's where I come in. I recently
-read part of Ryan Bigg's [Rails 3 in Action](http://www.manning.com/katz/) upcoming 
+read part of Ryan Bigg's [Rails 3 in Action](http://www.manning.com/katz/) upcoming
 Rails book (review in the works) where he covers caching. He does a
 wonderful job of giving the reader the basic sense of how you can use
 page, action, and fragment caching. The examples only work well in a
@@ -39,7 +40,7 @@ caching:
 
 3. Fragment Caching: Store parts of views in the cache. Usually for
    caching partials or large bits of HTML that are independent from
-   other parts. IE, a list of top stories or something like that. 
+   other parts. IE, a list of top stories or something like that.
 
 4. Rails.cache: All cached content **except cached pages** are stored
    in the Rails.cache. Cached pages are stored as HTML on disk. We'll
@@ -91,7 +92,7 @@ implements the cache store pattern should work.
 => [huge array] # but returned instantly
 
 # You can also delete everything from the cache
-> Rails.cache.clear 
+> Rails.cache.clear
 => [true]
 ```
 
@@ -189,7 +190,7 @@ Completed 200 OK in 16ms (Views: 9.7ms | ActiveRecord: 0.1ms)
 
 Very small differences in this case. 2ms different in view generation.
 This is a very simple example, but it can make a world of difference in
-more complicated situations. 
+more complicated situations.
 
 You are probably asking the question: "What happens when the post
 changes?" This is an excellent question! What well if the post changes,
@@ -391,13 +392,13 @@ filter is used to check to see if it's been cached. It works like this:
 Now you are probably asking the same question as before: "What do we do
 when the post changes?" We do the same thing as before: we create a
 composite key with a string and a time stamp. The question now is, how do
-we generate a special key using action caching? 
+we generate a special key using action caching?
 
 Action caching generates a key from the current url. You can pass extra
 options using the `:cache_path` option. Whatever is in this value is
 passed into `url_for` using the current parameters. Remember in the
 view cache key examples what happened when we passed in a hash? We got a
-much different key than before: 
+much different key than before:
 
     views/localhost:3000/posts/2?hash_of_things
 
@@ -505,7 +506,7 @@ outside the context of HTTP requests sweepers will do you know good. For
 example, say you have a background process running that syncs with an
 external system. Creating a new model will not make it to any sweeper.
 So, if you have anything cached. It is up to you to expire it.
-Everything I've demonstrated so far can be done with sweepers. 
+Everything I've demonstrated so far can be done with sweepers.
 
 Each `cache_*` method has an opposite `expire_*` method. Here's the
 mapping:
@@ -551,7 +552,7 @@ complexity of your model layer, it may quickly infeasible to do cache
 expiration with sweepers. For example, let say you have a Customer. A
 customer has 15 different types of associated things. Do you want to put
 the sweeper into 15 different controllers? You can, but you may forget
-to at some point. 
+to at some point.
 
 The real problem with sweepers is that they cannot be used once your
 application works outside of HTTP requests. They can also be clumsy. I
@@ -583,7 +584,7 @@ create a simple observer for our models. What it would be cool if we had
 a class like this:
 
 ```ruby
-class Cache 
+class Cache
   def self.expire_page(*args)
     # do stuff
   end
@@ -724,7 +725,7 @@ anywhere. Now we can easily call this code in an observer. The observer
 events will fire every time they happen **anywhere in the codebase.**
 Here's an example. I am assuming a todo is created outside an HTTP
 request through a background process. The observer will capture the
-event. 
+event.
 
 ```ruby
 class TodoObserver < ActivRecord::Observer
@@ -748,7 +749,7 @@ This is an approach I came up with to work in this situation:
 
 1. Maintain control over how long things are cached
 2. Large number of different associations. Actions or fragments no
-   longer related to a specific resource. 
+   longer related to a specific resource.
 3. Content could be invalidated through HTTP requests or any number of
    background process.
 4. Hard to maintain specific keys. I thought of it as "resources".
@@ -763,7 +764,7 @@ first you need a way to associate different keys. Once you can associate
 different keys, then you can expire them together. Since you're tracking
 the keys being sent to `Rails.cache`, you can simply use `Rails.cache`
 to delete them. All of this is possible through one itty-bitty detail of
-the Rails caching system. 
+the Rails caching system.
 
 You may have noticed something in the `Cache` class in the previous
 section. There is a second argument for `options`. Anything in the
@@ -776,7 +777,7 @@ Through all of this trickery, you'll be able to express this type of
 statement:
 
 ```ruby
-App.cache.expire_tag 'stats' 
+App.cache.expire_tag 'stats'
 App.cache.expire_tag @account
 ```
 
@@ -810,11 +811,11 @@ module Cashier
     def self.included(klass)
       klass.class_eval do
         def write_fragment_with_tagged_key(key, content, options = nil)
-          if options && options[:tag] && Cashier.perform_caching? 
+          if options && options[:tag] && Cashier.perform_caching?
             tags = case options[:tag].class.to_s
                    when 'Proc', 'Lambda'
                      options[:tag].call(self)
-                   else 
+                   else
                      options[:tag]
                    end
             Cashier.store_fragment fragment_cache_key(key), *tags
@@ -978,11 +979,11 @@ using with cached HTML. Caching a page or an action with a form may
 generate unauthorized errors because the tokens were for a different
 session or request. There are parts of the cached pages that need to be
 _replaced_ with new values before the application can be used. This is a
-simple process, but it will take another HTTP request. 
+simple process, but it will take another HTTP request.
 
 You'll need to create a controller to server up some configuration
 related information that's never cached. That way, a cached action will
-load, then a separate request will be made for correct tokens. 
+load, then a separate request will be made for correct tokens.
 
 NOTE: You may run into more problems with on Rails 2. This is because
 Rails 3 uses a form authenticity token and CSRF in a meta tag in the HEAD
@@ -1084,7 +1085,7 @@ covered and some few goodies.
 ### General Points
 
 1. Don't worry about sweepers unless you have too.
-2. Understand the limitations of Rail's HTTP request cycle 
+2. Understand the limitations of Rail's HTTP request cycle
 3. Use cryptographic hashes to generate cache keys when permutations of
    input parameters are invloved.
 4. Don't be afraid to use Rails.cache in your models.

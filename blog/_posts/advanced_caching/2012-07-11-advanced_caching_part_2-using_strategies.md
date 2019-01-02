@@ -1,8 +1,9 @@
 ---
-layout: post
+layout: redirect
 title: "Advanced Caching: Part 2 - Using Caching Strategies"
 tags: [rails, tutorials]
 hide: true
+redirect: "https://railscaching.com/guide/part-2-using-strategies/"
 ---
 
 Using caching effectively can be tricky and frustrating. The best
@@ -30,7 +31,7 @@ Our blog is simple. It has a main page which lists all the posts with
 their meta data. The post page has the entire content, a list of
 comments, and some general sidebar type stuff. This is a very common
 layout. We'll use HTTP caching in the front and Russian doll fragment
-caching in the back. This is fastest way you can do it because: 
+caching in the back. This is fastest way you can do it because:
 initial requests will fill the cache with all the individual HTML
 fragments then that response will be cached locally. Subsequent invalid
 requests will be composed of existing cached fragments saving time in
@@ -242,9 +243,9 @@ def index
 end
 ```
 
-And that's all we have to do there. 
+And that's all we have to do there.
 
-## Step 5: Comments Touch Posts 
+## Step 5: Comments Touch Posts
 
 Comments must touch Posts to make everything work. This code will change
 a post's timestamp whenever a comment is updated. This will also change

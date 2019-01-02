@@ -1,8 +1,9 @@
 ---
-layout: post
+layout: redirect
 title: "Advanced Caching: Part 1 - Caching Strategies"
 tags: [rails, tutorials]
 hide: true
+redirect: "https://railscaching.com/guide/part-1-strategies/"
 ---
 
 First, let's start with a brief overview of the different types of
@@ -14,7 +15,7 @@ caching. We'll start from 50,000ft and work our way down.
    to request a fresh copy from the origin server. Rails makes it easy
    to use HTTP caching, however the cache is managed **outside** your
    application. You may have notice the `config.cache_control` and
-   `Rack::Cache`, `Rack::ETag`, `Rack::ConditionalGet` middlewares. 
+   `Rack::Cache`, `Rack::ETag`, `Rack::ConditionalGet` middlewares.
    These are used for HTTP caching.
 
 2. Page Caching: **PRAISE THE GODS** if you actually can use page
@@ -31,12 +32,12 @@ caching. We'll start from 50,000ft and work our way down.
 
 4. Fragment Caching: Store parts of views in the cache. Usually for
    caching partials or large bits of HTML that are independent from
-   other parts. IE, a list of top stories or something like that. 
+   other parts. IE, a list of top stories or something like that.
 
 5. Rails.cache: All cached content **except cached pages** are stored
    in the Rails.cache.  We'll use this fact that later.
-   You can cache arbitrary content in the Rails cache. You may cache 
-   a large complicated query that you don't want to wait to 
+   You can cache arbitrary content in the Rails cache. You may cache
+   a large complicated query that you don't want to wait to
    reinstantiate a ton of `ActiveRecord::Base` objects.
 
 ## Under the Hood
@@ -83,7 +84,7 @@ memcached driver.
 => [huge array] # but returned instantly
 
 # You can also delete everything from the cache
-> Rails.cache.clear 
+> Rails.cache.clear
 => [true]
 ```
 
@@ -101,7 +102,7 @@ behind fragment caching is that it takes much less time fetch
 pre-rendered HTML from the cache, then it takes to generate a fresh copy.
 This is appallingly true. If you haven't noticed, view generation can be very
 costly. If you have cachable content and are not using fragment caching
-then you need to implement this right away! Let's say you have generated a 
+then you need to implement this right away! Let's say you have generated a
 basic scaffold for a post:
 
 ```
@@ -172,7 +173,7 @@ Completed 200 OK in 16ms (Views: 9.7ms | ActiveRecord: 0.1ms)
 
 Very small differences in this case. 2ms different in view generation.
 This is a very simple example, but it can make a world of difference in
-more complicated situations. 
+more complicated situations.
 
 You are probably asking the question: "What happens when the post
 changes?" This is an excellent question! What well if the post changes,
@@ -376,13 +377,13 @@ filter is used to check to see if it's been cached. It works like this:
 Now you are probably asking the same question as before: "What do we do
 when the post changes?" We do the same thing as before: we create a
 composite key with a string and a time stamp. The question now is, how do
-we generate a special key using action caching? 
+we generate a special key using action caching?
 
 Action caching generates a key from the current url. You can pass extra
 options using the `:cache_path` option. Whatever is in this value is
 passed into `url_for` using the current parameters. Remember in the
 view cache key examples what happened when we passed in a hash? We get a
-much different key than before: 
+much different key than before:
 
     views/localhost:3000/posts/2?hash_of_things
 
@@ -495,7 +496,7 @@ outside the context of HTTP requests sweepers will do you no good. For
 example, say you have a background process running that syncs with an
 external system. Creating a new model will not make it to any sweeper.
 So, if you have anything cached. It is up to you to expire it.
-Everything I've demonstrated so far can be done with sweepers. 
+Everything I've demonstrated so far can be done with sweepers.
 
 Each `cache_*` method has an opposite `expire_*` method. Here's the
 mapping:
@@ -582,7 +583,7 @@ Here's an example of page caching:
 ```ruby
 PostsController < ApplicationController
   caches_page :index
-  
+
   def index
     # do stuff
   end
@@ -594,7 +595,7 @@ is the format for that request. For example you can use page caching
 with JSON. `GET /posts.json` would generate `/public/posts.json`.
 
 Page caching is basically poor man's HTTP caching without any real
-benefits. HTTP caching is more useful. 
+benefits. HTTP caching is more useful.
 
 I've not covered page caching in much depth because it's very likely
 that if you're reading this page caching is not applicable to your
@@ -627,7 +628,7 @@ the user agent needs to make a request again it sends the `ETag` and/or
 the `Last-Modified` date to the origin server. The origin server decides
 based on the `ETag` and/or `Last-Modified` date if the user agent can use
 the cached copy or if it should use new content. If the server says use
-the cached content it will return status 304: Not Modified (aka fresh). 
+the cached content it will return status 304: Not Modified (aka fresh).
 If not it should return a 200 (cache is stale) and the new content
 which can be cached.
 
@@ -654,7 +655,7 @@ through many proxies right?). You can specify an age or TTL. This is how
 long it can be cached for. Then there is another common situation: Don't
 check with the server or do check with the server. This particular
 `Cache-Control` header means: this is a private (think per user cache)
-and check with the server everytime before using it. 
+and check with the server everytime before using it.
 
 We can trigger a cache hit by sending the apporiate headers with the
 next request. This response only has a `Last-Modified` date. We can send

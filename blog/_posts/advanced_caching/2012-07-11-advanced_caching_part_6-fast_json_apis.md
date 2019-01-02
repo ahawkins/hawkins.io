@@ -1,13 +1,14 @@
 ---
-layout: post
+layout: redirect
 title: "Advanced Caching: Part 6 - Fast JSON APIs"
 tags: [rails, tutorials]
 hide: true
+redirect: "https://railscaching.com/guide/part-6-fast-json-apis/"
 ---
 
 All I care about is fast JSON API's. That's all I work on and that's
 what I devote all my energy to. We can use all the principles here to
-create a simple example of a fast API. 
+create a simple example of a fast API.
 
 ## Structuring a JSON API
 
@@ -41,7 +42,7 @@ class ResourceController < ApplicationController
   responds_to :json
 
   def index
-    # uses our cache_key method defined on ActiveRecord::Base to 
+    # uses our cache_key method defined on ActiveRecord::Base to
     # set the etag
     if stale? collection do
       # Use cached JSON from individual hashes to render a collection

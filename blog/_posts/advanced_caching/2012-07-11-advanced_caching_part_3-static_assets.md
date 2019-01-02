@@ -1,8 +1,9 @@
 ---
-layout: post
+layout: redirect
 title: "Advanced Caching: Part 3 - Static Assets"
 tags: [rails, tutorials]
 hide: true
+redirect: "https://railscaching.com/guide/part-3-static-assets/"
 ---
 
 Static assets are things that don't change. These are things like
@@ -64,8 +65,8 @@ application has do all that work and handle responses. The Rails guides
 describe how to configure Apache/Nginx, but don't describe how to handle
 the situation yourself. Rails uses `ActionDispatch::Static` to serve
 `/public`. This middleware is active then `config.serve_static_assets`
-is `true`. `ActionDispatch::Static` takes an argument one argument: the value 
-for the `Cache-Control` header. Annoyingly, this is not set by default 
+is `true`. `ActionDispatch::Static` takes an argument one argument: the value
+for the `Cache-Control` header. Annoyingly, this is not set by default
 in current rails applications. Older rails applications may have
 `config.static_cache_control` present in `production.rb`. These steps
 assume all your assets are finger printed.

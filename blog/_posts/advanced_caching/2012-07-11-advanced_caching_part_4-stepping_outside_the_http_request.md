@@ -1,8 +1,9 @@
 ---
-layout: post
+layout: redirect
 title: "Advanced Caching: Part 4 - Moving Away from the HTTP Request"
 tags: [rails, tutorials]
 hide: true
+redirect: "https://railscaching.com/guide/part-4-stepping-outside-the-http-request/"
 ---
 
 Everything we've done so far has been in the HTTP request context.
@@ -24,7 +25,7 @@ create a simple observer for our models. If would be cool if we had a
 class like this:
 
 ```ruby
-class Cache 
+class Cache
   def self.expire_page(*args)
     # do stuff
   end
@@ -49,7 +50,7 @@ information. Mailers do not. That's why the host name must be configured
 in the different environments. We can create a frankenstein class that
 takes parts of ActionMailer to generate URLS. Once we can generate URLs
 we can expire pages and actions. URL helpers are in this module
-`Rails.application.routes.url_helpers`. We also need a class level 
+`Rails.application.routes.url_helpers`. We also need a class level
 variable for the host name. Here's what we can do so far:
 
 ```ruby
@@ -154,7 +155,7 @@ anywhere. Now we can easily call this code in an observer. The observer
 events will fire every time they happen **anywhere in the codebase.**
 Here's an example. I am assuming a todo is created outside an HTTP
 request through a background process. The observer will capture the
-event. 
+event.
 
 ```ruby
 class TodoObserver < ActivRecord::Observer
