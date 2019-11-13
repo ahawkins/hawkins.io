@@ -782,7 +782,7 @@ stale? @post, :etag => @post.posted_at do
 end
 ```
 
-Now you should understand how HTTTP caching works. Here are the
+Now you should understand how HTTP caching works. Here are the
 important bits of code inside Rails showing it all works.
 
 ```ruby
