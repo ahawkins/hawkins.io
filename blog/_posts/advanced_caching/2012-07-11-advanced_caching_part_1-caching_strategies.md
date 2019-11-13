@@ -533,7 +533,7 @@ end
 ```
 
 I will not go into much depth on sweepers because they are the only
-thing covered in the rails caching guide. The work, but I feel they are
+thing covered in the rails caching guide. They work, but I feel they are
 clumsy for complex applications. Let's say you have comments for posts.
 What do you do when a comment is created for a post? Well, you have to
 either create a comment sweeper or load the post sweeper into the
