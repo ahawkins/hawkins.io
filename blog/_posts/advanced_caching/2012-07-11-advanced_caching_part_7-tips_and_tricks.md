@@ -21,8 +21,8 @@ a POST and received an Unauthorized response. This is the
 `form_authenticity_token` in action. You can fiddle with it and see what
 happens to your application.
 
-These tokens cause problems (depending on what Rails version) you're
-using with cached HTML. Caching a form will
+These tokens cause problems (depending on what Rails version you're
+using) with cached HTML. Caching a form will
 generate unauthorized errors because the tokens were for a different
 session or request. There are parts of the cached pages that need to be
 _replaced_ with new values before the application can be used. This is a
